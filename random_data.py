@@ -12,7 +12,6 @@ remote_file_path = './'
 local_file_path = 'data.csv'
 
 all_numbers = set(range(1, 101))
-data_count = 0
 previous_data = []
 
 while all_numbers:
@@ -20,11 +19,10 @@ while all_numbers:
     print(number)
 
     all_numbers.remove(number)
-    data_count += 1
     previous_data.append([number])
 
     # Trim previous_data to keep only the latest 5 rows
-    previous_data = previous_data[-50:]
+    previous_data = previous_data[-1:]
 
     # Write the new number to the CSV file
     with open('data.csv', 'w', newline='') as csvfile:
@@ -43,14 +41,4 @@ while all_numbers:
             ftp.storbinary('STOR ' + local_file_path, file)
 
     # Wait for 2 seconds before the next iteration
-    time.sleep(0.2)
-
-    if data_count == 50:
-        # Print previous data
-        print("data:", previous_data)
-        
-        # Update data
-        print("Update data...")
-        all_numbers = set(range(1, 101))
-        data_count = 0
-        previous_data = []
+    time.sleep(1)
