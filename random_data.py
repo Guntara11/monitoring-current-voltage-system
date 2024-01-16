@@ -12,7 +12,7 @@ remote_file_path = './'
 local_file_path = 'data.csv'
 
 all_numbers = set(range(1, 101))
-previous_data = []
+# previous_data = []
 
 while all_numbers:
     number = random.choice(list(all_numbers))
