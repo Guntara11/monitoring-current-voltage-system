@@ -26,7 +26,7 @@ while True:
         #insert data
         collection.insert_one(data)
         print("data:", data)
-        time.sleep(5)
+        time.sleep(1)
     else:
         # If the count is 5 or more, update each document one by one in sequence
         oldest_documents = collection.find({}).sort("_id", 1).limit(document_limit)
@@ -41,4 +41,4 @@ while True:
             }
             collection.update_one({"_id": doc["_id"]}, updated_data)
             print("Update data:", doc["_id"], "with data:", updated_data)
-            time.sleep(5)
+            time.sleep(1)

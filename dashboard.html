@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+
+<div id="plot-container"></div>
+
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // Event handler for data updates
+    socket.on('update_data', function(msg) {
+        // Handle data updates here
+        console.log('Received data update:', msg.data);
+    });
+
+    // Event handler for plot updates
+    socket.on('update_plot', function(msg) {
+        // Handle plot updates here
+        console.log('Received plot update:', msg.plot);
+
+        // Parse the JSON plot data
+        var plotData = JSON.parse(msg.plot);
+
+        // Display the plot in the 'plot-container' div
+        Plotly.newPlot('plot-container', plotData.data, plotData.layout);
+    });
+
+    // Initial request for data and plot
+    socket.emit('get_data');
+    socket.emit('plot_data');
+</script>
+
+</body>
+</html>
