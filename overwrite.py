@@ -1,47 +1,15 @@
-# import random
-# import time
-# from pymongo import MongoClient
-
-# try: 
-#     conn = MongoClient("mongodb+srv://sopian23:Sopian010799@cluster0.kzuf6tu.mongodb.net/") 
-#     print("Connected successfully!!!") 
-# except:   
-#     print("Could not connect to MongoDB")
-
-# db = conn.DataRandom
-# collection = db.MyCollect
-
-# while True:
-#     data = {
-#         "random_number": random.randint(1, 100),
-#         # Add more fields as needed
-#     }
-
-#     # Insert new data
-#     collection.insert_one(data)
-#     print("data:", data)
-
-#     # Check the count of documents in the collection
-#     current_count = collection.count_documents({})
-#     time.sleep(5)
-
-#     # If the count exceeds 5, remove the oldest document
-#     if current_count > 5:
-#         oldest_document = collection.find_one_and_delete({}, sort=[('_id', 1)])
-#         print("Removed oldest document:", oldest_document)
-
 import random
 import time
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("mongodb+srv://sopian23:Sopian010799@cluster0.kzuf6tu.mongodb.net/")
+    conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net")
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
 
-db = conn.DataRandom
-collection = db.MyCollect
+db = conn.myDB
+collection = db.MyCollection
 
 document_limit = 5
 
