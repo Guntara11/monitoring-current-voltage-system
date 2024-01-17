@@ -1,21 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
-plt.ion()  # Mengaktifkan mode interaktif untuk plot real-time
+plt.ion()  # interactive mode for real-time plots
 
-x_values = []
-y_values = []
+x_values_voltage = []
+y_values_voltage = []
+
+x_values_current = []
+y_values_current = []
 
 fig, ax = plt.subplots()
 
-i = 0
 while True:
-    number = np.random.randint(1, 101)
-    x_values.append(i)
-    print("data: ", number)
-    y_values.append(number)
-    i += 1
-    ax.scatter(x_values, y_values)
-    plt.pause(0.2)  # Pause untuk memberikan waktu agar plot dapat terlihat
+    # input data random from 1 - 100
+    data = {
+        "voltage" : random.randint(1, 100),
+        "current" : random.randint(1, 100),
+    }
     
-plt.show()
+    # Assign to voltage or current randomly
+    if random.choice([True, False]):  
+        x_values_voltage.append(data['voltage'])
+        y_values_voltage.append(data['current'])
+        color = 'red'
+    else:
+        x_values_current.append(data['voltage'])
+        y_values_current.append(data['current'])
+        color = 'blue'
+
+    # print voltage and current value
+    print("Voltage: ", data['voltage'])
+    print("Current: ", data['current'])
+
+    # Plot voltage
+    ax.scatter(x_values_voltage, y_values_voltage, color='red', label='Voltage')
+    
+    # Plot current
+    ax.scatter(x_values_current, y_values_current, color='blue', label='Current')
+
+    # Display x and y axis lines
+    ax.axhline(0, color='black',linewidth=0.5)
+    ax.axvline(0, color='black',linewidth=0.5)
+
+    # Pause to allow time for the plot to be seen
+    plt.pause(0.2)  
