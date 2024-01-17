@@ -47,7 +47,8 @@ document_limit = 5
 
 while True:
     data = {
-        "random_number": random.randint(1, 100),
+        "voltage": random.randint(1, 100),
+        "current" : random.randint(1, 100),
     }
 
     # Check the count of documents/data
@@ -66,8 +67,8 @@ while True:
             # Update the values of each document
             updated_data = {
                 "$set": {
-                    "random_number": random.randint(1, 100),
-                    # Update other fields as needed
+                    "voltage": random.randint(1, 100),
+                    "current" : random.randint(1, 100),
                 }
             }
             collection.update_one({"_id": doc["_id"]}, updated_data)

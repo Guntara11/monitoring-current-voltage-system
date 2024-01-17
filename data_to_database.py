@@ -13,7 +13,8 @@ collection = db.MyCollect
 
 while True:
     data = {
-        "random_number": random.randint(1, 100),
+        "voltage": random.randint(1, 100),
+        "current" : random.randint(1, 100)
     }
 
     # Insert new data into the collection
