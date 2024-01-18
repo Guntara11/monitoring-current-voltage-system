@@ -1,6 +1,6 @@
 pymongo==4.6.1
 numpy==1.26.3
-streamlit==1.30.0
+streamlit
 matplotlib==3.8.2
 plotly==5.18.0
 pandas==2.1.4
