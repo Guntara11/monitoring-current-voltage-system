@@ -40,6 +40,6 @@ scatter_plot = st.scatter_chart(scatter_df, x='voltage', y='current')
 # Update the data every 1 second
 while True:
     scatter_df = pd.DataFrame(get_data())
-    # scatter_plot.line_chart(scatter_df)
+    scatter_plot.scatter_chart(scatter_df, x='voltage', y='current')
 
 # streamlit run plot_streamlit.py
