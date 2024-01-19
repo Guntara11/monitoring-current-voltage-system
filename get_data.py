@@ -7,8 +7,8 @@ from dash.dependencies import Input, Output
 from dash import dash_table
 import plotly.express as px
 # Replace these values with your MongoDB connection details
-mongo_uri = "mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/myDB"
-collection_name = "MyCollection"
+mongo_uri = "mongodb+srv://sopian23:Sopian010799@cluster0.kzuf6tu.mongodb.net/DataRandom"
+collection_name = "MyCollect"
 
 # Connect to MongoDB
 client = pymongo.MongoClient(mongo_uri)

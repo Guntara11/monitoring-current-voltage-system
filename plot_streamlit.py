@@ -6,8 +6,8 @@ import pandas as pd
 
 
 # Replace these values with your MongoDB connection details
-mongo_uri = "mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/myDB"
-collection_name = "MyCollection"
+mongo_uri = "mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/DataRandom"
+collection_name = "MyCollect"
 
 # Connect to MongoDB
 client = pymongo.MongoClient(mongo_uri)
@@ -35,9 +35,11 @@ st.write(pd.DataFrame(raw_data))
 # Scatter plot
 st.subheader("Scatter Plot:")
 scatter_df = pd.DataFrame(raw_data)
-scatter_plot = st.line_chart(scatter_df)
+scatter_plot = st.scatter_chart(scatter_df, x='voltage', y='current')
 
 # Update the data every 1 second
 while True:
     scatter_df = pd.DataFrame(get_data())
-    scatter_plot.line_chart(scatter_df)
+    # scatter_plot.line_chart(scatter_df)
+
+# streamlit run plot_streamlit.py

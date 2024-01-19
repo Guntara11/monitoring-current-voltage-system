@@ -3,15 +3,15 @@ import time
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net")
+    conn = MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/")
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
 
-db = conn.myDB
-collection = db.MyCollection
+db = conn.DataRandom
+collection = db.MyCollect
 
-document_limit = 5
+document_limit = 50
 
 while True:
     data = {
@@ -26,7 +26,7 @@ while True:
         #insert data
         collection.insert_one(data)
         print("data:", data)
-        time.sleep(1)
+        time.sleep(0.2)
     else:
         # If the count is 5 or more, update each document one by one in sequence
         oldest_documents = collection.find({}).sort("_id", 1).limit(document_limit)
@@ -41,4 +41,4 @@ while True:
             }
             collection.update_one({"_id": doc["_id"]}, updated_data)
             print("Update data:", doc["_id"], "with data:", updated_data)
-            time.sleep(1)
+            time.sleep(0.2)
