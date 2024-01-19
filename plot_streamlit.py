@@ -6,8 +6,8 @@ import pandas as pd
 
 
 # Replace these values with your MongoDB connection details
-mongo_uri = "mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/DataRandom"
-collection_name = "MyCollect"
+mongo_uri = "mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/myDB"
+collection_name = "MyCollection"
 
 # Connect to MongoDB
 client = pymongo.MongoClient(mongo_uri)
