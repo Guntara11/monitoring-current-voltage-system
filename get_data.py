@@ -47,7 +47,7 @@ app.layout = html.Div([
     ),
     dcc.Interval(
         id='interval-component',
-        interval=1*1000,  # Change the interval to 1 second (in milliseconds)
+        interval=1*200,  # Change the interval to 1 second (in milliseconds)
         n_intervals=0
     )
 ])
@@ -82,22 +82,3 @@ def update_scatter_plot(n):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
-
-
-# while True:
-#     # Query to retrieve all documents in the collection
-#     query = {}
-
-#     # Retrieve data from MongoDB
-#     cursor = collection.find(query)
-
-#     # Print the retrieved data
-#     print("Data from MongoDB:")
-#     for document in cursor:
-#         print(document)
-#         time.sleep(0.2) 
-
-    # Close the MongoDB connection
-    # interval_seconds = 1  # Adjust this value as needed
-    # time.sleep(interval_seconds)
