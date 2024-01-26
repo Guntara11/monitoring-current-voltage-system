@@ -3,13 +3,13 @@ import time
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/")
+    conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/")
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
 
-db = conn.DataRandom
-collection = db.MyCollect
+db = conn.myDB
+collection = db.MyCollection
 
 document_limit = 50
 
