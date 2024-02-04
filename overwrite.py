@@ -1,6 +1,8 @@
 import random
 import time
+import pytz
 from pymongo import MongoClient
+from datetime import datetime
 
 try:
     conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/")
@@ -10,11 +12,11 @@ except:
 
 db = conn.myDB
 collection = db.MyCollection
-
 document_limit = 50
-
+utc_plus_7 = pytz.timezone('Asia/Bangkok')
 while True:
     data = {
+        "timestamp": datetime.now(utc_plus_7),
         "voltage": random.randint(1, 100),
         "current" : random.randint(1, 100),
     }
@@ -35,6 +37,7 @@ while True:
             # Update the values of each document
             updated_data = {
                 "$set": {
+                    "timestamp": datetime.now(utc_plus_7),
                     "voltage": random.randint(1, 100),
                     "current" : random.randint(1, 100),
                 }

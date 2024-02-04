@@ -1,44 +1,66 @@
 import random
-import csv
-from ftplib import FTP
 import time
-import os
+from pymongo import MongoClient
 
-ftp_host = 'ftpupload.net'
-ftp_port = 21
-ftp_user = 'if0_35759562'
-ftp_password = '2c9y0xvm'
-remote_file_path = './'
-local_file_path = 'data.csv'
+# Flask imports
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 
-all_numbers = set(range(1, 101))
-# previous_data = []
+app = Flask(__name__)
+socketio = SocketIO(app)
 
-while all_numbers:
-    number = random.choice(list(all_numbers))
-    print(number)
+try:
+    conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/")
+    print("Connected successfully!!!")
+except:
+    print("Could not connect to MongoDB")
 
-    all_numbers.remove(number)
-    previous_data.append([number])
+db = conn.myDB
+collection = db.MyCollection
 
-    # Trim previous_data to keep only the latest 5 rows
-    previous_data = previous_data[-1:]
+document_limit = 50
 
-    # Write the new number to the CSV file
-    with open('data.csv', 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-        csv_writer.writerows(previous_data)
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+    send_data()
 
-    # Upload the CSV file to the FTP server
-    with FTP(ftp_host) as ftp:
-        ftp.login(user=ftp_user, passwd=ftp_password)
+def send_data():
+    while True:
+        data = {
+            "voltage": round(random.uniform(-10, 10), 2), 
+            "current": round(random.uniform(-10, 10), 2)
+        }
 
-        # Change to the desired remote directory
-        ftp.cwd(remote_file_path)
+        # Check the count of documents/data
+        count = collection.count_documents({})
 
-        # Upload the file to the FTP server
-        with open('data.csv', 'rb') as file:
-            ftp.storbinary('STOR ' + local_file_path, file)
+        if count < document_limit:
+            # insert data
+            collection.insert_one(data)
+            print("data:", data)
+            socketio.emit('update', data)
+            time.sleep(0.2)
+        else:
+            # If the count is 5 or more, update each document one by one in sequence
+            oldest_documents = collection.find({}).sort("_id", 1).limit(document_limit)
 
-    # Wait for 2 seconds before the next iteration
-    time.sleep(1)
+            for doc in oldest_documents:
+                # Update the values of each document
+                updated_data = {
+                    "$set": {
+                        "voltage": random.randint(1, 100),
+                        "current": random.randint(1, 100),
+                    }
+                }
+                collection.update_one({"_id": doc["_id"]}, updated_data)
+                print("Update data:", doc["_id"], "with data:", updated_data)
+                socketio.emit('update', updated_data)
+                time.sleep(0.2)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)

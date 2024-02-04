@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output
 from dash import dash_table
 import plotly.express as px
 # Replace these values with your MongoDB connection details
-mongo_uri = "mongodb+srv://sopian23:Sopian010799@cluster0.kzuf6tu.mongodb.net/DataRandom"
+mongo_uri = "mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/DataRandom"
 collection_name = "MyCollect"
 
 # Connect to MongoDB

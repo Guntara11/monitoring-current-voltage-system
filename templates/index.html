@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Plot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+</head>
+<body>
+
+<div id="plot"></div>
+
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    var layout = {
+        title: 'Real-time Data Plot',
+        xaxis: {
+            title: 'Time'
+        },
+        yaxis: {
+            title: 'Value'
+        }
+    };
+
+    var trace = {
+        x: [],
+        y: [],
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Data'
+    };
+
+    var data = [trace];
+
+    Plotly.newPlot('plot', data, layout);
+
+    socket.on('update', function (data) {
+        var now = new Date();
+        trace.x.push(now);
+        trace.y.push(data.current);  // You can choose 'voltage' or 'current' based on your requirement
+
+        if (trace.x.length > 50) {
+            trace.x.shift();
+            trace.y.shift();
+        }
+
+        var update = {
+            x: [trace.x],
+            y: [trace.y]
+        };
+
+        Plotly.update('plot', update, layout);
+    });
+</script>
+
+</body>
+</html>
