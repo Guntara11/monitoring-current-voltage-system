@@ -2,93 +2,61 @@ import math
 
 class LineCalculation:
     def __init__(self):
-        self.LINE1_IL_Real = []
-        self.LINE1_IL_Imag = []
-        self.LINE1_V_Real = []
-        self.LINE1_V_Imag = []
-        self.LINE1_IL_Complex = []
-        self.LINE1_V_Complex = []
-        self.LINE1_IN_Complex = None
-        self.LINE1_Arr = []
-        self.LINE1_V_Arr = []
-        self.LINE1_I_Arr = []
-        self.LINE1_IN_Arr = []
+        self.real_data = []
+        self.imag_data = []
+        self.complex_data = []
 
     def calculate_values(self, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
                          LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
                          LINE1_z0z1_mag, LINE1_z0z1_ang):
-        self.calculate_IL_Real(LINE1_IL1, LINE1_Ang_I1)
-        self.calculate_IL_Imag(LINE1_IL1, LINE1_Ang_I1)
-        self.calculate_IL_Complex()
+        self.calculate_IL_real_imag(LINE1_IL1, LINE1_Ang_I1, LINE1_IL2, LINE1_Ang_I2, LINE1_IL3, LINE1_Ang_I3)
+        self.calculate_V_real_imag(LINE1_U1, LINE1_Ang_U1, LINE1_U2, LINE1_Ang_U2, LINE1_U3, LINE1_Ang_U3)
+        self.create_complex_data()
 
-        self.calculate_V_Real(LINE1_U1, LINE1_Ang_U1)
-        self.calculate_V_Imag(LINE1_U1, LINE1_Ang_U1)
-        self.calculate_V_Complex()
+    def calculate_IL_real_imag(self, IL1, Ang_I1, IL2, Ang_I2, IL3, Ang_I3):
+        # Calculate real and imaginary parts of IL1, IL2, and IL3
+        IL1_Real = IL1 * math.cos(math.radians(Ang_I1))
+        IL1_Imag = IL1 * math.sin(math.radians(Ang_I1))
+        IL2_Real = IL2 * math.cos(math.radians(Ang_I2))
+        IL2_Imag = IL2 * math.sin(math.radians(Ang_I2))
+        IL3_Real = IL3 * math.cos(math.radians(Ang_I3))
+        IL3_Imag = IL3 * math.sin(math.radians(Ang_I3))
 
-        self.calculate_IN_Complex()
+        self.real_data.extend([IL1_Real, IL2_Real, IL3_Real])
+        self.imag_data.extend([IL1_Imag, IL2_Imag, IL3_Imag])
 
-        # Add more calculations as needed
-        self.calculate_IN_Imag_Real_Mag_Ang()
-        self.calculate_V_I_IN_Arr()
+    def calculate_V_real_imag(self, U1, Ang_U1, U2, Ang_U2, U3, Ang_U3):
+        # Calculate real and imaginary parts of V1, V2, and V3
+        V1_Real = U1 * math.cos(math.radians(Ang_U1))
+        V1_Imag = U1 * math.sin(math.radians(Ang_U1))
+        V2_Real = U2 * math.cos(math.radians(Ang_U2))
+        V2_Imag = U2 * math.sin(math.radians(Ang_U2))
+        V3_Real = U3 * math.cos(math.radians(Ang_U3))
+        V3_Imag = U3 * math.sin(math.radians(Ang_U3))
 
-    def calculate_IL_Real(self, IL, angle):
-        # Calculate IL_Real using the formula
-        IL_Real = IL * math.cos(math.radians(angle))
-        self.LINE1_IL_Real.append(IL_Real)
+        self.real_data.extend([V1_Real, V2_Real, V3_Real])
+        self.imag_data.extend([V1_Imag, V2_Imag, V3_Imag])
 
-    def calculate_IL_Imag(self, IL, angle):
-        # Calculate IL_Imag using the formula
-        IL_Imag = IL * math.sin(math.radians(angle))
-        self.LINE1_IL_Imag.append(IL_Imag)
+    def create_complex_data(self):
+        # Create complex numbers for IL1, IL2, IL3, V1, V2, and V3
+        IL1_complex = complex(self.real_data[0], self.imag_data[0])
+        IL2_complex = complex(self.real_data[1], self.imag_data[1])
+        IL3_complex = complex(self.real_data[2], self.imag_data[2])
 
-    def calculate_IL_Complex(self):
-        # Create complex numbers for LINE1_IL_Complex
-        IL_Complex = complex(self.LINE1_IL_Real[-1], self.LINE1_IL_Imag[-1])
-        self.LINE1_IL_Complex.append(IL_Complex)
+        V1_complex = complex(self.real_data[3], self.imag_data[3])
+        V2_complex = complex(self.real_data[4], self.imag_data[4])
+        V3_complex = complex(self.real_data[5], self.imag_data[5])
 
-    def calculate_V_Real(self, U, angle):
-        # Calculate V_Real using the formula
-        V_Real = U * math.cos(math.radians(angle))
-        self.LINE1_V_Real.append(V_Real)
+        self.complex_data.extend([IL1_complex, IL2_complex, IL3_complex,
+                                  V1_complex, V2_complex, V3_complex])
 
-    def calculate_V_Imag(self, U, angle):
-        # Calculate V_Imag using the formula
-        V_Imag = U * math.sin(math.radians(angle))
-        self.LINE1_V_Imag.append(V_Imag)
+        LINE1_IN_Complex = IL1_complex + IL2_complex + IL3_complex
+        self.complex_data.append(LINE1_IN_Complex)
+    def get_real_data(self):
+        return self.real_data
 
-    def calculate_V_Complex(self):
-        # Create complex numbers for LINE1_V_Complex
-        V_Complex = complex(self.LINE1_V_Real[-1], self.LINE1_V_Imag[-1])
-        self.LINE1_V_Complex.append(V_Complex)
+    def get_imag_data(self):
+        return self.imag_data
 
-    def calculate_IN_Complex(self):
-        # Calculate LINE1_IN_Complex as the sum of LINE1_IL_Complex, LINE1_IL2_Complex, and LINE1_IL3_Complex
-        self.LINE1_IN_Complex = sum(self.LINE1_IL_Complex)
-
-    def calculate_IN_Imag_Real_Mag_Ang(self):
-        # Calculate LINE1_IN_Imag and LINE1_IN_Real
-        LINE1_IN_Imag = self.LINE1_IN_Complex.imag
-        LINE1_IN_Real = self.LINE1_IN_Complex.real
-
-        # Calculate LINE1_IN_Mag
-        LINE1_IN_Mag = math.sqrt(LINE1_IN_Real**2 + LINE1_IN_Imag**2)
-
-        # Calculate LINE1_IN_Ang
-        LINE1_IN_Ang = math.degrees(math.atan2(LINE1_IN_Imag, LINE1_IN_Real))
-
-        self.LINE1_Arr.extend([LINE1_IN_Mag, LINE1_IN_Ang, LINE1_IN_Real, LINE1_IN_Imag, self.LINE1_IN_Complex])
-
-    def calculate_V_I_IN_Arr(self):
-        # Add the calculated variables to the arrays
-        self.LINE1_V_Arr = [self.LINE1_V_Real[-1], self.LINE1_V_Imag[-1]]
-        self.LINE1_I_Arr = [self.LINE1_IL_Real[-1], self.LINE1_IL_Imag[-1]]
-        self.LINE1_IN_Arr = [self.LINE1_IN_Complex.real, self.LINE1_IN_Complex.imag, self.LINE1_IN_Complex]
-
-    def get_results(self):
-        self.LINE1_Arr.extend(self.LINE1_IL_Real)
-        self.LINE1_Arr.extend(self.LINE1_IL_Imag)
-        self.LINE1_Arr.extend(self.LINE1_V_Real)
-        self.LINE1_Arr.extend(self.LINE1_V_Imag)
-        if self.LINE1_IN_Complex is not None:
-            self.LINE1_Arr.extend([self.LINE1_IN_Complex.real, self.LINE1_IN_Complex.imag])
-        return self.LINE1_Arr
+    def get_complex_data(self):
+        return self.complex_data
