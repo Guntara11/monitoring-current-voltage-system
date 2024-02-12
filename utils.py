@@ -1,6 +1,24 @@
 import math
 import cmath
 import pymongo
+
+
+LINE1_U1 = 89236.961
+LINE1_U2 = 89521.813
+LINE1_U3 = 89844.727
+LINE1_Ang_U1 = 117.274
+LINE1_Ang_U2 = 356.92
+LINE1_Ang_U3 = 237.173
+
+LINE1_IL1 = 86.126
+LINE1_IL2 = 87.365
+LINE1_IL3 = 100.566
+LINE1_Ang_I1 = 112.977
+LINE1_Ang_I2 = 0.044
+LINE1_Ang_I3 = 232.82
+
+LINE1_z0z1_mag = 6.181
+LINE1_z0z1_ang = -2.55
 class LineCalculation:
     def __init__(self):
         self.real_data = []
