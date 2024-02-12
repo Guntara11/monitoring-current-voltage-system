@@ -1,37 +1,33 @@
 import random
 import time
-from utils import LineCalculation
+from utils import LineCalculation, MongoDBConnection
 import csv
 import os
 from datetime import datetime
-from pymongo import MongoClient
 
-# # Function to get real data
-# def get_real_data(parsed_data):
-#     return parsed_data[:6]
 
-# # Function to get imaginary data
-# def get_imag_data(parsed_data):
-#     return parsed_data[6:12]
-
-# # Function to get complex data
-# def get_complex_data(parsed_data):
-#     return parsed_data[12:]
-
-# def get_line1_IN_data(parsed_data):
-#     return parsed_data[:2]
-
-try:
-    conn = MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/?retryWrites=true&w=majority")
-    print("Connected successfully!!!")
-except:
-    print("Could not connect to MongoDB")
-
-db = conn.MyData
-collection = db.MyCollect
 
 data_to_write = []  # Data to be written to CSV
 start_time = datetime.now()  # Start time for CSV file
+
+def store_data_to_db(data_to_store):
+
+      global data_to_write
+      global start_time
+
+      # Initialize MongoDB connection
+      connection_string = "mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/?retryWrites=true&w=majority"
+      mongo_conn = MongoDBConnection(connection_string)
+
+      # Get the desired collection
+      db_name = "MyData"
+      collection_name = "MyCollect"
+      collection = mongo_conn.get_collection(db_name, collection_name)
+
+      # Insert data into the collection
+      collection.insert_one(data_to_store)
+
+
 
 def generate_csv(data) :
       global data_to_write
@@ -58,24 +54,6 @@ def main() :
       global start_time
 
       while True:
-            # current_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
-            # Generate random values
-            # LINE1_U1 = random.uniform(80000, 90000)
-            # LINE1_U2 = random.uniform(80000, 90000)
-            # LINE1_U3 = random.uniform(80000, 90000)
-            # LINE1_Ang_U1 = random.uniform(0, 360)
-            # LINE1_Ang_U2 = random.uniform(0, 360)
-            # LINE1_Ang_U3 = random.uniform(0, 360)
-
-            # LINE1_IL1 = random.uniform(80, 120)
-            # LINE1_IL2 = random.uniform(80, 120)
-            # LINE1_IL3 = random.uniform(80, 120)
-            # LINE1_Ang_I1 = random.uniform(0, 360)
-            # LINE1_Ang_I2 = random.uniform(0, 360)
-            # LINE1_Ang_I3 = random.uniform(0, 360)
-
-            # LINE1_z0z1_mag = random.uniform(5, 7)
-            # LINE1_z0z1_ang = random.uniform(-5, 5)
 
             LINE1_U1 = 89236.961
             LINE1_U2 = 89521.813
@@ -204,7 +182,7 @@ def main() :
                 }
 
             # Store Data to MongoDB
-            collection.insert_one(data_to_write)
+            store_data_to_db(data_to_write)
             time.sleep(0.2)
             # Generate File CSV 
             generate_csv(data_to_write)
@@ -217,8 +195,12 @@ def main() :
                 # Reset data and start time
                 data_to_write = {}
                 start_time = datetime.now()
+
+      return LINE1_ZA_Real, LINE1_ZA_Imag        
             
             
 
 if __name__ == '__main__':
-      main()
+      ZA_Real, ZA_Imag = main()
+      print("LINE1_ZA_Real =", ZA_Real)
+      print("LINE1_ZA_Imag =", ZA_Imag)

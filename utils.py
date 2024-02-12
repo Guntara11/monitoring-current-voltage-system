@@ -1,5 +1,6 @@
 import math
 import cmath
+import pymongo
 class LineCalculation:
     def __init__(self):
         self.real_data = []
@@ -187,3 +188,24 @@ class LineCalculation:
 
     def get_ZCA_data(self):
         return self.data_ZCA
+
+class MongoDBConnection:
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+        self.client = None
+        self.db = None
+
+    def connect(self):
+        self.client = pymongo.MongoClient(self.connection_string)
+        self.db = self.client.get_default_database()
+
+    def close(self):
+        if self.client:
+            self.client.close()
+
+    def get_database(self, db_name):
+        return self.client[db_name]
+
+    def get_collection(self, db_name, collection_name):
+        db = self.get_database(db_name)
+        return db[collection_name]
