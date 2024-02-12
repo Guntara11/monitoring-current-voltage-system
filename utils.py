@@ -150,17 +150,22 @@ class LineCalculation:
         LINE1_Z_X = LINE1_Z_Mag * math.sin(LINE1_Z_Ang_radians)
         data_list.extend([LINE1_Z_Mag, LINE1_Z_Ang, LINE1_Z_R, LINE1_Z_X])
 
+
     def get_real_data(self):
-        return self.real_data
+        IL1_Real, IL2_Real, IL3_Real, V1_Real, V2_Real, V3_Real = self.real_data
+        return IL1_Real, IL2_Real, IL3_Real, V1_Real, V2_Real, V3_Real
 
     def get_imag_data(self):
-        return self.imag_data
+        IL1_Imag, IL2_Imag, IL3_Imag, V1_Imag, V2_Imag, V3_Imag = self.imag_data
+        return IL1_Imag, IL2_Imag, IL3_Imag, V1_Imag, V2_Imag, V3_Imag
 
     def get_complex_data(self):
-        return self.complex_data
+        IL1_Complex, IL2_Complex, IL3_Complex, V1_Complex, V2_Complex, V3_Complex = self.complex_data
+        return IL1_Complex, IL2_Complex, IL3_Complex, V1_Complex, V2_Complex, V3_Complex
 
     def get_line1_IN_data(self):
-        return self.line1_IN_data
+        LINE1_IN_Real, LINE1_IN_Imag, LINE1_IN_Complex, LINE1_IN_Mag, LINE1_IN_Ang = self.line1_IN_data
+        return LINE1_IN_Real, LINE1_IN_Imag, LINE1_IN_Complex, LINE1_IN_Mag, LINE1_IN_Ang
     
     def get_LINE1_k0(self):
         return self.line1_k0
@@ -172,40 +177,25 @@ class LineCalculation:
         return self.product_result
     
     def get_ZA_data(self):
-        return self.data_ZA
-
+        LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = self.data_ZA
+        return LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X
+    
     def get_ZB_data(self):
-        return self.data_ZB
+        LINE1_ZB_Real, LINE1_ZB_Imag, LINE1_ZB_Mag, LINE1_ZB_Ang, LINE1_ZB_R, LINE1_ZB_X = self.data_ZB
+        return LINE1_ZB_Real, LINE1_ZB_Imag, LINE1_ZB_Mag, LINE1_ZB_Ang, LINE1_ZB_R, LINE1_ZB_X
     
     def get_ZC_data(self):
-        return self.data_ZC
+        LINE1_ZC_Real, LINE1_ZC_Imag, LINE1_ZC_Mag, LINE1_ZC_Ang, LINE1_ZC_R, LINE1_ZC_X = self.data_ZC
+        return LINE1_ZC_Real, LINE1_ZC_Imag, LINE1_ZC_Mag, LINE1_ZC_Ang, LINE1_ZC_R, LINE1_ZC_X
     
     def get_ZAB_data(self):
-        return self.data_ZAB
+        LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X = self.data_ZAB
+        return LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X
 
     def get_ZBC_data(self):
-        return self.data_ZBC
+        LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X = self.data_ZBC
+        return LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X
 
     def get_ZCA_data(self):
-        return self.data_ZCA
-
-class MongoDBConnection:
-    def __init__(self, connection_string):
-        self.connection_string = connection_string
-        self.client = None
-        self.db = None
-
-    def connect(self):
-        self.client = pymongo.MongoClient(self.connection_string)
-        self.db = self.client.get_default_database()
-
-    def close(self):
-        if self.client:
-            self.client.close()
-
-    def get_database(self, db_name):
-        return self.client[db_name]
-
-    def get_collection(self, db_name, collection_name):
-        db = self.get_database(db_name)
-        return db[collection_name]
+        LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X = self.data_ZCA
+        return LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X
