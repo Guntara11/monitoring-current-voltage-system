@@ -6,40 +6,24 @@ from dash.dependencies import Input, Output
 import paho.mqtt.client as mqtt
 import plotly.graph_objs as go
 from collections import deque
+import utils
+from utils import LineCalculation
 
 # MQTT Broker information
-mqtt_broker = "broker.emqx.io"
-mqtt_topic = "topic/sensor_data"
+# mqtt_broker = "broker.emqx.io"
+# mqtt_topic = "topic/sensor_data"
 
 
-
-# # Read configuration data from config.json
-# with open('config.json') as config_file:
-#     config_data = json.load(config_file)
-
-
-# Extract x and y coordinates and keys from config data
-# config_keys = list(config_data.keys())
-# config_x = [config_data[key]['x'] for key in config_data]
-# config_y = [config_data[key]['y'] for key in config_data]
 
 config_folder = 'config_imp'
 config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder) if f.endswith('.json')]
 
-# lines_kanan = ["kanan_bawah_z1","kanan_samping_z1", "kanan_samping_z2", "kanan_samping_z3"]
-# lines_kiri = ["kiri_atas_z3","kiri_samping_z1", "kiri_samping_z2", "kiri_samping_z3"]
-# lines_atas = ["kiri_atas_z3", "reach_z3", "kanan_samping_z3"]
-# lines_bawah = ["kiri_bawah_z1", "point", "kanan_bawah_z1"]
-# lines_tengah0 = ["point", "reach_z1", "reach_z2", "reach_z3"]
-# lines_tengah1=["kiri_atas_z1", "reach_z1", "kanan_atas_z1"]
-# lines_tengah2=["kiri_atas_z2", "reach_z2", "kanan_samping_z2"]
 
 # Initialize Dash app
 app = dash.Dash(__name__)
 
 # Layout of the dashboard
-# Layout of the dashboard
-# Layout of the dashboard
+
 app.layout = html.Div(
     [
         html.Div(
@@ -70,14 +54,19 @@ app.layout = html.Div(
 
         dcc.Interval(
             id='interval-component',
-            interval=1*1000,  # in milliseconds
+            interval=1*100,  # in milliseconds
             n_intervals=0
         ),
     ]
 )
 
 # Initialize data storage
-mqtt_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
+# mqtt_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)
+# Initialize data storage
+
+# za_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
+# zb_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
+# zc_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 
 @app.callback(
     [Output('phase-to-gnd-graph', 'figure'),
@@ -89,6 +78,12 @@ mqtt_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 
 
 def update_graph(n, selected_config_phase_to_gnd, selected_config_phase_to_phase):
+    line_calc = LineCalculation()
+    line_calc.calculate_values(utils.LINE1_U1, utils.LINE1_U2, utils.LINE1_U3, utils.LINE1_Ang_U1, utils.LINE1_Ang_U2, utils.LINE1_Ang_U3,
+                                    utils.LINE1_IL1, utils.LINE1_IL2, utils.LINE1_IL3, utils.LINE1_Ang_I1, utils.LINE1_Ang_I2, utils.LINE1_Ang_I3,
+                                    utils.LINE1_z0z1_mag, utils.LINE1_z0z1_ang)
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+    
     if not selected_config_phase_to_gnd or not selected_config_phase_to_phase:
         return {}, {}
 
@@ -108,12 +103,18 @@ def update_graph(n, selected_config_phase_to_gnd, selected_config_phase_to_phase
     config_x_phase_to_phase = [config_data_phase_to_phase[key]['x'] for key in config_data_phase_to_phase]
     config_y_phase_to_phase = [config_data_phase_to_phase[key]['y'] for key in config_data_phase_to_phase]
     
-    # Scatter plot for MQTT data
-    mqtt_trace = go.Scatter(x=list(mqtt_data['x']),
-                            y=list(mqtt_data['y']),
-                            mode='lines+markers',
-                            name='Voltage vs Current')
-
+    # # Scatter plot for MQTT data
+    # mqtt_trace = go.Scatter(x=list(mqtt_data['x']),
+    #                         y=list(mqtt_data['y']),
+    #                         mode='lines+markers',
+    #                         name='Voltage vs Current')
+    za_trace = go.Scatter(x=[LINE1_ZA_Real], 
+                          y=[LINE1_ZA_Imag], 
+                          mode='markers', 
+                          name='ZA', 
+                          marker=dict(size=10, color='blue'))
+    
+    
     # Scatter plot for config data for phase-to-gnd
     config_trace_phase_to_gnd = go.Scatter(x=config_x_phase_to_gnd, y=config_y_phase_to_gnd,
                                             mode='markers',
@@ -125,50 +126,6 @@ def update_graph(n, selected_config_phase_to_gnd, selected_config_phase_to_phase
                                               mode='markers',
                                               name='Config Points (Phase-to-Phase)',
                                               marker=dict(color='blue', size=10))
-#  # Add text annotations for config points
-#     annotations = [dict(x=x, y=y, text=key, showarrow=True, arrowhead=2, arrowcolor='black', arrowsize=1)
-#                    for key, x, y in zip(config_keys, config_x, config_y)]
-    
-    # # Lines to connect specific points
-    # lines_kanan_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_kanan],
-    #                         y=[config_data[key]['y'] for key in lines_kanan],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-    # lines_kiri_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_kiri],
-    #                         y=[config_data[key]['y'] for key in lines_kiri],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-    # lines_atas_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_atas],
-    #                         y=[config_data[key]['y'] for key in lines_atas],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-    # lines_bawah_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_bawah],
-    #                         y=[config_data[key]['y'] for key in lines_bawah],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-    # lines_tengah0_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_tengah0],
-    #                         y=[config_data[key]['y'] for key in lines_tengah0],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2)) 
-    # lines_tengah1_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_tengah1],
-    #                         y=[config_data[key]['y'] for key in lines_tengah1],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-
-    # lines_tengah2_trace = go.Scatter(x=[config_data[key]['x'] for key in lines_tengah2],
-    #                         y=[config_data[key]['y'] for key in lines_tengah2],
-    #                         mode='lines',
-    #                         name='Lines',
-    #                         line=dict(color='blue', width=2))
-
-
-    
 
     # Lines to connect specific points for phase-to-gnd
     lines_trace_phase_to_gnd = go.Scatter(x=config_x_phase_to_gnd, y=config_y_phase_to_gnd,
@@ -196,28 +153,28 @@ def update_graph(n, selected_config_phase_to_gnd, selected_config_phase_to_phase
                                       width=1250,
                                       height=850)
 
-    return {'data': [mqtt_trace, config_trace_phase_to_gnd, lines_trace_phase_to_gnd], 'layout': layout_phase_to_gnd}, \
-           {'data': [mqtt_trace, config_trace_phase_to_phase, lines_trace_phase_to_phase], 'layout': layout_phase_to_phase}
+    return {'data': [za_trace, config_trace_phase_to_gnd, lines_trace_phase_to_gnd], 'layout': layout_phase_to_gnd}, \
+           {'data': [za_trace, config_trace_phase_to_phase, lines_trace_phase_to_phase], 'layout': layout_phase_to_phase}
 
     # return {'data': [config_trace], 'layout': layout}
 
 
-# MQTT data reception
-def on_message(client, userdata, message):
-    data = json.loads(message.payload.decode())
-    voltage = data.get('voltage')
-    current = data.get('current')
+# # MQTT data reception
+# def on_message(client, userdata, message):
+#     data = json.loads(message.payload.decode())
+#     voltage = data.get('voltage')
+#     current = data.get('current')
 
-    if voltage is not None and current is not None:
-        mqtt_data['x'].append(voltage)
-        mqtt_data['y'].append(current)
+#     if voltage is not None and current is not None:
+#         mqtt_data['x'].append(voltage)
+#         mqtt_data['y'].append(current)
 
-# Initialize MQTT client
-mqtt_client = mqtt.Client()
-mqtt_client.on_message = on_message
-mqtt_client.connect(mqtt_broker, 1883, 60)
-mqtt_client.subscribe(mqtt_topic)
-mqtt_client.loop_start()
+# # Initialize MQTT client
+# mqtt_client = mqtt.Client()
+# mqtt_client.on_message = on_message
+# mqtt_client.connect(mqtt_broker, 1883, 60)
+# mqtt_client.subscribe(mqtt_topic)
+# mqtt_client.loop_start()
 
 # Run the app
 if __name__ == '__main__':
