@@ -25,14 +25,15 @@ config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder
 
 
 # Initialize Dash app
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], 
+                suppress_callback_exceptions=True)
 
 # Layout of the dashboard
 
 app.layout = html.Div(
     [
         html.H1('Monitoring Voltage Current System', style={'textAlign': 'center'}),
-        dcc.Interval(id='interval_db', interval=86400000, n_intervals=0),
+        # dcc.Interval(id='interval_db', interval=86400000, n_intervals=0),
         html.Div(
             [
                 html.Label('Select Config File:'),
@@ -87,7 +88,6 @@ app.layout = html.Div(
     [State('start-time', 'value'),
      State('end-time', 'value')]
 )
-
 def filter_data(n_clicks, start_time, end_time):
     if n_clicks > 0 and start_time and end_time:
         # Fetch data from MongoDB within the specified timestamp range
@@ -100,7 +100,7 @@ def filter_data(n_clicks, start_time, end_time):
         # Display the DataFrame in a Dash DataTable
         return [
             dash_table.DataTable(
-                id='mongo-datatable',
+                id='our-table',
                 data=df.to_dict('records'),
                 columns=[{'id': p, 'name': p, 'editable': False} if p == '_id'
                          else {'id': p, 'name': p, 'editable': True}
@@ -109,7 +109,6 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
-
 
 
 @app.callback(
