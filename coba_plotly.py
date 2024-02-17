@@ -25,53 +25,110 @@ config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder
 
 
 # Initialize Dash app
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], 
-                suppress_callback_exceptions=True)
+app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
 
 # Layout of the dashboard
 
-app.layout = html.Div(
+app.layout = dbc.Container(
     [
-        html.H1('Monitoring Voltage Current System', style={'textAlign': 'center'}),
-        # dcc.Interval(id='interval_db', interval=86400000, n_intervals=0),
-        html.Div(
+        dbc.Row(dbc.Col(html.H1('Monitoring Voltage Current System', style={'textAlign': 'center', 'color': 'white'}))),
+        dbc.Row(
             [
-                html.Label('Select Config File:'),
-                dcc.Dropdown(
-                    id='config-dropdown-phase-to-gnd',
-                    options=[{'label': f, 'value': f} for f in config_files],
-                    value=config_files[0] if config_files else None
+                dbc.Col(
+                    [
+                        dbc.Nav(
+                            [
+                                dbc.NavItem(
+                                    [
+                                        html.Label('Select Config File (Phase-to-Gnd):', style={'color': 'white'}),
+                                        dcc.Dropdown(
+                                            id='config-dropdown-phase-to-gnd',
+                                            options=[{'label': f, 'value': f} for f in config_files],
+                                            value=config_files[0] if config_files else None
+                                        ),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Label('Select Config File (Phase-to-Phase):', style={'color': 'white'}),
+                                        dcc.Dropdown(
+                                            id='config-dropdown-phase-to-phase',
+                                            options=[{'label': f, 'value': f} for f in config_files],
+                                            value=config_files[0] if config_files else None
+                                        ),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Label('Start Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
+                                        dcc.Input(id='start-time', type='text', placeholder='Start Timestamp'),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Label('End Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
+                                        dcc.Input(id='end-time', type='text', placeholder='End Timestamp'),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Button('Filter Data', id='filter-button', n_clicks=0),
+                                    ],
+                                    className='mb-3'
+                                ),
+                            ],
+                            vertical=True, pills=True
+                        )
+                    ],
+                    width=3
                 ),
-                dcc.Graph(id='phase-to-gnd-graph')
-            ],
-            style={'width': '49%', 'display': 'inline-block'}
-        ),
-
-        html.Div(
-            [
-                html.Label('Select Config File:'),
-                dcc.Dropdown(
-                    id='config-dropdown-phase-to-phase',
-                    options=[{'label': f, 'value': f} for f in config_files],
-                    value=config_files[0] if config_files else None
-                ),
-                dcc.Graph(id='phase-to-phase-graph')
-            ],
-            style={'width': '49%', 'display': 'inline-block'}
-        
-        ),
-        html.Div([
-            dcc.Input(id='start-time', type='text', placeholder='Start Timestamp (YYYY-MM-DD_HH:MM:SS)'),
-            dcc.Input(id='end-time', type='text', placeholder='End Timestamp (YYYY-MM-DD_HH:MM:SS)'),
-            html.Button('Filter Data', id='filter-button', n_clicks=0)
-        ]),
-        html.Div(id='mongo-datatable', children=[]),
-        dcc.Interval(
-            id='interval-component',
-            interval=1*100,  # in milliseconds
-            n_intervals=0
-        ),
-    ]
+                dbc.Col(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        dcc.Graph(id='phase-to-gnd-graph'),
+                                    ],
+                                    width=6,
+                                    style={'margin-bottom': '5mm'}
+                                ),
+                                dbc.Col(
+                                    [
+                                        dcc.Graph(id='phase-to-phase-graph')
+                                    ],
+                                    width=6,
+                                    style={'margin-bottom': '5mm'}
+                                ),
+                                
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Div(id='mongo-datatable', children=[]),
+                                        dcc.Interval(
+                                            id='interval-component',
+                                            interval=1*1000,  # in milliseconds
+                                            n_intervals=0
+                                        ),
+                                    ],
+                                    width=12
+                                )
+                            ]
+                        )
+                    ],
+                    width=9
+                )
+            ]
+        )
+    ],
+    fluid=True
 )
 
 # Initialize data storage
@@ -82,6 +139,7 @@ app.layout = html.Div(
 # zb_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 # zc_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 
+# Callback for filtering data based on timestamps
 @app.callback(
     Output('mongo-datatable', 'children'),
     [Input('filter-button', 'n_clicks')],
@@ -105,6 +163,26 @@ def filter_data(n_clicks, start_time, end_time):
                 columns=[{'id': p, 'name': p, 'editable': False} if p == '_id'
                          else {'id': p, 'name': p, 'editable': True}
                          for p in df.columns],
+                style_table={'overflowX': 'auto', 'backgroundColor': 'rgba(255, 255, 255, 0.1)'},  # Transparan
+                style_cell={'textAlign': 'left', 'fontSize': 14, 'fontFamily': 'Arial', 'padding': '5px', 'color': 'white'},  # Warna font putih
+                style_header={
+                    'backgroundColor': 'rgba(255, 255, 255, 0.1)',  # Transparan
+                    'fontWeight': 'bold'  # Menjadikan teks header bold
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},  # Atur baris ganjil
+                        'backgroundColor': 'rgba(255, 255, 255, 0.05)'  # Transparan
+                    },
+                    {
+                        'if': {'row_index': 'even'},  # Atur baris genap
+                        'backgroundColor': 'rgba(255, 255, 255, 0.1)'  # Transparan
+                    },
+                ],
+                filter_action="native",  # Aktifkan penyaringan baris
+                sort_action="native",  # Aktifkan sorting
+                sort_mode="multi",  # Aktifkan sorting multi kolom
+                page_size=10,  # Atur jumlah baris per halaman
             ),
         ]
     else:
@@ -112,92 +190,132 @@ def filter_data(n_clicks, start_time, end_time):
 
 
 @app.callback(
-    [Output('phase-to-gnd-graph', 'figure'),
-     Output('phase-to-phase-graph', 'figure')],
+    Output('phase-to-gnd-graph', 'figure'),
     [Input('interval-component', 'n_intervals'),
-     Input('config-dropdown-phase-to-gnd', 'value'),
-     Input('config-dropdown-phase-to-phase', 'value')])
-
-
-
-def update_graph(n, selected_config_phase_to_gnd, selected_config_phase_to_phase):
-    line_calc = LineCalculation()
-    line_calc.calculate_values(utils.LINE1_U1, utils.LINE1_U2, utils.LINE1_U3, utils.LINE1_Ang_U1, utils.LINE1_Ang_U2, utils.LINE1_Ang_U3,
-                                    utils.LINE1_IL1, utils.LINE1_IL2, utils.LINE1_IL3, utils.LINE1_Ang_I1, utils.LINE1_Ang_I2, utils.LINE1_Ang_I3,
-                                    utils.LINE1_z0z1_mag, utils.LINE1_z0z1_ang)
-    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+     Input('config-dropdown-phase-to-gnd', 'value')])
+def update_phase_to_gnd_graph(n, selected_config_phase_to_gnd):
+    if not selected_config_phase_to_gnd:
+        return {}
     
-    if not selected_config_phase_to_gnd or not selected_config_phase_to_phase:
-        return {}, {}
-
     # Read configuration data from the selected config file for phase-to-gnd
     with open(selected_config_phase_to_gnd) as config_file_phase_to_gnd:
         config_data_phase_to_gnd = json.load(config_file_phase_to_gnd)
 
-    config_keys_phase_to_gnd = list(config_data_phase_to_gnd.keys())
+    # Extract x and y values from config data
     config_x_phase_to_gnd = [config_data_phase_to_gnd[key]['x'] for key in config_data_phase_to_gnd]
     config_y_phase_to_gnd = [config_data_phase_to_gnd[key]['y'] for key in config_data_phase_to_gnd]
 
-    # Read configuration data from the selected config file for phase-to-phase
-    with open(selected_config_phase_to_phase) as config_file_phase_to_phase:
-        config_data_phase_to_phase = json.load(config_file_phase_to_phase)
-
-    config_keys_phase_to_phase = list(config_data_phase_to_phase.keys())
-    config_x_phase_to_phase = [config_data_phase_to_phase[key]['x'] for key in config_data_phase_to_phase]
-    config_y_phase_to_phase = [config_data_phase_to_phase[key]['y'] for key in config_data_phase_to_phase]
+    # Use LineCalculation to get ZA data
+    line_calc = LineCalculation()
+    line_calc.calculate_values(utils.LINE1_U1, utils.LINE1_U2, utils.LINE1_U3, utils.LINE1_Ang_U1, utils.LINE1_Ang_U2, utils.LINE1_Ang_U3,
+                                utils.LINE1_IL1, utils.LINE1_IL2, utils.LINE1_IL3, utils.LINE1_Ang_I1, utils.LINE1_Ang_I2, utils.LINE1_Ang_I3,
+                                utils.LINE1_z0z1_mag, utils.LINE1_z0z1_ang)
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
     
     # # Scatter plot for MQTT data
     # mqtt_trace = go.Scatter(x=list(mqtt_data['x']),
     #                         y=list(mqtt_data['y']),
     #                         mode='lines+markers',
     #                         name='Voltage vs Current')
-    za_trace = go.Scatter(x=[LINE1_ZA_Real], 
-                          y=[LINE1_ZA_Imag], 
-                          mode='markers', 
-                          name='ZA', 
-                          marker=dict(size=10, color='blue'))
+
+    # Create scatter plot
+    fig = go.Figure()
+    # Add scatter plot for config data
+    fig.add_trace(go.Scatter(
+        x=config_x_phase_to_gnd, 
+        y=config_y_phase_to_gnd, 
+        mode='lines+markers',  # Mode untuk menampilkan garis dan titik
+        name='Config Data', 
+        marker=dict(color='white', size=5),
+        line=dict(color='green', width=5),
+        textfont=dict(color='white')
+    ))
+
+    # Add scatter plot for ZA data
+    fig.add_trace(go.Scatter(
+        x=[LINE1_ZA_Real], 
+        y=[LINE1_ZA_Imag], 
+        mode='markers', 
+        name='ZA Data', 
+        marker=dict(color='red', size=5),
+        textfont=dict(color='white')
+    ))
     
+    # Set title and axis labels
+    fig.update_layout(
+        title='Phase-to-Gnd',
+        xaxis_title='Voltage',
+        yaxis_title='Current',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(255, 255, 255, 0.05)',
+        font=dict(color='white')
+    )
+
+    return fig
+
+# Callback to update the Phase-to-Phase graph
+@app.callback(
+    Output('phase-to-phase-graph', 'figure'),
+    [Input('interval-component', 'n_intervals'),
+     Input('config-dropdown-phase-to-phase', 'value')])
+def update_phase_to_phase_graph(n, selected_config_phase_to_phase):
+    if not selected_config_phase_to_phase:
+        return {}
     
-    # Scatter plot for config data for phase-to-gnd
-    config_trace_phase_to_gnd = go.Scatter(x=config_x_phase_to_gnd, y=config_y_phase_to_gnd,
-                                            mode='markers',
-                                            name='Config Points (Phase-to-Gnd)',
-                                            marker=dict(color='red', size=10))
+    # Read configuration data from the selected config file for phase-to-phase
+    with open(selected_config_phase_to_phase) as config_file_phase_to_phase:
+        config_data_phase_to_phase = json.load(config_file_phase_to_phase)
 
-    # Scatter plot for config data for phase-to-phase
-    config_trace_phase_to_phase = go.Scatter(x=config_x_phase_to_phase, y=config_y_phase_to_phase,
-                                              mode='markers',
-                                              name='Config Points (Phase-to-Phase)',
-                                              marker=dict(color='blue', size=10))
+    # Extract x and y values from config data
+    config_x_phase_to_phase = [config_data_phase_to_phase[key]['x'] for key in config_data_phase_to_phase]
+    config_y_phase_to_phase = [config_data_phase_to_phase[key]['y'] for key in config_data_phase_to_phase]
 
-    # Lines to connect specific points for phase-to-gnd
-    lines_trace_phase_to_gnd = go.Scatter(x=config_x_phase_to_gnd, y=config_y_phase_to_gnd,
-                                          mode='lines',
-                                          name='Lines (Phase-to-Gnd)',
-                                          line=dict(color='green', width=2))
+    # Use LineCalculation to get ZA data
+    line_calc = LineCalculation()
+    line_calc.calculate_values(utils.LINE1_U1, utils.LINE1_U2, utils.LINE1_U3, utils.LINE1_Ang_U1, utils.LINE1_Ang_U2, utils.LINE1_Ang_U3,
+                                utils.LINE1_IL1, utils.LINE1_IL2, utils.LINE1_IL3, utils.LINE1_Ang_I1, utils.LINE1_Ang_I2, utils.LINE1_Ang_I3,
+                                utils.LINE1_z0z1_mag, utils.LINE1_z0z1_ang)
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
 
-    # Lines to connect specific points for phase-to-phase
-    lines_trace_phase_to_phase = go.Scatter(x=config_x_phase_to_phase, y=config_y_phase_to_phase,
-                                             mode='lines',
-                                             name='Lines (Phase-to-Phase)',
-                                             line=dict(color='orange', width=2))
+    # # Scatter plot for MQTT data
+    # mqtt_trace = go.Scatter(x=list(mqtt_data['x']),
+    #                         y=list(mqtt_data['y']),
+    #                         mode='lines+markers',
+    #                         name='Voltage vs Current')
+    
+    # Create scatter plot
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=config_x_phase_to_phase, 
+        y=config_y_phase_to_phase, 
+        mode='lines+markers',  # Mode untuk menampilkan garis dan titik
+        name='Config Data', 
+        marker=dict(color='white', size=5),
+        line=dict(color='green', width=5),
+        textfont=dict(color='white') 
+    ))
 
-    layout_phase_to_gnd = go.Layout(title='Live Dashboard - Voltage vs Current with Config Points (Phase-to-Gnd)',
-                                    xaxis=dict(title='Voltage'),
-                                    yaxis=dict(title='Current'),
-                                    showlegend=True,
-                                    width=1250,
-                                    height=850)
+    # Add scatter plot for ZA data
+    fig.add_trace(go.Scatter(
+        x=[LINE1_ZA_Real], 
+        y=[LINE1_ZA_Imag], 
+        mode='markers', 
+        name='ZA Data', 
+        marker=dict(color='red', size=5),
+        textfont=dict(color='white')
+    ))
 
-    layout_phase_to_phase = go.Layout(title='Live Dashboard - Voltage vs Current with Config Points (Phase-to-Phase)',
-                                      xaxis=dict(title='Voltage'),
-                                      yaxis=dict(title='Current'),
-                                      showlegend=True,
-                                      width=1250,
-                                      height=850)
+    # Set title and axis labels
+    fig.update_layout(
+        title='Phase-to-Phase',
+        xaxis_title='Voltage',
+        yaxis_title='Current',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(255, 255, 255, 0.05)',
+        font=dict(color='white')
+    )
 
-    return {'data': [za_trace, config_trace_phase_to_gnd, lines_trace_phase_to_gnd], 'layout': layout_phase_to_gnd}, \
-           {'data': [za_trace, config_trace_phase_to_phase, lines_trace_phase_to_phase], 'layout': layout_phase_to_phase}
+    return fig
 
     # return {'data': [config_trace], 'layout': layout}
 
