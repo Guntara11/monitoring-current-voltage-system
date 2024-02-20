@@ -8,7 +8,7 @@ from datetime import datetime
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/")
+    conn = MongoClient("mongodb://localhost:27017/")
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
@@ -18,6 +18,10 @@ collection = db.Params
 
 data_to_write = []  # Data to be written to CSV
 start_time = datetime.now()  # Start time for CSV file
+
+LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, \
+            LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, \
+            LINE1_z0z1_mag, LINE1_z0z1_ang = utils.params()
 
 def generate_csv(data) :
       global data_to_write
@@ -63,9 +67,9 @@ def main() :
             # LINE1_z0z1_ang = -2.55
             # Create LineCalculation object and pass random values
             line_calc = LineCalculation()
-            line_calc.calculate_values(utils.LINE1_U1, utils.LINE1_U2, utils.LINE1_U3, utils.LINE1_Ang_U1, utils.LINE1_Ang_U2, utils.LINE1_Ang_U3,
-                                          utils.LINE1_IL1, utils.LINE1_IL2, utils.LINE1_IL3, utils.LINE1_Ang_I1, utils.LINE1_Ang_I2, utils.LINE1_Ang_I3,
-                                          utils.LINE1_z0z1_mag, utils.LINE1_z0z1_ang)
+            line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                       LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                       LINE1_z0z1_mag, LINE1_z0z1_ang)
 
             # Get real and imag  data
             IL1_Real, IL2_Real, IL3_Real, V1_Real, V2_Real, V3_Real = line_calc.get_real_data() 
@@ -122,13 +126,13 @@ def main() :
             data_to_write = {
                     'Timestamp' : datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
                     'DATE' : datetime.now().strftime("%Y-%m-%d"), 'TIME' : datetime.now().strftime("%H:%M:%S"),
-                    'LINE_IL1' : utils.LINE1_IL1, 'LINE_IL1-Ang' : utils.LINE1_Ang_I1, 
-                    'LINE_IL2' : utils.LINE1_IL2, 'LINE_IL2-Ang' : utils.LINE1_Ang_I2,
-                    'LINE_IL3' : utils.LINE1_IL3, 'LINE_IL3-Ang' : utils.LINE1_Ang_I3,
-                    'LINE_UL1' : utils.LINE1_U1, 'LINE_UL1-Ang' : utils.LINE1_Ang_U1,
-                    'LINE_UL2' : utils.LINE1_U2, 'LINE_UL2-Ang' : utils.LINE1_Ang_U2,
-                    'LINE_UL3' : utils.LINE1_U3, 'LINE_UL3-Ang' : utils.LINE1_Ang_U3,
-                    'LINE1_z0z1_mag' : utils.LINE1_z0z1_mag, 'LINE1_z0z1_ang':utils.LINE1_z0z1_ang,
+                    'LINE_IL1' : LINE1_IL1, 'LINE_IL1-Ang' : LINE1_Ang_I1, 
+                    'LINE_IL2' : LINE1_IL2, 'LINE_IL2-Ang' : LINE1_Ang_I2,
+                    'LINE_IL3' : LINE1_IL3, 'LINE_IL3-Ang' : LINE1_Ang_I3,
+                    'LINE_UL1' : LINE1_U1, 'LINE_UL1-Ang' : LINE1_Ang_U1,
+                    'LINE_UL2' : LINE1_U2, 'LINE_UL2-Ang' : LINE1_Ang_U2,
+                    'LINE_UL3' : LINE1_U3, 'LINE_UL3-Ang' : LINE1_Ang_U3,
+                    'LINE1_z0z1_mag' : LINE1_z0z1_mag, 'LINE1_z0z1_ang':LINE1_z0z1_ang,
                     'LINE1_IL1_Real' : str(IL1_Real), 'LINE1_IL2_Real' : str(IL2_Real), 'LINE1_IL3_Real' : str(IL3_Real),
                     'LINE1_IL1_Imag' : str(IL1_Imag), 'LINE1_IL2_Imag' : str(IL2_Imag), 'LINE1_IL3_Imag' : str(IL3_Imag),
                     'LINE1_V1_Real' : str(V1_Real), 'LINE1_V2_Real' : str(V2_Real), 'LINE1_V3_Real' : str(V3_Real),

@@ -1,24 +1,47 @@
 import math
 import cmath
 import pymongo
+import random
+import time
 
+def params():
+    while True :
+        # LINE1_U1 = 89236.961
+        # LINE1_U2 = 89521.813
+        # LINE1_U3 = 89844.727
+        LINE1_Ang_U1 = 117.274
+        LINE1_Ang_U2 = 356.92
+        LINE1_Ang_U3 = 237.173
 
-LINE1_U1 = 89236.961
-LINE1_U2 = 89521.813
-LINE1_U3 = 89844.727
-LINE1_Ang_U1 = 117.274
-LINE1_Ang_U2 = 356.92
-LINE1_Ang_U3 = 237.173
+        INC_Data = round(random.uniform(-1, 5), 2)
 
-LINE1_IL1 = 86.126
-LINE1_IL2 = 87.365
-LINE1_IL3 = 100.566
-LINE1_Ang_I1 = 112.977
-LINE1_Ang_I2 = 0.044
-LINE1_Ang_I3 = 232.82
+        LINE1_IL1 = 0 + INC_Data
+        LINE1_IL2 = 0 + INC_Data
+        LINE1_IL3 = 0 + INC_Data
+        LINE1_U1 = 0 + INC_Data
+        LINE1_U2 = 0 + INC_Data
+        LINE1_U3 = 0 + INC_Data
 
-LINE1_z0z1_mag = 6.181
-LINE1_z0z1_ang = -2.55
+        if LINE1_IL1 >= 200:
+            LINE1_IL1 = 0
+        
+        # elif LINE1_IL2 >= 200:
+        #     LINE1_IL2 = 0
+        
+        # elif LINE1_IL3 >= 200:
+        #     LINE1_IL3 = 0
+
+        LINE1_Ang_I1 = 112.977
+        LINE1_Ang_I2 = 0.044
+        LINE1_Ang_I3 = 232.82
+
+        LINE1_z0z1_mag = 6.181
+        LINE1_z0z1_ang = -2.55
+
+        time.sleep(1)
+        return LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_IL1, LINE1_IL2,\
+                LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, LINE1_z0z1_mag, LINE1_z0z1_ang
+
 class LineCalculation:
     def __init__(self):
         self.real_data = []
@@ -33,6 +56,8 @@ class LineCalculation:
         self.data_ZAB = []
         self.data_ZBC = []
         self.data_ZCA = []
+        self.LINE1_U1, self.LINE1_U2, self.LINE1_U3, self.LINE1_Ang_U1, self.LINE1_Ang_U2, self.LINE1_Ang_U3, self.LINE1_IL1, self.LINE1_IL2,\
+        self.LINE1_IL3, self.LINE1_Ang_I1, self.LINE1_Ang_I2, self.LINE1_Ang_I3, self.LINE1_z0z1_mag, self.LINE1_z0z1_ang = params()
 
     def calculate_values(self, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
                          LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
