@@ -11,8 +11,9 @@ import utils
 from utils import LineCalculation
 import pymongo
 import pandas as pd
+import dash_ag_grid as dag
 from datetime import datetime
-
+from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 # MQTT Broker information
 # mqtt_broker = "broker.emqx.io"
 # mqtt_topic = "topic/sensor_data"
@@ -28,53 +29,96 @@ config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
 
+
+# The ThemeChangerAIO loads all 52  Bootstrap themed figure templates to plotly.io
+theme_controls = html.Div(
+    [ThemeChangerAIO(aio_id="theme")],
+    className="hstack gap-3 mt-2"
+)
+
+header = html.H4(
+    "Monitoring Voltage Current System", className="bg-transparent text-white p-2 mb-2 fs-1 text-center"
+)
+
+dropdown = html.Div(
+    [
+        html.Label('Select Config File :', style={'color': 'white'}),
+        dcc.Dropdown(
+            id="config-dropdown",
+            options=[{'label': f'Line {i+1}', 'value': f'line{i+1}.json'} for i, f in enumerate(config_files)],
+            value=config_files[0] if config_files else None,
+            clearable=False,
+        ),
+    ],
+    className="mb-4",
+)
+
+filter_start_input = dbc.Row([
+    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div(
+    [
+        dbc.Input(type="Timestamp", id="start_time", placeholder="Start Time"),
+        dbc.Label("Enter Start Time"),
+    ]),
+    ],
+    className="mb-3"
+)
+filter_end_input = dbc.Row([
+        html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+        html.Div([
+        dbc.Input(type="Timestamp", id="end_time", placeholder="End Time"),
+        dbc.Label("Enter End Time")
+    ]),
+
+    ],
+    className="mb-3",
+)
+
+button = html.Div(
+    [
+        dbc.Button("FIlter Data", color="secondary", className="me-1",  n_clicks=0),
+        dbc.Button("Save CSV", color="secondary", className="me-1",  n_clicks=0)
+    ],
+    className="d-grid gap-2",
+)
+
+filter_time = dbc.Form([filter_start_input, filter_end_input])
+
+control1 = dbc.Card(
+    [dropdown, filter_time, button],
+    body=True,)
+
 app.layout = dbc.Container(
     [
-        dbc.Row(dbc.Col(html.H1('Monitoring Voltage Current System', style={'textAlign': 'center', 'color': 'white'}))),
+        header,
         dbc.Row(
             [
                 dbc.Col(
                     [
                         dbc.Nav(
                             [
-                                dbc.NavItem(
-                                    [
-                                        html.Label('Select Config File :', style={'color': 'white'}),
-                                        dcc.Dropdown(
-                                            id='config-dropdown',
-                                            options=[{'label': f'Line {i+1}', 'value': f'line{i+1}.json'} for i, f in enumerate(config_files)],
-                                            value=config_files[0] if config_files else None
-                                        ),
-                                    ],
-                                    className='mb-3'
-                                ),
-
-                                dbc.NavItem(
-                                    [
-                                        html.Label('Start Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
-                                        dcc.Input(id='start-time', type='text', placeholder='Start Timestamp'),
-                                    ],
-                                    className='mb-3'
-                                ),
-                                dbc.NavItem(
-                                    [
-                                        html.Label('End Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
-                                        dcc.Input(id='end-time', type='text', placeholder='End Timestamp'),
-                                    ],
-                                    className='mb-3'
-                                ),
-                                dbc.NavItem(
-                                    [
-                                        html.Button('Filter Data', id='filter-button', n_clicks=0),
-                                        html.Button('Save to CSV', id='save-csv-button', n_clicks=0, style={'margin-left': '10px'}),
-                                        html.Div(id='save-csv-message')
-                                    ],
-                                    className='mb-3'
-                                ),
+                                dbc.Row([
+                                            dbc.Col([
+                                                control1,
+                                                # ************************************
+                                                # Uncomment line below when running locally!
+                                                # ************************************
+                                                # theme_controls
+                                            ],  width=20),
+                                            dbc.Col([
+                                                control1,
+                                                # ************************************
+                                                # Uncomment line below when running locally!
+                                                # ************************************
+                                                # theme_controls
+                                            ],  width=20),
+                                        ]),
                                 # Display warning message if no configuration file is selected
                                 html.Div(id='warning-message', children=[]),
+
                             ],
                             vertical=True, pills=True
+
                         )
                     ],
                     width=3
