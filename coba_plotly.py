@@ -53,40 +53,231 @@ dropdown = html.Div(
     className="mb-4",
 )
 
+dropdown2 = html.Div(
+    [
+        html.Label('Select Config File :', style={'color': 'white'}),
+        dcc.Dropdown(
+            id="param-dropdown",
+            options=[{'label': f'Line {i+1}', 'value': f'line{i+1}.json'} for i, f in enumerate(config_files)],
+            value=config_files[0] if config_files else None,
+            clearable=False,
+        ),
+    ],
+    className="mb-1",
+)
+
 filter_start_input = dbc.Row([
     html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
     html.Div(
     [
-        dbc.Input(type="Timestamp", id="start_time", placeholder="Start Time"),
+        dbc.Input(type="Timestamp", id="start_time", placeholder="Start Time", size="md", style={ 'background-color': 'white'}),
         dbc.Label("Enter Start Time"),
-    ]),
+    ],),
     ],
-    className="mb-3"
+    className="my-1"
 )
 filter_end_input = dbc.Row([
         html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
         html.Div([
-        dbc.Input(type="Timestamp", id="end_time", placeholder="End Time"),
-        dbc.Label("Enter End Time")
-    ]),
-
+        dbc.Input(type="Timestamp", id="end_time", placeholder="End Time", size="md", style={ 'background-color': 'white'}),
+       
+    ],),
+    dbc.Label("Enter End Time"),
     ],
-    className="mb-3",
+    className="my-1",
 )
 
-button = html.Div(
+line_param = html.Div([dbc.Row([
+        html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
+        html.Label("Enter RGZ data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rgz1", size="sm", placeholder="RGZ1", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rgz2", size="sm", placeholder="RGZ2", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rgz3", size="sm", placeholder="RGZ3", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter XGZ data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xgz1", size="sm", placeholder="XGZ1", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xgz2", size="sm", placeholder="XGZ2", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xgz3", size="sm", placeholder="XGZ3", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter RPZ data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rpz1", size="sm", placeholder="RPZ1", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rpz2", size="sm", placeholder="RPZ2", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Rpz3", size="sm", placeholder="RPZ3", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter XPZ data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xpz1", size="sm", placeholder="XPZ1", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xpz2", size="sm", placeholder="XPZ2", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Xpz3", size="sm", placeholder="XPZ3", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter Angle data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="Angle", size="sm", placeholder="Angle", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="z0z1_mag", size="sm", placeholder="z0z1_mag", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="z0z1_ang", size="sm", placeholder="z0z1_ang", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter delta_t, id, line_length data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="delta_t", size="sm", placeholder="delta_t", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="id", size="sm", placeholder="id", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="line_length", size="sm", placeholder="line_length (KM)", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter CT RATIO data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="ct_ratio_hv", size="sm", placeholder="HV", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="ct_ratio_lv", size="sm", placeholder="LV", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter VT RATIO data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="vt_ratio_hv", size="sm", placeholder="HV", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="vt_ratio_lv", size="sm", placeholder="LV", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        )
+],
+),
+dbc.Row([
+        html.Label("Enter CT/VT RATIO data ", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                dbc.Input(type="Text", id="ctvt_ratio_hv", size="sm", placeholder="CT/VT Ratio", style={ 'background-color': 'white'})
+            ], className="mx-1")
+        ), 
+],
+),
+])
+
+Filter_button = html.Div(
     [
-        dbc.Button("FIlter Data", color="secondary", className="me-1",  n_clicks=0),
-        dbc.Button("Save CSV", color="secondary", className="me-1",  n_clicks=0)
+        dbc.Button("FIlter Data", color="success", className="me-1",  n_clicks=0)
+       
     ],
-    className="d-grid gap-2",
+    className="d-grid gap-2 my-3",
+)
+
+csv_button = html.Div([
+    dbc.Button("Save CSV", color="success", className="me-1",  n_clicks=0)
+],
+className="d-grid gap-2 my-3",
 )
 
 filter_time = dbc.Form([filter_start_input, filter_end_input])
 
 control1 = dbc.Card(
-    [dropdown, filter_time, button],
+    [dropdown, filter_time, 
+     dbc.Row([
+         dbc.Col(
+            Filter_button
+         ),
+         dbc.Col(
+            csv_button
+         )
+     ]
+     ),    
+         
+         ],
+    style={"height": 380, "width": 450},
     body=True,)
+
+control2 = dbc.Card([
+    dropdown2,line_param],
+    style={"height": 650, "width": 450},
+    body=True,)
+
 
 app.layout = dbc.Container(
     [
@@ -104,14 +295,14 @@ app.layout = dbc.Container(
                                                 # Uncomment line below when running locally!
                                                 # ************************************
                                                 # theme_controls
-                                            ],  width=20),
+                                            ],  width=20, ),
                                             dbc.Col([
-                                                control1,
+                                                control2,
                                                 # ************************************
                                                 # Uncomment line below when running locally!
                                                 # ************************************
                                                 # theme_controls
-                                            ],  width=20),
+                                            ],  width=20, className="my-4"),
                                         ]),
                                 # Display warning message if no configuration file is selected
                                 html.Div(id='warning-message', children=[]),
