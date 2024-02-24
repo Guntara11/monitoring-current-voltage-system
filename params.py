@@ -1,3 +1,114 @@
+# import dash
+# from dash import dcc, html
+# from dash.dependencies import Input, Output, State
+# import json
+# import os
+
+# # Initialize Dash app
+# app = dash.Dash(__name__)
+
+# # Define path to params.json
+# params_path = 'config_imp/params.json'
+
+# # Load params.json if exists, otherwise create a new one
+# if os.path.exists(params_path):
+#     with open(params_path, 'r') as f:
+#         params_data = json.load(f)
+# else:
+#     params_data = {}
+
+# # Get keys from params_data
+# keys = list(params_data.keys())
+
+# # Define layout
+# app.layout = html.Div([
+#     html.H1("Input Parameters"),
+#     dcc.Dropdown(
+#         id='param-dropdown',
+#         options=[{'label': key, 'value': key} for key in keys],
+#         placeholder="Select parameter"
+#     ),
+#     dcc.Input(
+#         id='param-value',
+#         type='number',
+#         placeholder='Enter value',
+#     ),
+#     html.Button('Apply Changes', id='apply-button', n_clicks=0),
+#     html.Div(id='output-message')
+# ])
+
+# @app.callback(
+#     Output('output-message', 'children'),
+#     [Input('apply-button', 'n_clicks')],
+#     [State('param-dropdown', 'value'),
+#      State('param-value', 'value')]
+# )
+# def update_params(n_clicks, selected_param, param_value):
+#     if n_clicks > 0 and selected_param and param_value is not None:
+#         params_data[selected_param] = param_value
+#         with open(params_path, 'w') as f:
+#             json.dump(params_data, f)
+#         return html.Div(f'Parameter {selected_param} updated successfully to {param_value}', style={'color': 'green'})
+#     else:
+#         return html.Div('Please select a parameter and enter a value', style={'color': 'red'})
+
+# if __name__ == '__main__':
+#     app.run_server(debug=True)
+
+# import dash
+# from dash import dcc, html
+# from dash.dependencies import Input, Output, State
+# import json
+# import os
+
+# # Initialize Dash app
+# app = dash.Dash(__name__)
+
+# # Define path to params.json
+# params_path = 'config_imp/params.json'
+
+# # Load params.json
+# with open(params_path, 'r') as f:
+#     params_data = json.load(f)
+
+# # Define layout
+# app.layout = html.Div([
+#     html.H1("Input Parameters"),
+#     html.Div(id='input-container', children=[
+#         dcc.Input(
+#             id={'type': 'input', 'index': key},
+#             type='number',
+#             value=params_data[key],
+#             placeholder=f'Enter value for {key}'
+#         )
+#         for key in params_data
+#     ]),
+#     html.Button('Apply Changes', id='apply-button', n_clicks=0),
+#     html.Div(id='output-message')
+# ])
+
+# @app.callback(
+#     Output('output-message', 'children'),
+#     [Input('apply-button', 'n_clicks')],
+#     [State({'type': 'input', 'index': key}, 'value') for key in params_data]
+# )
+# def update_params(n_clicks, *values):
+#     if n_clicks > 0:
+#         updated_params = {}
+#         for key, value in zip(params_data.keys(), values):
+#             if value is not None and params_data[key] != value:
+#                 updated_params[key] = value
+#         if updated_params:
+#             params_data.update(updated_params)
+#             with open(params_path, 'w') as f:
+#                 json.dump(params_data, f)
+#             return html.Div('Parameters updated successfully', style={'color': 'green'})
+#         else:
+#             return html.Div('No changes detected', style={'color': 'orange'})
+
+# if __name__ == '__main__':
+#     app.run_server(debug=True)
+
 import os
 import json
 import dash
@@ -11,9 +122,8 @@ import utils
 from utils import LineCalculation
 import pymongo
 import pandas as pd
-import dash_ag_grid as dag
 from datetime import datetime
-from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
+
 # MQTT Broker information
 # mqtt_broker = "broker.emqx.io"
 # mqtt_topic = "topic/sensor_data"
@@ -24,6 +134,7 @@ db = client["MVCS"]
 collection_LINE = db["LINE"]
 collection_Params = db["Params"]
 collection_Parameter = db["Parameter"]
+
 
 # config_folder = 'config_imp'
 # config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder) if f.endswith('.json')]
@@ -39,286 +150,80 @@ if parameter_data:
 else:
     keys = []
 
-# The ThemeChangerAIO loads all 52  Bootstrap themed figure templates to plotly.io
-theme_controls = html.Div(
-    [ThemeChangerAIO(aio_id="theme")],
-    className="hstack gap-3 mt-2"
-)
-
-header = html.H4(
-    "Monitoring Voltage Current System", className="bg-transparent text-white p-2 mb-2 fs-1 text-center"
-)
-
-dropdown = html.Div(
-    [
-        html.Label('Select Config File :', style={'color': 'white'}),
-        dcc.Dropdown(
-            id='config-dropdown',
-            options=[{'label': doc['_id'], 'value': doc['_id']} for doc in collection_LINE.find({})]
-        ),
-    ],
-    className="mb-4",
-)
-
-dropdown2 = html.Div(
-    [
-        html.Label('Select Config File for Parameters :', style={'color': 'white'}),
-        dcc.Dropdown(
-            id='config-param-dropdown',
-            options=[{'label': doc['_id'], 'value': doc['_id']} for doc in collection_Parameter.find({})]
-        ),
-    ],
-    className="mb-1",
-)
-
-filter_start_input = dbc.Row([
-    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
-    html.Div(
-    [
-        dbc.Input(type="Timestamp", id="start_time", placeholder="Start Time", size="md", style={ 'background-color': 'white'}),
-        dbc.Label("Enter Start Time"),
-    ],),
-    ],
-    className="my-1"
-)
-filter_end_input = dbc.Row([
-        html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
-        html.Div([
-        dbc.Input(type="Timestamp", id="end_time", placeholder="End Time", size="md", style={ 'background-color': 'white'}),
-       
-    ],),
-    dbc.Label("Enter End Time"),
-    ],
-    className="my-1",
-)
-
-line_param = html.Div([dbc.Row([
-        html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
-        html.Label("Enter RGZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz1", size="sm", placeholder="RGZ1", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz2", size="sm", placeholder="RGZ2", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz3", size="sm", placeholder="RGZ3", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter XGZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz1", size="sm", placeholder="XGZ1", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz2", size="sm", placeholder="XGZ2", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz3", size="sm", placeholder="XGZ3", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter RPZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz1", size="sm", placeholder="RPZ1", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz2", size="sm", placeholder="RPZ2", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz3", size="sm", placeholder="RPZ3", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter XPZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xpz1", size="sm", placeholder="XPZ1", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xpz2", size="sm", placeholder="XPZ2", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xpz3", size="sm", placeholder="XPZ3", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter Angle data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="angle", size="sm", placeholder="Angle", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="z0z1_mag", size="sm", placeholder="z0z1_mag", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="z0z1_ang", size="sm", placeholder="z0z1_ang", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter delta_t, id, line_length data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="delta_t", size="sm", placeholder="delta_t", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="id2", size="sm", placeholder="id2", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="line_length", size="sm", placeholder="line_length (KM)", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter CT RATIO data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="CT_RATIO_HV", size="sm", placeholder="HV", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="CT_RATIO_LV", size="sm", placeholder="LV", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter VT RATIO data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="VT_RATIO_HV", size="sm", placeholder="HV", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="VT_RATIO_LV", size="sm", placeholder="LV", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter CT/VT RATIO data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="CTVT_RATIO", size="sm", placeholder="CT/VT Ratio", style={ 'background-color': 'white'})
-            ], className="mx-1")
-        ), 
-],
-),
-])
-
-Filter_button = html.Div(
-    [
-        dbc.Button("FIlter Data", color="success", className="me-1",  n_clicks=0)
-       
-    ],
-    className="d-grid gap-2 my-3",
-)
-
-csv_button = html.Div([
-    dbc.Button("Save CSV", color="success", className="me-1",  n_clicks=0)
-],
-className="d-grid gap-2 my-3",
-)
-
-filter_time = dbc.Form([filter_start_input, filter_end_input])
-
-control1 = dbc.Card(
-    [dropdown, filter_time, 
-     dbc.Row([
-         dbc.Col(
-            Filter_button
-         ),
-         dbc.Col(
-            csv_button
-         )
-     ]
-     ),    
-         
-         ],
-    style={"height": 380, "width": 450},
-    body=True,)
-
-control2 = dbc.Card([
-    dropdown2,line_param],
-    style={"height": 650, "width": 450},
-    body=True,)
 
 
+# Define layout
 app.layout = dbc.Container(
     [
-        header,
+        dbc.Row(dbc.Col(html.H1('Monitoring Voltage Current System', style={'textAlign': 'center', 'color': 'white'}))),
         dbc.Row(
             [
                 dbc.Col(
                     [
                         dbc.Nav(
                             [
-                                dbc.Row([
-                                            dbc.Col([
-                                                control1,
-                                                # ************************************
-                                                # Uncomment line below when running locally!
-                                                # ************************************
-                                                # theme_controls
-                                            ],  width=20, ),
-                                            dbc.Col([
-                                                control2,
-                                                # ************************************
-                                                # Uncomment line below when running locally!
-                                                # ************************************
-                                                # theme_controls
-                                            ],  width=20, className="my-4"),
-                                        ]),
-                                 # Display warning message if no configuration file is selected
+                                dbc.NavItem(
+                                    [
+                                    html.Label('Select Config File :', style={'color': 'white'}),
+                                    dcc.Dropdown(
+                                        id='config-dropdown',
+                                        options=[{'label': doc['_id'], 'value': doc['_id']} for doc in collection_LINE.find({})]
+                                    ),
+                                    ],
+                                    className='mb-3'
+                                ),
+
+                                dbc.NavItem(
+                                    [
+                                        html.Label('Start Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
+                                        dcc.Input(id='start-time', type='text', placeholder='Start Timestamp'),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Label('End Timestamp (YYYY-MM-DD_HH:MM:SS):', style={'color': 'white'}),
+                                        dcc.Input(id='end-time', type='text', placeholder='End Timestamp'),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Button('Filter Data', id='filter-button', n_clicks=0),
+                                        html.Button('Save to CSV', id='save-csv-button', n_clicks=0, style={'margin-left': '10px'}),
+                                        html.Div(id='save-csv-message')
+                                    ],
+                                    className='mb-3'
+                                ),
+                                dbc.NavItem(
+                                    [
+                                        html.Label('Select Config File for Parameters :', style={'color': 'white'}),
+                                        dcc.Dropdown(
+                                            id='config-param-dropdown',
+                                            options=[{'label': doc['_id'], 'value': doc['_id']} for doc in collection_Parameter.find({})]
+                                        ),
+                                    ],
+                                    className='mb-3'
+                                ),
+                                # Display warning message if no configuration file is selected
                                 html.Div(id='warning-message', children=[]),
-                                html.Div([
-                                    html.Div(id='line_param'),
-                                    html.Button('Apply Changes', id='apply-button', n_clicks=0),
-                                    html.Div(id='output-message')
-                                ]),
                             ],
                             vertical=True, pills=True
-                        )
+                        ),
+
+                        html.Div([
+                            html.Div(id='input-container', children=[
+                                    # Membaca data langsung dari koleksi Parameter
+                                    dcc.Input(
+                                        id={'type': 'input', 'index': key},
+                                        type='number',
+                                        placeholder=f'Enter value for {key}'
+                                    )
+                                    for key in keys
+                                ]),
+                                html.Button('Apply Changes', id='apply-button', n_clicks=0),
+                                html.Div(id='output-message')
+                        ])
                     ],
                     width=3
                 ),
@@ -423,7 +328,7 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
-    
+
 ZA_data = []
 
 @app.callback(
@@ -604,44 +509,22 @@ def save_filtered_data_to_csv(n_clicks, start_time, end_time):
 @app.callback(
     Output('output-message', 'children'),
     [Input('apply-button', 'n_clicks')],
-    [
-        State('rgz1', 'value'), 
-        State('rgz2', 'value'), 
-        State('rgz3', 'value'), 
-        State('xgz1', 'value'), 
-        State('xgz2', 'value'), 
-        State('xgz3', 'value'), 
-        State('rpz1', 'value'), 
-        State('rpz2', 'value'), 
-        State('rpz3', 'value'), 
-        State('xpz1', 'value'), 
-        State('xpz2', 'value'), 
-        State('xpz3', 'value'), 
-        State('angle', 'value'), 
-        State('z0z1_mag', 'value'), 
-        State('z0z1_ang', 'value'), 
-        State('delta_t', 'value'), 
-        State('id2', 'value'), 
-        State('line_length', 'value'), 
-        State('CT_RATIO_HV', 'value'), 
-        State('CT_RATIO_LV', 'value'), 
-        State('VT_RATIO_HV', 'value'), 
-        State('VT_RATIO_LV', 'value'), 
-        State('CTVT_RATIO', 'value'),
-        State('config-param-dropdown', 'value')
-    ]
+    [State('config-param-dropdown', 'value')] + [State({'type': 'input', 'index': key}, 'value') for key in keys]
 )
-def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, selected_config):
-    if n_clicks is not None and n_clicks > 0:
-        if all(value is not None for value in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO]) and selected_config:
-            parameter_id = 'selected_config'  # Ganti dengan cara yang sesuai untuk mendapatkan ID parameter
-            # Update nilai parameter langsung ke dalam koleksi Parameter
-            collection_Parameter.update_one({'_id': parameter_id}, {'$set': {'rgz1': rgz1, 'rgz2': rgz2, 'rgz3': rgz3, 'xgz1': xgz1, 'xgz2': xgz2, 'xgz3': xgz3, 'rpz1': rpz1, 'rpz2': rpz2, 'rpz3': rpz3, 'xpz1': xpz1, 'xpz2': xpz2, 'xpz3': xpz3, 'angle': angle, 'z0z1_mag': z0z1_mag, 'z0z1_ang': z0z1_ang, 'delta_t': delta_t, 'id2': id2, 'line_length': line_length, 'CT_RATIO_HV': CT_RATIO_HV, 'CT_RATIO_LV': CT_RATIO_LV, 'VT_RATIO_HV': VT_RATIO_HV, 'VT_RATIO_LV': VT_RATIO_LV, 'CT/VT_RATIO': CTVT_RATIO}})
+def update_parameter(n_clicks, selected_config, *values):
+    if n_clicks > 0 and selected_config is not None:
+        if len(values) > 0:
+            for key, value in zip(keys, values):
+                if value is not None:
+                    parameter_id = selected_config
+                    # Update nilai parameter langsung ke dalam koleksi Parameter
+                    collection_Parameter.update_one({'_id': parameter_id}, {'$set': {key: value}})
             return html.Div('Parameters updated successfully', style={'color': 'green'})
         else:
             return html.Div('No changes detected', style={'color': 'orange'})
     else:
-        return html.Div()
+        return html.Div('Please select a configuration file for parameters', style={'color': 'red'})
+
 # # MQTT data reception
 # def on_message(client, userdata, message):
 #     data = json.loads(message.payload.decode())
