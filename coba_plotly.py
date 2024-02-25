@@ -72,23 +72,23 @@ dropdown2 = html.Div(
 )
 
 filter_start_input = dbc.Row([
-    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Label("Start Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
     html.Div(
-    [
-        dbc.Input(type="Timestamp", id="start_time", placeholder="Start Time", size="md", style={ 'background-color': 'white'}),
-        dbc.Label("Enter Start Time"),
-    ],),
-    ],
+        [
+            dbc.Input(type="Timestamp", id="start-time", placeholder="Start Time", size="md", style={'background-color': 'white'}),
+            dbc.Label("Enter Start Time"),
+        ],
+    ),
+],
     className="my-1"
 )
 filter_end_input = dbc.Row([
-        html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
-        html.Div([
-        dbc.Input(type="Timestamp", id="end_time", placeholder="End Time", size="md", style={ 'background-color': 'white'}),
-       
-    ],),
+    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div([
+        dbc.Input(type="Timestamp", id="end-time", placeholder="End Time", size="md", style={'background-color': 'white'}),
+    ]),
     dbc.Label("Enter End Time"),
-    ],
+],
     className="my-1",
 )
 
@@ -248,16 +248,15 @@ dbc.Row([
 
 Filter_button = html.Div(
     [
-        dbc.Button("FIlter Data", color="success", className="me-1",  n_clicks=0)
-       
+        dbc.Button("Filter Data", id="filter-button", color="success", className="me-1", n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
 
 csv_button = html.Div([
-    dbc.Button("Save CSV", color="success", className="me-1",  n_clicks=0)
+    html.Button("Save CSV", id="save-csv-button", className="btn btn-success me-1", n_clicks=0)
 ],
-className="d-grid gap-2 my-3",
+    className="d-grid gap-2 my-3",
 )
 
 filter_time = dbc.Form([filter_start_input, filter_end_input])
@@ -382,8 +381,9 @@ app.layout = dbc.Container(
     [State('start-time', 'value'),
      State('end-time', 'value')]
 )
+
 def filter_data(n_clicks, start_time, end_time):
-    if n_clicks > 0 and start_time and end_time:
+    if n_clicks and start_time and end_time:
         # Fetch data from MongoDB within the specified timestamp range
         filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
         
@@ -423,6 +423,7 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
+
     
 ZA_data = []
 
@@ -571,36 +572,96 @@ def update_graphs(n, selected_config):
     # Kembalikan grafik yang diperbarui
     return fig_phase_to_gnd, fig_phase_to_phase
 
-# Callback to save filtered data to CSV
+# Callback untuk menyimpan data yang difilter ke dalam file CSV
 @app.callback(
     Output('save-csv-message', 'children'),
     [Input('save-csv-button', 'n_clicks')],
-    [State('start-time', 'value'),
-     State('end-time', 'value')]
+    [State('start_time', 'value'),
+     State('end_time', 'value')]
 )
 def save_filtered_data_to_csv(n_clicks, start_time, end_time):
     if n_clicks > 0 and start_time and end_time:
-        # Fetch data from MongoDB within the specified timestamp range
+        # Ambil data dari MongoDB dalam rentang waktu timestamp yang ditentukan
         filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
         
-        # Convert the fetched data to a DataFrame
+        # Ubah data yang diambil ke dalam DataFrame
         df = pd.DataFrame(list(filtered_data))
         
-        # Generate filename with timestamp
+        # Buat nama file dengan timestamp
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         filename = f"filter_data_{timestamp}.csv"
         
-        # Define the directory to save CSV files
+        # Tentukan direktori untuk menyimpan file CSV
         save_folder = 'data_csv'
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
         
-        # Save the DataFrame to CSV
+        # Simpan DataFrame ke dalam file CSV
         csv_path = os.path.join(save_folder, filename)
         df.to_csv(csv_path, index=False)
         
         return html.Div(f"Data filtered successfully saved to {csv_path}", style={'color': 'green'})
 
+# Callback to initialize input values based on MongoDB data
+@app.callback(
+    Output('rgz1', 'value'),
+    Output('rgz2', 'value'),
+    Output('rgz3', 'value'),
+    Output('xgz1', 'value'),
+    Output('xgz2', 'value'),
+    Output('xgz3', 'value'),
+    Output('rpz1', 'value'),
+    Output('rpz2', 'value'),
+    Output('rpz3', 'value'),
+    Output('xpz1', 'value'),
+    Output('xpz2', 'value'),
+    Output('xpz3', 'value'),
+    Output('angle', 'value'),
+    Output('z0z1_mag', 'value'),
+    Output('z0z1_ang', 'value'),
+    Output('delta_t', 'value'),
+    Output('id2', 'value'),
+    Output('line_length', 'value'),
+    Output('CT_RATIO_HV', 'value'),
+    Output('CT_RATIO_LV', 'value'),
+    Output('VT_RATIO_HV', 'value'),
+    Output('VT_RATIO_LV', 'value'),
+    Output('CTVT_RATIO', 'value'),
+    Input('config-param-dropdown', 'value')
+)
+def initialize_input_values(selected_config):
+    if selected_config:
+        parameter_data = collection_Parameter.find_one({"_id": selected_config})
+        if parameter_data:
+            return (
+                parameter_data.get('rgz1', ''),
+                parameter_data.get('rgz2', ''),
+                parameter_data.get('rgz3', ''),
+                parameter_data.get('xgz1', ''),
+                parameter_data.get('xgz2', ''),
+                parameter_data.get('xgz3', ''),
+                parameter_data.get('rpz1', ''),
+                parameter_data.get('rpz2', ''),
+                parameter_data.get('rpz3', ''),
+                parameter_data.get('xpz1', ''),
+                parameter_data.get('xpz2', ''),
+                parameter_data.get('xpz3', ''),
+                parameter_data.get('angle', ''),
+                parameter_data.get('z0z1_mag', ''),
+                parameter_data.get('z0z1_ang', ''),
+                parameter_data.get('delta_t', ''),
+                parameter_data.get('id2', ''),
+                parameter_data.get('line_length', ''),
+                parameter_data.get('CT_RATIO_HV', ''),
+                parameter_data.get('CT_RATIO_LV', ''),
+                parameter_data.get('VT_RATIO_HV', ''),
+                parameter_data.get('VT_RATIO_LV', ''),
+                parameter_data.get('CTVT_RATIO', '')
+            )
+    # Return empty strings if no config is selected or if no data found in MongoDB
+    return ('',) * 23 # 24 output values, all initialized to empty string
+
+# Callback to update parameter values in MongoDB
 @app.callback(
     Output('output-message', 'children'),
     [Input('apply-button', 'n_clicks')],
@@ -631,17 +692,24 @@ def save_filtered_data_to_csv(n_clicks, start_time, end_time):
         State('config-param-dropdown', 'value')
     ]
 )
+
 def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, selected_config):
     if n_clicks is not None and n_clicks > 0:
-        if all(value is not None for value in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO]) and selected_config:
-            parameter_id = 'selected_config'  # Ganti dengan cara yang sesuai untuk mendapatkan ID parameter
-            # Update nilai parameter langsung ke dalam koleksi Parameter
-            collection_Parameter.update_one({'_id': parameter_id}, {'$set': {'rgz1': rgz1, 'rgz2': rgz2, 'rgz3': rgz3, 'xgz1': xgz1, 'xgz2': xgz2, 'xgz3': xgz3, 'rpz1': rpz1, 'rpz2': rpz2, 'rpz3': rpz3, 'xpz1': xpz1, 'xpz2': xpz2, 'xpz3': xpz3, 'angle': angle, 'z0z1_mag': z0z1_mag, 'z0z1_ang': z0z1_ang, 'delta_t': delta_t, 'id2': id2, 'line_length': line_length, 'CT_RATIO_HV': CT_RATIO_HV, 'CT_RATIO_LV': CT_RATIO_LV, 'VT_RATIO_HV': VT_RATIO_HV, 'VT_RATIO_LV': VT_RATIO_LV, 'CT/VT_RATIO': CTVT_RATIO}})
-            return html.Div('Parameters updated successfully', style={'color': 'green'})
+        # Mengonversi nilai menjadi int32 jika tidak kosong
+        int_values = [int(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO]]
+        
+        if all(value is not None for value in int_values) and selected_config:
+            parameter_id = selected_config  
+            # Update parameter values directly into Parameter collection
+            collection_Parameter.update_one({'_id': parameter_id}, {'$set': {'rgz1': int_values[0], 'rgz2': int_values[1], 'rgz3': int_values[2], 'xgz1': int_values[3], 'xgz2': int_values[4], 'xgz3': int_values[5], 'rpz1': int_values[6], 'rpz2': int_values[7], 'rpz3': int_values[8], 'xpz1': int_values[9], 'xpz2': int_values[10], 'xpz3': int_values[11], 'angle': int_values[12], 'z0z1_mag': int_values[13], 'z0z1_ang': int_values[14], 'delta_t': int_values[15], 'id2': int_values[16], 'line_length': int_values[17], 'CT_RATIO_HV': int_values[18], 'CT_RATIO_LV': int_values[19], 'VT_RATIO_HV': int_values[20], 'VT_RATIO_LV': int_values[21], 'CTVT_RATIO': int_values[22]}})
+            return html.Div([
+                html.P('Parameters updated successfully', style={'color': 'green'})
+            ])
         else:
-            return html.Div('No changes detected', style={'color': 'orange'})
-    else:
-        return html.Div()
+            return html.Div([
+                html.P('No data changes', style={'color': 'red'})
+            ])
+
 # # MQTT data reception
 # def on_message(client, userdata, message):
 #     data = json.loads(message.payload.decode())
