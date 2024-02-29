@@ -242,3 +242,152 @@ class LineCalculation:
     def get_ZCA_data(self):
         LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X = self.data_ZCA
         return LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X
+
+
+class ZoneCalculation:
+    def __init__(self):
+        self.PG_Real = []
+        self.PG_Imag = []
+        self.PP_Real = []
+        self.PP_Imag = []
+        self.reach_pg_x = []
+        self.reach_pg_y = []
+        self.tr_pg_x = []
+        self.tr_pg_y = []
+        self.dr_pg_z_x = []
+        self.dr_pg_z_y = []
+        self.reach_pp_x = []
+        self.reach_pp_y = []
+        self.tr_pp_x = []
+        self.tr_pp_y = []
+        self.dr_pp_z_x = []
+        self.dr_pp_z_y = []
+
+    def calculate_values(self, LINE1_xpz1, LINE1_xpz2, LINE1_xpz3, LINE1_rpz1, LINE1_rpz2, LINE1_rpz3,
+                     LINE1_xgz1, LINE1_xgz2, LINE1_xgz3, LINE1_rgz1, LINE1_rgz2, LINE1_rgz3, LINE1_angle, LINE1_z0z1_mag,
+                     LINE1_z0z1_ang):
+
+        self._calculate_PG_Real_imag(LINE1_xgz1, LINE1_xgz2, LINE1_xgz3, LINE1_angle)
+        self._calculate_PP_Real_imag(LINE1_rpz1, LINE1_rpz2, LINE1_rpz3, LINE1_angle)
+        self.calculate_params_PG(LINE1_rgz1, LINE1_rgz2, LINE1_rgz3, LINE1_angle)
+        self.calculate_params_PP(LINE1_rpz1, LINE1_rpz2, LINE1_rpz3, LINE1_angle)
+
+    def _calculate_PG_Real_imag(self, LINE1_xgz1, LINE1_xgz2, LINE1_xgz3, LINE1_angle):
+
+        for xgz in [LINE1_xgz1, LINE1_xgz2, LINE1_xgz3]:
+            Zone_Real = xgz * math.cos(math.radians(LINE1_angle))
+            Zone_Imag = xgz * math.sin(math.radians(LINE1_angle))
+            self.PG_Real.append(Zone_Real)
+            self.PG_Imag.append(Zone_Imag)
+
+
+    def calculate_params_PG(self, LINE1_rgz1, LINE1_rgz2, LINE1_rgz3, LINE1_angle):
+        LINE1_Z1_PG_Real, LINE1_Z2_PG_Real, LINE1_Z3_PG_Real = self.PG_Real
+        LINE1_Z1_PG_Imag, LINE1_Z2_PG_Imag, LINE1_Z3_PG_Imag = self.PG_Imag
+
+        LINE1_reach_z1_x, LINE1_reach_z2_x, LINE1_reach_z3_x = LINE1_Z1_PG_Real, LINE1_Z2_PG_Real, LINE1_Z3_PG_Real
+        self.reach_pg_x.extend([LINE1_reach_z1_x, LINE1_reach_z2_x, LINE1_reach_z3_x])
+        
+        LINE1_reach_z1_y, LINE1_reach_z2_y, LINE1_reach_z3_y = LINE1_Z1_PG_Imag, LINE1_Z2_PG_Imag, LINE1_Z3_PG_Imag
+        self.reach_pg_y.extend([LINE1_reach_z1_y, LINE1_reach_z2_y, LINE1_reach_z3_y])
+
+        top_right_z1_x = LINE1_reach_z1_x + LINE1_rgz1
+        top_right_z2_x = LINE1_reach_z2_x + LINE1_rgz2
+        top_right_z3_x = LINE1_reach_z3_x + LINE1_rgz3
+        self.tr_pg_x.extend([top_right_z1_x, top_right_z2_x, top_right_z3_x])
+        
+        top_right_z1_y = LINE1_reach_z1_y
+        top_right_z2_y = LINE1_reach_z2_y
+        top_right_z3_y = LINE1_reach_z3_y
+        self.tr_pg_y.extend([top_right_z1_y, top_right_z2_y, top_right_z3_y])
+
+        for rgz in [LINE1_rgz1, LINE1_rgz2, LINE1_rgz3]:
+            dr_z_x = rgz * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            dr_z_y= -rgz * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            self.dr_pg_z_x.append(dr_z_x)
+            self.dr_pg_z_y.append(dr_z_y)
+    
+    
+    
+    def _calculate_PP_Real_imag(self, LINE1_rpz1, LINE1_rpz2, LINE1_rpz3, LINE1_angle):
+
+        for rpz in [LINE1_rpz1, LINE1_rpz2, LINE1_rpz3]:
+            Zone_Real = rpz * math.cos(math.radians(LINE1_angle))
+            Zone_Imag = rpz * math.sin(math.radians(LINE1_angle))
+            self.PP_Real.append(Zone_Real)
+            self.PP_Imag.append(Zone_Imag)
+
+    def calculate_params_PP(self, LINE1_rpz1, LINE1_rpz2, LINE1_rpz3, LINE1_angle):
+        LINE1_Z1_PP_Real, LINE1_Z2_PP_Real, LINE1_Z3_PP_Real = self.PP_Real
+        LINE1_Z1_PP_Imag, LINE1_Z2_PP_Imag, LINE1_Z3_PP_Imag = self.PP_Imag
+
+        LINE1_reach_z1_x, LINE1_reach_z2_x, LINE1_reach_z3_x = LINE1_Z1_PP_Real, LINE1_Z2_PP_Real, LINE1_Z3_PP_Real
+        self.reach_pp_x.extend([LINE1_reach_z1_x, LINE1_reach_z2_x, LINE1_reach_z3_x])
+        
+        LINE1_reach_z1_y, LINE1_reach_z2_y, LINE1_reach_z3_y = LINE1_Z1_PP_Imag, LINE1_Z2_PP_Imag, LINE1_Z3_PP_Imag
+        self.reach_pp_y.extend([LINE1_reach_z1_y, LINE1_reach_z2_y, LINE1_reach_z3_y])
+
+        top_right_z1_x = LINE1_reach_z1_x + LINE1_rpz1
+        top_right_z2_x = LINE1_reach_z2_x + LINE1_rpz2
+        top_right_z3_x = LINE1_reach_z3_x + LINE1_rpz3
+        self.tr_pp_x.extend([top_right_z1_x, top_right_z2_x, top_right_z3_x])
+        
+        top_right_z1_y = LINE1_reach_z1_y
+        top_right_z2_y = LINE1_reach_z2_y
+        top_right_z3_y = LINE1_reach_z3_y
+        self.tr_pp_y.extend([top_right_z1_y, top_right_z2_y, top_right_z3_y])
+
+        for rpz in [LINE1_rpz1, LINE1_rpz2, LINE1_rpz3]:
+            dr_z_x = rpz * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            dr_z_y= -rpz * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            self.dr_pp_z_x.append(dr_z_x)
+            self.dr_pp_z_y.append(dr_z_y)
+
+
+    def get_PG_real_data(self):
+        return self.PG_Real
+
+    def get_PG_imag_data(self):
+        return self.PG_Imag
+    
+    def get_reach_pg_x(self):
+        return self.reach_pg_x
+    
+    def get_reach_pg_y(self):
+        return self.reach_pg_y
+    
+    def get_tr_pg_x(self):
+        return self.tr_pg_x
+    
+    def get_tr_pg_y(self):
+        return self.tr_pg_y
+    
+    def get_dr_pg_x(self):
+        return self.dr_pg_z_x
+    
+    def get_dr_pg_y(self):
+        return self.dr_pg_z_y
+################################################################
+    def get_PP_real_data(self):
+        return self.PP_Real
+
+    def get_PP_imag_data(self):
+        return self.PP_Imag
+
+    def get_reach_pp_x(self):
+        return self.reach_pp_x
+    
+    def get_reach_pp_y(self):
+        return self.reach_pp_y
+    
+    def get_tr_pp_x(self):
+        return self.tr_pp_x
+    
+    def get_tr_pp_y(self):
+        return self.tr_pp_y
+    
+    def get_dr_pp_x(self):
+        return self.dr_pp_z_x
+    
+    def get_dr_pp_y(self):
+        return self.dr_pp_z_y
