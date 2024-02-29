@@ -51,51 +51,51 @@ result = collection.find_one(filter_query)
 print(result)
 
 
-# LINE1_xpz1 = result['xpz1']
-# LINE1_xpz2 = result['xpz2']
-# LINE1_xpz3 = result['xpz3']
+LINE1_xpz1 = result['xpz1']
+LINE1_xpz2 = result['xpz2']
+LINE1_xpz3 = result['xpz3']
 
-# LINE1_rpz1 = result['rpz1']
-# LINE1_rpz2 = result['rpz2']
-# LINE1_rpz3 = result['rpz3']
+LINE1_rpz1 = result['rpz1']
+LINE1_rpz2 = result['rpz2']
+LINE1_rpz3 = result['rpz3']
 
-# LINE1_xgz1 = result['xgz1']
-# LINE1_xgz2 = result['xgz2']
-# LINE1_xgz3 = result['xgz3']
+LINE1_xgz1 = result['xgz1']
+LINE1_xgz2 = result['xgz2']
+LINE1_xgz3 = result['xgz3']
 
-# LINE1_rgz1 = result['rgz1']
-# LINE1_rgz2 = result['rgz2']
-# LINE1_rgz3 = result['rgz3']
+LINE1_rgz1 = result['rgz1']
+LINE1_rgz2 = result['rgz2']
+LINE1_rgz3 = result['rgz3']
 
-# LINE1_angle= result['angle']
+LINE1_angle= result['angle']
 
-# LINE1_z0z1_mag = result['z0z1_mag']
-# LINE1_z0z1_ang = result['z0z1_ang']
+LINE1_z0z1_mag = result['z0z1_mag']
+LINE1_z0z1_ang = result['z0z1_ang']
 
 
-LINE1_z0z1_mag = 6.181
-LINE1_z0z1_ang = -2.55
+# LINE1_z0z1_mag = 6.181
+# LINE1_z0z1_ang = -2.55
 
-LINE1_xpz1 = 12.6875
-LINE1_xpz2 = 19
-LINE1_xpz3 = 25.375
+# LINE1_xpz1 = 12.6875
+# LINE1_xpz2 = 19
+# LINE1_xpz3 = 25.375
 
-LINE1_rpz1 = 17.3125
-LINE1_rpz2 = 26
-LINE1_rpz3 = 34.625
+# LINE1_rpz1 = 17.3125
+# LINE1_rpz2 = 26
+# LINE1_rpz3 = 34.625
 
-LINE1_xgz1 = 12.6875
-LINE1_xgz2 = 19
-LINE1_xgz3 = 25.375
+# LINE1_xgz1 = 12.6875
+# LINE1_xgz2 = 19
+# LINE1_xgz3 = 25.375
 
-LINE1_rgz1 = 46.1875
-LINE1_rgz2 = 46.1875
-LINE1_rgz3 = 46.1875
+# LINE1_rgz1 = 46.1875
+# LINE1_rgz2 = 46.1875
+# LINE1_rgz3 = 46.1875
 
-LINE1_angle= 75
+# LINE1_angle= 75
 
-LINE1_z0z1_mag = 6.181
-LINE1_z0z1_ang = -2.55
+# LINE1_z0z1_mag = 6.181
+# LINE1_z0z1_ang = -2.55
 
 
 zone_calc = ZoneCalculation()
