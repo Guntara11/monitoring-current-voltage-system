@@ -4,44 +4,6 @@ import pymongo
 import random
 import time
 
-def params():
-    while True :
-        # LINE1_U1 = 89236.961
-        # LINE1_U2 = 89521.813
-        # LINE1_U3 = 89844.727
-        LINE1_Ang_U1 = 117.274
-        LINE1_Ang_U2 = 356.92
-        LINE1_Ang_U3 = 237.173
-
-        INC_Data = round(random.uniform(-1, 5), 2)
-
-        LINE1_IL1 = 0 + INC_Data
-        LINE1_IL2 = 0 + INC_Data
-        LINE1_IL3 = 0 + INC_Data
-        LINE1_U1 = 0 + INC_Data
-        LINE1_U2 = 0 + INC_Data
-        LINE1_U3 = 0 + INC_Data
-
-        if LINE1_IL1 >= 200:
-            LINE1_IL1 = 0
-        
-        # elif LINE1_IL2 >= 200:
-        #     LINE1_IL2 = 0
-        
-        # elif LINE1_IL3 >= 200:
-        #     LINE1_IL3 = 0
-
-        LINE1_Ang_I1 = 112.977
-        LINE1_Ang_I2 = 0.044
-        LINE1_Ang_I3 = 232.82
-
-        LINE1_z0z1_mag = 6.181
-        LINE1_z0z1_ang = -2.55
-
-        time.sleep(1)
-        return LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_IL1, LINE1_IL2,\
-                LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, LINE1_z0z1_mag, LINE1_z0z1_ang
-
 class LineCalculation:
     def __init__(self):
         self.real_data = []
@@ -56,8 +18,8 @@ class LineCalculation:
         self.data_ZAB = []
         self.data_ZBC = []
         self.data_ZCA = []
-        self.LINE1_U1, self.LINE1_U2, self.LINE1_U3, self.LINE1_Ang_U1, self.LINE1_Ang_U2, self.LINE1_Ang_U3, self.LINE1_IL1, self.LINE1_IL2,\
-        self.LINE1_IL3, self.LINE1_Ang_I1, self.LINE1_Ang_I2, self.LINE1_Ang_I3, self.LINE1_z0z1_mag, self.LINE1_z0z1_ang = params()
+        # self.LINE1_U1, self.LINE1_U2, self.LINE1_U3, self.LINE1_Ang_U1, self.LINE1_Ang_U2, self.LINE1_Ang_U3, self.LINE1_IL1, self.LINE1_IL2,\
+        # self.LINE1_IL3, self.LINE1_Ang_I1, self.LINE1_Ang_I2, self.LINE1_Ang_I3, self.LINE1_z0z1_mag, self.LINE1_z0z1_ang = params()
 
     def calculate_values(self, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
                          LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
@@ -151,16 +113,21 @@ class LineCalculation:
         data_list.extend([Z_Real, Z_Imag])
         
         # Calculate magnitude and angle of LINE1_ZA or LINE1_ZB
-        Z_Mag = abs(self.complex_data[V_index] / self.complex_data[IL_index])
-        Z_Ang = math.degrees(cmath.phase(self.complex_data[V_index] / self.complex_data[IL_index]))
+        if abs(self.complex_data[IL_index]) > 1e-10:  # Tolerance check
+            Z_Mag = abs(self.complex_data[V_index] / self.complex_data[IL_index])
+            Z_Ang = math.degrees(cmath.phase(self.complex_data[V_index] / self.complex_data[IL_index]))
         
-        # Convert angle to radians
-        Z_Ang_radians = math.radians(Z_Ang)
-        
-        # Calculate R and X components of LINE1_ZA or LINE1_ZB
-        Z_R = Z_Mag * math.cos(Z_Ang_radians)
-        Z_X = Z_Mag * math.sin(Z_Ang_radians)
-        data_list.extend([Z_Mag, Z_Ang, Z_R, Z_X])
+            # Convert angle to radians
+            Z_Ang_radians = math.radians(Z_Ang)
+            
+            # Calculate R and X components of LINE1_ZA or LINE1_ZB
+            Z_R = Z_Mag * math.cos(Z_Ang_radians)
+            Z_X = Z_Mag * math.sin(Z_Ang_radians)
+            data_list.extend([Z_Mag, Z_Ang, Z_R, Z_X])
+        else:
+            # Take action if self.complex_data[IL_index] is zero
+            Z_Mag = 0
+            Z_Ang = 0
 
     def combine_calculate_mag_ang_R_X(self, Z_type):
         if Z_type == "AB":
@@ -184,15 +151,18 @@ class LineCalculation:
         else:
             raise ValueError("Invalid Z_type. Must be 'AB' or 'BC' or 'CA'.")
         
-        LINE1_Z_Mag = abs((self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] -self.complex_data[IL_topIndex]))
-        LINE1_diff_Vbot_Vtop = self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]
-        LINE1_diff_Ibot_Itop = self.complex_data[IL_bottomIndex] - self.complex_data[IL_topIndex]
-        LINE1_Z_Ang = math.degrees(math.atan2(LINE1_diff_Vbot_Vtop.imag, LINE1_diff_Vbot_Vtop.real) - math.atan2(LINE1_diff_Ibot_Itop.imag, LINE1_diff_Ibot_Itop.real))
-        LINE1_Z_Ang_radians = math.radians(LINE1_Z_Ang)
-        LINE1_Z_R = LINE1_Z_Mag * math.cos(LINE1_Z_Ang_radians)
-        LINE1_Z_X = LINE1_Z_Mag * math.sin(LINE1_Z_Ang_radians)
-        data_list.extend([LINE1_Z_Mag, LINE1_Z_Ang, LINE1_Z_R, LINE1_Z_X])
-
+        if abs((self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] -self.complex_data[IL_topIndex])) > 1e-10:
+            LINE1_Z_Mag = abs((self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] -self.complex_data[IL_topIndex]))
+            LINE1_diff_Vbot_Vtop = self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]
+            LINE1_diff_Ibot_Itop = self.complex_data[IL_bottomIndex] - self.complex_data[IL_topIndex]
+            LINE1_Z_Ang = math.degrees(math.atan2(LINE1_diff_Vbot_Vtop.imag, LINE1_diff_Vbot_Vtop.real) - math.atan2(LINE1_diff_Ibot_Itop.imag, LINE1_diff_Ibot_Itop.real))
+            LINE1_Z_Ang_radians = math.radians(LINE1_Z_Ang)
+            LINE1_Z_R = LINE1_Z_Mag * math.cos(LINE1_Z_Ang_radians)
+            LINE1_Z_X = LINE1_Z_Mag * math.sin(LINE1_Z_Ang_radians)
+            data_list.extend([LINE1_Z_Mag, LINE1_Z_Ang, LINE1_Z_R, LINE1_Z_X])
+        else :
+            LINE1_Z_Mag = 0
+            LINE1_Z_Ang = 0
 
     def get_real_data(self):
         IL1_Real, IL2_Real, IL3_Real, V1_Real, V2_Real, V3_Real = self.real_data

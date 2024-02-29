@@ -83,7 +83,244 @@ async def main_async():
             LINE1_z0z1_mag = 6.181
             LINE1_z0z1_ang = -2.55
             
+            LINE1_xpz1 = 12.6875
+            LINE1_xpz2 = 19
+            LINE1_xpz3 = 25.375
 
+            LINE1_rpz1 = 17.3125
+            LINE1_rpz2 = 26
+            LINE1_rpz3 = 34.625
+
+            LINE1_xgz1 = 12.6875
+            LINE1_xgz2 = 19
+            LINE1_xgz3 = 25.375
+
+            LINE1_rgz1 = 46.1875
+            LINE1_rgz2 = 46.1875
+            LINE1_rgz3 = 46.1875
+
+            LINE1_angle= 75
+            
+            LINE1_z0z1_mag = 6.181
+            LINE1_z0z1_ang = -2.55
+
+            # Phase to Ground
+            LINE1_Z1_PG_Real= LINE1_xgz1 * math.cos(math.radians(LINE1_angle))
+            LINE1_Z2_PG_Real= LINE1_xgz2 * math.cos(math.radians(LINE1_angle))
+            LINE1_Z3_PG_Real= LINE1_xgz3 * math.cos(math.radians(LINE1_angle))
+
+            LINE1_Z1_PG_Imag= LINE1_xgz1 * math.sin(math.radians(LINE1_angle))
+            LINE1_Z2_PG_Imag= LINE1_xgz2 * math.sin(math.radians(LINE1_angle))
+            LINE1_Z3_PG_Imag= LINE1_xgz3 * math.sin(math.radians(LINE1_angle))
+
+            LINE1_reach_z1_x= LINE1_Z1_PG_Real
+            LINE1_reach_z1_y= LINE1_Z1_PG_Imag
+            LINE1_reach_z2_x= LINE1_Z2_PG_Real
+            LINE1_reach_z2_y= LINE1_Z2_PG_Imag
+            LINE1_reach_z3_x= LINE1_Z3_PG_Real
+            LINE1_reach_z3_y= LINE1_Z3_PG_Imag
+
+            top_right_z1_x= LINE1_reach_z1_x + LINE1_rgz1
+            top_right_z1_y= LINE1_reach_z1_y
+            top_right_z2_x= LINE1_reach_z2_x + LINE1_rgz2
+            top_right_z2_y= LINE1_reach_z2_y
+            top_right_z3_x= LINE1_reach_z3_x + LINE1_rgz3
+            top_right_z3_y= LINE1_reach_z3_y
+
+            top_left_z1_x= LINE1_Z1_PG_Real-(0.5*LINE1_rgz1)
+            top_left_z1_y= LINE1_reach_z1_y
+            top_left_z2_x= LINE1_Z2_PG_Real-(0.5*LINE1_rgz2)
+            top_left_z2_y= LINE1_reach_z2_y
+            top_left_z3_x= LINE1_Z3_PG_Real-(0.5*LINE1_rgz3)
+            top_left_z3_y= LINE1_reach_z3_y
+
+            down_right_z1_x= LINE1_rgz1 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z1_y= -LINE1_rgz1 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_right_z2_x= LINE1_rgz2 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z2_y= -LINE1_rgz2 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_right_z3_x= LINE1_rgz3 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z3_y= -LINE1_rgz3 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+
+            down_left_z1_x= -0.5 * LINE1_rgz1 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z1_y= 0.5 * LINE1_rgz1 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_left_z2_x= -0.5 * LINE1_rgz2 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z2_y= 0.5 * LINE1_rgz2 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_left_z3_x= -0.5 * LINE1_rgz3 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z3_y= 0.5 * LINE1_rgz3 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+
+            right_side_z1_x= top_right_z1_x
+            right_side_z1_y= LINE1_reach_z1_y
+            right_side_z2_x= top_right_z2_x
+            right_side_z2_y= LINE1_reach_z2_y
+            right_side_z3_x= top_right_z3_x
+            right_side_z3_y= LINE1_reach_z3_y
+
+            left_side_z1_x= down_left_z1_x
+            left_side_z1_y= down_left_z1_y
+            left_side_z2_x= down_left_z2_x
+            left_side_z2_y= down_left_z1_y
+            left_side_z3_x= down_left_z3_x
+            left_side_z3_y= down_left_z1_y
+
+            # Cetak data dengan keterangan
+            print("Phase_to_gnd")
+            print("LINE1_Z1_PG_Real =", LINE1_Z1_PG_Real)
+            print("LINE1_Z2_PG_Real =", LINE1_Z2_PG_Real)
+            print("LINE1_Z3_PG_Real =", LINE1_Z3_PG_Real)
+            print("LINE1_Z1_PG_Imag =", LINE1_Z1_PG_Imag)
+            print("LINE1_Z2_PG_Imag =", LINE1_Z2_PG_Imag)
+            print("LINE1_Z3_PG_Imag =", LINE1_Z3_PG_Imag)
+            print("LINE1_reach_z1_x =", LINE1_reach_z1_x)
+            print("LINE1_reach_z1_y =", LINE1_reach_z1_y)
+            print("LINE1_reach_z2_x =", LINE1_reach_z2_x)
+            print("LINE1_reach_z2_y =", LINE1_reach_z2_y)
+            print("LINE1_reach_z3_x =", LINE1_reach_z3_x)
+            print("LINE1_reach_z3_y =", LINE1_reach_z3_y)
+            print("top_right_z1_x =", top_right_z1_x)
+            print("top_right_z1_y =", top_right_z1_y)
+            print("top_right_z2_x =", top_right_z2_x)
+            print("top_right_z2_y =", top_right_z2_y)
+            print("top_right_z3_x =", top_right_z3_x)
+            print("top_right_z3_y =", top_right_z3_y)
+            print("top_left_z1_x =", top_left_z1_x)
+            print("top_left_z1_y =", top_left_z1_y)
+            print("top_left_z2_x =", top_left_z2_x)
+            print("top_left_z2_y =", top_left_z2_y)
+            print("top_left_z3_x =", top_left_z3_x)
+            print("top_left_z3_y =", top_left_z3_y)
+            print("down_right_z1_x =", down_right_z1_x)
+            print("down_right_z1_y =", down_right_z1_y)
+            print("down_right_z2_x =", down_right_z2_x)
+            print("down_right_z2_y =", down_right_z2_y)
+            print("down_right_z3_x =", down_right_z3_x)
+            print("down_right_z3_y =", down_right_z3_y)
+            print("down_left_z1_x =", down_left_z1_x)
+            print("down_left_z1_y =", down_left_z1_y)
+            print("down_left_z2_x =", down_left_z2_x)
+            print("down_left_z2_y =", down_left_z2_y)
+            print("down_left_z3_x =", down_left_z3_x)
+            print("down_left_z3_y =", down_left_z3_y)
+            print("right_side_z1_x =", right_side_z1_x)
+            print("right_side_z1_y =", right_side_z1_y)
+            print("right_side_z2_x =", right_side_z2_x)
+            print("right_side_z2_y =", right_side_z2_y)
+            print("right_side_z3_x =", right_side_z3_x)
+            print("right_side_z3_y =", right_side_z3_y)
+            print("left_side_z1_x =", left_side_z1_x)
+            print("left_side_z1_y =", left_side_z1_y)
+            print("left_side_z2_x =", left_side_z2_x)
+            print("left_side_z2_y =", left_side_z2_y)
+            print("left_side_z3_x =", left_side_z3_x)
+            print("left_side_z3_y =", left_side_z3_y)
+
+
+            # Phase to Phase
+            LINE1_Z1_PP_Real= LINE1_rpz1 * math.cos(math.radians(LINE1_angle))
+            LINE1_Z2_PP_Real= LINE1_rpz2 * math.cos(math.radians(LINE1_angle))
+            LINE1_Z3_PP_Real= LINE1_rpz3 * math.cos(math.radians(LINE1_angle))
+
+            LINE1_Z1_PP_Imag= LINE1_rpz1 * math.sin(math.radians(LINE1_angle))
+            LINE1_Z2_PP_Imag= LINE1_rpz2 * math.sin(math.radians(LINE1_angle))
+            LINE1_Z3_PP_Imag= LINE1_rpz3 * math.sin(math.radians(LINE1_angle))
+
+            LINE1_reach_z1_x= LINE1_Z1_PP_Real
+            LINE1_reach_z1_y= LINE1_Z1_PP_Imag
+            LINE1_reach_z2_x= LINE1_Z2_PP_Real
+            LINE1_reach_z2_y= LINE1_Z2_PP_Imag
+            LINE1_reach_z3_x= LINE1_Z3_PP_Real
+            LINE1_reach_z3_y= LINE1_Z3_PP_Imag
+
+            top_right_z1_x= LINE1_reach_z1_x + LINE1_rpz1
+            top_right_z1_y= LINE1_reach_z1_y
+            top_right_z2_x= LINE1_reach_z2_x + LINE1_rpz2
+            top_right_z2_y= LINE1_reach_z2_y
+            top_right_z3_x= LINE1_reach_z3_x + LINE1_rpz3
+            top_right_z3_y= LINE1_reach_z3_y
+
+            top_left_z1_x= LINE1_Z1_PP_Real-(0.5*LINE1_rpz1)
+            top_left_z1_y= LINE1_reach_z1_y
+            top_left_z2_x= LINE1_Z2_PP_Real-(0.5*LINE1_rpz2)
+            top_left_z2_y= LINE1_reach_z2_y
+            top_left_z3_x= LINE1_Z3_PP_Real-(0.5*LINE1_rpz3)
+            top_left_z3_y= LINE1_reach_z3_y
+
+            down_right_z1_x= LINE1_rpz1 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z1_y= -LINE1_rpz1 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_right_z2_x= LINE1_rpz2 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z2_y= -LINE1_rpz2 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_right_z3_x= LINE1_rpz3 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_right_z3_y= -LINE1_rpz3 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+
+            down_left_z1_x= -0.5 * LINE1_rpz1 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z1_y= 0.5 * LINE1_rpz1 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_left_z2_x= -0.5 * LINE1_rpz2 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z2_y= 0.5 * LINE1_rpz2 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+            down_left_z3_x= -0.5 * LINE1_rpz3 * math.sin(math.radians(LINE1_angle)) * math.cos(math.radians(90 - LINE1_angle))
+            down_left_z3_y= 0.5 * LINE1_rpz3 * math.sin(math.radians(LINE1_angle)) * math.sin(math.radians(90 - LINE1_angle))
+
+            right_side_z1_x= top_right_z1_x
+            right_side_z1_y= LINE1_reach_z1_y
+            right_side_z2_x= top_right_z2_x
+            right_side_z2_y= LINE1_reach_z2_y
+            right_side_z3_x= top_right_z3_x
+            right_side_z3_y= LINE1_reach_z3_y
+
+            left_side_z1_x= down_left_z1_x
+            left_side_z1_y= down_left_z1_y
+            left_side_z2_x= down_left_z2_x
+            left_side_z2_y= down_left_z1_y
+            left_side_z3_x= down_left_z3_x
+            left_side_z3_y= down_left_z1_y
+
+            print("Phase_to_phase")
+            print("LINE1_Z1_PP_Real =", LINE1_Z1_PP_Real)
+            print("LINE1_Z2_PP_Real =", LINE1_Z2_PP_Real)
+            print("LINE1_Z3_PP_Real =", LINE1_Z3_PP_Real)
+            print("LINE1_Z1_PP_Imag =", LINE1_Z1_PP_Imag)
+            print("LINE1_Z2_PP_Imag =", LINE1_Z2_PP_Imag)
+            print("LINE1_Z3_PP_Imag =", LINE1_Z3_PP_Imag)
+            print("LINE1_reach_z1_x =", LINE1_reach_z1_x)
+            print("LINE1_reach_z1_y =", LINE1_reach_z1_y)
+            print("LINE1_reach_z2_x =", LINE1_reach_z2_x)
+            print("LINE1_reach_z2_y =", LINE1_reach_z2_y)
+            print("LINE1_reach_z3_x =", LINE1_reach_z3_x)
+            print("LINE1_reach_z3_y =", LINE1_reach_z3_y)
+            print("top_right_z1_x =", top_right_z1_x)
+            print("top_right_z1_y =", top_right_z1_y)
+            print("top_right_z2_x =", top_right_z2_x)
+            print("top_right_z2_y =", top_right_z2_y)
+            print("top_right_z3_x =", top_right_z3_x)
+            print("top_right_z3_y =", top_right_z3_y)
+            print("top_left_z1_x =", top_left_z1_x)
+            print("top_left_z1_y =", top_left_z1_y)
+            print("top_left_z2_x =", top_left_z2_x)
+            print("top_left_z2_y =", top_left_z2_y)
+            print("top_left_z3_x =", top_left_z3_x)
+            print("top_left_z3_y =", top_left_z3_y)
+            print("down_right_z1_x =", down_right_z1_x)
+            print("down_right_z1_y =", down_right_z1_y)
+            print("down_right_z2_x =", down_right_z2_x)
+            print("down_right_z2_y =", down_right_z2_y)
+            print("down_right_z3_x =", down_right_z3_x)
+            print("down_right_z3_y =", down_right_z3_y)
+            print("down_left_z1_x =", down_left_z1_x)
+            print("down_left_z1_y =", down_left_z1_y)
+            print("down_left_z2_x =", down_left_z2_x)
+            print("down_left_z2_y =", down_left_z2_y)
+            print("down_left_z3_x =", down_left_z3_x)
+            print("down_left_z3_y =", down_left_z3_y)
+            print("right_side_z1_x =", right_side_z1_x)
+            print("right_side_z1_y =", right_side_z1_y)
+            print("right_side_z2_x =", right_side_z2_x)
+            print("right_side_z2_y =", right_side_z2_y)
+            print("right_side_z3_x =", right_side_z3_x)
+            print("right_side_z3_y =", right_side_z3_y)
+            print("left_side_z1_x =", left_side_z1_x)
+            print("left_side_z1_y =", left_side_z1_y)
+            print("left_side_z2_x =", left_side_z2_x)
+            print("left_side_z2_y =", left_side_z2_y)
+            print("left_side_z3_x =", left_side_z3_x)
+            print("left_side_z3_y =", left_side_z3_y)
 
             # Calculate IL1_Real using the formula
             LINE1_IL1_Real = LINE1_IL1 * math.cos(math.radians(LINE1_Ang_I1))
@@ -160,10 +397,10 @@ async def main_async():
 
             product_result = LINE1_IN_Complex * LINE1_n0
             sum_result = LINE1_IL1_Complex + product_result
-            LINE1_ZA = LINE1_V1_Complex / sum_result
+            LINE1_ZA_Complex = LINE1_V1_Complex / sum_result
 
-            LINE1_ZA_Real = LINE1_ZA.real
-            LINE1_ZA_Imag = LINE1_ZA.imag
+            LINE1_ZA_Real = LINE1_ZA_Complex.real
+            LINE1_ZA_Imag = LINE1_ZA_Complex.imag
             LINE1_Arr.extend([LINE1_ZA_Real, LINE1_ZA_Imag])
 
 
@@ -186,10 +423,10 @@ async def main_async():
 
             product_result = LINE1_IN_Complex * LINE1_n0
             sum_result = LINE1_IL2_Complex + product_result
-            LINE1_ZB = LINE1_V2_Complex / sum_result
+            LINE1_ZB_Complex = LINE1_V2_Complex / sum_result
 
-            LINE1_ZB_Real = LINE1_ZB.real
-            LINE1_ZB_Imag = LINE1_ZB.imag
+            LINE1_ZB_Real = LINE1_ZB_Complex.real
+            LINE1_ZB_Imag = LINE1_ZB_Complex.imag
             LINE1_Arr.extend([LINE1_ZB_Real, LINE1_ZB_Imag])
 
 
@@ -209,10 +446,10 @@ async def main_async():
 
             product_result = LINE1_IN_Complex * LINE1_n0
             sum_result = LINE1_IL3_Complex + product_result
-            LINE1_ZC = LINE1_V3_Complex / sum_result
+            LINE1_ZC_Complex = LINE1_V3_Complex / sum_result
 
-            LINE1_ZC_Real = LINE1_ZC.real
-            LINE1_ZC_Imag = LINE1_ZC.imag
+            LINE1_ZC_Real = LINE1_ZC_Complex.real
+            LINE1_ZC_Imag = LINE1_ZC_Complex.imag
             LINE1_Arr.extend([LINE1_ZC_Real, LINE1_ZC_Imag])
 
 
@@ -225,9 +462,9 @@ async def main_async():
 
                                 
             # Calculate LINE1_ZAB_Mag, Ang, R, X
-
-
-
+            LINE1_ZAB_Complex = (LINE1_V1_Complex - LINE1_V2_Complex) / (LINE1_IL1_Complex - LINE1_IL2_Complex)
+            LINE1_ZAB_Real = LINE1_ZAB_Complex.real
+            LINE1_ZAB_Imag = LINE1_ZAB_Complex.imag
 
             
             LINE1_ZAB_Mag = abs((LINE1_V1_Complex - LINE1_V2_Complex) / (LINE1_IL1_Complex - LINE1_IL2_Complex))
@@ -240,6 +477,10 @@ async def main_async():
             LINE1_Arr.extend([LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X])
             
             # Calculate LINE1_ZBC_Mag, Ang, R, X
+            LINE1_ZBC_Complex = (LINE1_V2_Complex - LINE1_V3_Complex) / (LINE1_IL2_Complex - LINE1_IL3_Complex)
+            LINE1_ZBC_Real = LINE1_ZBC_Complex.real
+            LINE1_ZBC_Imag = LINE1_ZBC_Complex.imag
+
             LINE1_ZBC_Mag = abs((LINE1_V2_Complex - LINE1_V3_Complex) / (LINE1_IL2_Complex - LINE1_IL3_Complex))
             LINE1_diff_V2_V3 = LINE1_V2_Complex - LINE1_V3_Complex
             LINE1_diff_IL2_IL3 = LINE1_IL2_Complex - LINE1_IL3_Complex
@@ -250,6 +491,10 @@ async def main_async():
             LINE1_Arr.extend([LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X])
             
             # Calculate LINE1_ZCA_Mag, Ang, R, X
+            LINE1_ZCA_Complex = (LINE1_V3_Complex - LINE1_V1_Complex) / (LINE1_IL3_Complex - LINE1_IL1_Complex)
+            LINE1_ZCA_Real = LINE1_ZCA_Complex.real
+            LINE1_ZCA_Imag = LINE1_ZCA_Complex.imag
+
             LINE1_ZCA_Mag = abs((LINE1_V3_Complex - LINE1_V1_Complex) / (LINE1_IL3_Complex - LINE1_IL1_Complex))
             LINE1_diff_V3_V1 = LINE1_V1_Complex - LINE1_V3_Complex #CEK LAGI KETIKA DIBALIK A-C hasil sama dengan excel, ketika C-A hasil berbeda dengan excel
             LINE1_diff_IL3_IL1 = LINE1_IL1_Complex - LINE1_IL3_Complex #CEK LAGI KETIKA DIBALIK A-C hasil sama dengan excel, ketika C-A hasil berbeda dengan excel
@@ -263,66 +508,27 @@ async def main_async():
             # Add code for LINE2 data reading and processing here
             ###########################
             
-            
+            print("________________________________")
             # Monitor IN
-            print(f"LINE1_IN_Complex : {LINE1_IN_Complex}")
-            print(f"LINE1_IL1_Complex : {LINE1_IL1_Complex}")
-            print(f"LINE1_V1_Complex : {LINE1_V1_Complex}")
             print(f"k0 : {LINE1_k0}")
             print(f"n0 : {LINE1_n0}")
-            print(f"LINE1_ZA{LINE1_ZA}")
             print(f"LINE1_ZA_Real :{LINE1_ZA_Real}")
-            print(f"LINE1_ZA_Imag :{LINE1_ZA_Imag}")
+            print(f"LINE1_ZA_Imag :{LINE1_ZA_Imag}")            
+            print(f"LINE1_ZB_Real :{LINE1_ZB_Real}")
+            print(f"LINE1_ZB_Imag :{LINE1_ZB_Imag}")
+            print(f"LINE1_ZC_Real :{LINE1_ZC_Real}")
+            print(f"LINE1_ZC_Imag :{LINE1_ZC_Imag}")
 
-            print(f"LINE1_ZA_Mag : {LINE1_ZA_Mag}")
-            print(f"LINE1_ZA_Ang : {LINE1_ZA_Ang}")
-            print(f"LINE1_ZA_R : {LINE1_ZA_R}")
-            print(f"LINE1_ZA_X : {LINE1_ZA_X}")	
-            print(f"LINE1_ZB_Mag : {LINE1_ZB_Mag}")
-            print(f"LINE1_ZB_Ang : {LINE1_ZB_Ang}")
-            print(f"LINE1_ZB_R : {LINE1_ZB_R}")
-            print(f"LINE1_ZB_X : {LINE1_ZB_X}")                
-            print(f"LINE1_ZC_Mag : {LINE1_ZC_Mag}")
-            print(f"LINE1_ZC_Ang : {LINE1_ZC_Ang}")
-            print(f"LINE1_ZC_R : {LINE1_ZC_R}")
-            print(f"LINE1_ZC_X : {LINE1_ZC_X}")
-            print(f"LINE1_ZAB_Mag : {LINE1_ZAB_Mag}")	
-            print(f"LINE1_ZAB_Ang : {LINE1_ZAB_Ang}")
-            print(f"LINE1_ZAB_R : {LINE1_ZAB_R}")	
-            print(f"LINE1_ZAB_X : {LINE1_ZAB_X}")
-            print(f"LINE1_ZBC_Mag : {LINE1_ZBC_Mag}")	
-            print(f"LINE1_ZBC_Ang : {LINE1_ZBC_Ang}")
-            print(f"LINE1_ZBC_R : {LINE1_ZBC_R}")	
-            print(f"LINE1_ZBC_X : {LINE1_ZBC_X}")
-            print(f"LINE1_ZCA_Mag : {LINE1_ZCA_Mag}")	
-            print(f"LINE1_ZCA_Ang : {LINE1_ZCA_Ang}")
-            print(f"LINE1_ZCA_R : {LINE1_ZCA_R}")	
-            print(f"LINE1_ZCA_X : {LINE1_ZCA_X}")
-            print(f"LINE1_ZB_Real : {LINE1_ZB_Real}")
-            print(f"LINE1_ZB_Imag : {LINE1_ZB_Imag}")
-            print(f"LINE1_ZC_Real : {LINE1_ZC_Real}")
-            print(f"LINE1_ZC_Imag : {LINE1_ZC_Imag}")
-            print(f"Produk Result : {product_result}")
-            print(f'LINE1_IL1_Complex : {LINE1_IL1_Complex}')
-            print(f'LINE1_IL2_Complex : {LINE1_IL2_Complex}')
-            print(f'LINE1_IL3_Complex : {LINE1_IL3_Complex}')
-            print(f'LINE1_V1_Complex : {LINE1_V1_Complex}')
-            print(f'LINE1_V2_Complex : {LINE1_V2_Complex}')
-            print(f'LINE1_V3_Complex : {LINE1_V3_Complex}')
-            print(f'LINE1_IL1_Imag : {LINE1_IL1_Imag}')
-            print(f'LINE1_IL2_Imag : {LINE1_IL2_Imag}')
-            print(f'LINE1_IL3_Imag : {LINE1_IL3_Imag}')
-            print(f'LINE1_IL1_Real : {LINE1_IL1_Real}')
-            print(f'LINE1_IL2_Real : {LINE1_IL2_Real}')
-            print(f'LINE1_IL3_Real : {LINE1_IL3_Real}')
-            print(f'LINE1_V1_Imag : {LINE1_V1_Imag}')
-            print(f'LINE1_V2_Imag : {LINE1_V2_Imag}')
-            print(f'LINE1_V3_Imag : {LINE1_V3_Imag}')
-            print(f'LINE1_V1_Real : {LINE1_V1_Real}')
-            print(f'LINE1_V2_Real : {LINE1_V2_Real}')
-            print(f'LINE1_V3_Real : {LINE1_V3_Real}')
+            print(f"LINE1_ZAB_Real :{LINE1_ZAB_Real}")
+            print(f"LINE1_ZAB_Imag :{LINE1_ZAB_Imag}")  
             
+            print(f"LINE1_ZBC_Real :{LINE1_ZBC_Real}")
+            print(f"LINE1_ZBC_Imag :{LINE1_ZBC_Imag}")  
             
+            print(f"LINE1_ZCA_Real :{LINE1_ZCA_Real}")
+            print(f"LINE1_ZCA_Imag :{LINE1_ZCA_Imag}")  
+
+
             await asyncio.sleep(1)  # Wait for 1 second before the next read
 
    

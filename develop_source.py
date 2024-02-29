@@ -1,6 +1,6 @@
 import random
 import time
-import utils
+import coba_plotly
 from utils import LineCalculation
 import csv
 import os
@@ -21,7 +21,7 @@ start_time = datetime.now()  # Start time for CSV file
 
 LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, \
             LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, \
-            LINE1_z0z1_mag, LINE1_z0z1_ang = utils.params()
+            LINE1_z0z1_mag, LINE1_z0z1_ang = coba_plotly.params()
 
 def generate_csv(data) :
       global data_to_write
