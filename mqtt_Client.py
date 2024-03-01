@@ -74,4 +74,4 @@ class MQTTClient:
 
     def connect(self):
         self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
-        self.client.loop_forever()  # Start a blocking loop to handle MQTT messages
+        self.client.loop_start()  # Start a blocking loop to handle MQTT messages

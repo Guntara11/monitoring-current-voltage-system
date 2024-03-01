@@ -32,9 +32,7 @@ def handle_mqtt_data(data):
     print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
     print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
 
-def main():
-    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
-    mqtt_client.connect()
 
 if __name__ == "__main__":
-    main()
+    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    mqtt_client.connect()

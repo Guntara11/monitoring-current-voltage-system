@@ -20,25 +20,68 @@ import time
 import random
 import plotly.express as px
 import dash_daq as daq
+from mqtt_Client import MQTTClient
 
-#Mqtt Broker
-mqtt_broker = "broker.emqx.io"
-mqtt_port = 1883
-mqtt_topic = "data/sensor"
+
 
 #Connect To MongoDB
 try:
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
-    db = client["MVCS"]
+    client = pymongo.MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/")
+    db = client["MyData"]
     collection_LINE = db["LINE"]
-    collection_Params = db["Params"]
-    collection_Parameter = db["Parameter"]
+    collection_Params = db["MyCollect"]
+    collection_Parameter = db["Params"]
     connected = True
 except pymongo.errors.ConnectionFailure:
     connected = False
 
+def handle_mqtt_data(data):
+    # Process the received data here
+    LINE1_U1 = data[1]
+    LINE1_U2 = data[2]
+    LINE1_U3 = data[3]
+    LINE1_Ang_U1 = data[0]
+    LINE1_Ang_U2 = data[4]
+    LINE1_Ang_U3 = data[5]
+    LINE1_IL1 = data[9]
+    LINE1_IL2 = data[10]
+    LINE1_IL3 = data[11]
+    LINE1_Ang_I1 = data[6]
+    LINE1_Ang_I2 = data[7]
+    LINE1_Ang_I3 = data[8]
+    LINE1_z0z1_mag = data[12]
+    LINE1_z0z1_ang = data[13]
+    
+    line_calc = LineCalculation()
+    line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                LINE1_z0z1_mag, LINE1_z0z1_ang)
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+
+    ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
+    print(f"LINE1_U1: {LINE1_U1}")
+    print(f"LINE1_U2: {LINE1_U2}")
+    print(f"LINE1_U3: {LINE1_U3}")
+    print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
+    print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
+    print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
+    print(f"LINE1_IL1: {LINE1_IL1}")
+    print(f"LINE1_IL2: {LINE1_IL2}")
+    print(f"LINE1_IL3: {LINE1_IL3}")
+    print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
+    print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
+    print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
+    print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
+    print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
+    # print(ZA_data)
+
+
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
+
+ZA_data = []
+mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+mqtt_client.connect()
 
 # Read keys directly from MongoDB collection "Parameter"
 parameter_data = collection_Parameter.find_one({})
@@ -512,48 +555,9 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
+    
 
-def params():
-    while True :
-        # LINE1_U1 = 89236.961
-        # LINE1_U2 = 89521.813
-        # LINE1_U3 = 89844.727
-        LINE1_Ang_U1 = 117.274
-        LINE1_Ang_U2 = 356.92
-        LINE1_Ang_U3 = 237.173
 
-        INC_Data_IL = round(random.uniform(1, 20), 1)
-        INC_Data_U = round(random.uniform(100, 200), 1)
-        INC_Data_IL_Min = round(random.uniform(-20, -1),1)
-        INC_Data_U_Min = round(random.uniform(-200, -100),1)
-
-        LINE1_IL1 = 150 + INC_Data_IL + INC_Data_IL_Min
-        LINE1_IL2 = 150 + INC_Data_IL + INC_Data_IL_Min
-        LINE1_IL3 = 150 + INC_Data_IL + INC_Data_IL_Min
-        LINE1_U1 = 800 + INC_Data_U + INC_Data_U_Min
-        LINE1_U2 = 800 + INC_Data_U + INC_Data_U_Min
-        LINE1_U3 = 800 + INC_Data_U + INC_Data_U_Min
-
-        if LINE1_IL1 >= 200:
-            LINE1_IL1 = 0
-        
-        # elif LINE1_IL2 >= 200:
-        #     LINE1_IL2 = 0
-        
-        # elif LINE1_IL3 >= 200:
-        #     LINE1_IL3 = 0
-
-        LINE1_Ang_I1 = 112.977
-        LINE1_Ang_I2 = 0.044
-        LINE1_Ang_I3 = 232.82
-
-        LINE1_z0z1_mag = 6.181
-        LINE1_z0z1_ang = -2.55
-
-        time.sleep(0.2)
-        return LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_IL1, LINE1_IL2,\
-                LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, LINE1_z0z1_mag, LINE1_z0z1_ang
-ZA_data = []
 
 # Update Graph
 @app.callback(
@@ -562,6 +566,8 @@ ZA_data = []
     [Input('interval-component', 'n_intervals'),
      Input('config-dropdown', 'value')])
 def update_graphs(n, selected_config):
+    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    mqtt_client.connect()
     # Periksa apakah nilai selected_config tidak kosong
     if not selected_config:
 
@@ -621,20 +627,20 @@ def update_graphs(n, selected_config):
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
 
-    # Update nilai-nilai dari utils.py menggunakan fungsi params()
-    LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, \
-    LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, \
-    LINE1_z0z1_mag, LINE1_z0z1_ang = params()
+    # # Update nilai-nilai dari utils.py menggunakan fungsi params()
+    # LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, \
+    # LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, \
+    # LINE1_z0z1_mag, LINE1_z0z1_ang = handle_mqtt_data()
 
-    # Gunakan LineCalculation untuk mendapatkan data ZA
-    line_calc = LineCalculation()  # Panggil LineCalculation di sini
-    line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
-                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
-                                LINE1_z0z1_mag, LINE1_z0z1_ang)
-    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+    # # Gunakan LineCalculation untuk mendapatkan data ZA
+    # line_calc = LineCalculation()  # Panggil LineCalculation di sini
+    # line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+    #                             LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+    #                             LINE1_z0z1_mag, LINE1_z0z1_ang)
+    # LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
 
-    # Menambahkan data baru ke ZA_data
-    ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
+    # # Menambahkan data baru ke ZA_data
+    # ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
     # Periksa jika jumlah data ZA_data sudah mencapai 50
     if len(ZA_data) >= 50:
         # Hapus 1 data pertama dari ZA_data
