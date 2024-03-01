@@ -53,55 +53,25 @@
 import paho.mqtt.client as mqtt
 import json
 
-mqtt_broker = "broker.emqx.io"  # Sesuaikan dengan broker MQTT yang Anda gunakan
-mqtt_port = 1883
-mqtt_topic = "data/sensor"
+class MQTTClient:
+    def __init__(self, on_data_callback):
+        self.mqtt_broker = "broker.emqx.io"
+        self.mqtt_port = 1883
+        self.mqtt_topic = "data/sensor"
+        self.client = mqtt.Client()
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+        self.on_data_callback = on_data_callback
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected to MQTT Broker with result code " + str(rc))
-    client.subscribe(mqtt_topic)
+    def on_connect(self, client, userdata, flags, rc):
+        print("Connected to MQTT Broker with result code " + str(rc))
+        client.subscribe(self.mqtt_topic)
 
-def on_message(client, userdata, msg):
-    if msg.topic == mqtt_topic:
-        data = json.loads(msg.payload)
-        params(data)
+    def on_message(self, client, userdata, msg):
+        if msg.topic == self.mqtt_topic:
+            data = json.loads(msg.payload)
+            self.on_data_callback(data)
 
-def params(data):
-    LINE1_U1 = data[1]
-    LINE1_U2 = data[2]
-    LINE1_U3 = data[3]
-    # LINE1_Ang_U1 = data[3]
-    # LINE1_Ang_U2 = data[4]
-    # LINE1_Ang_U3 = data[5]
-    LINE1_IL1 = data[9]
-    LINE1_IL2 = data[10]
-    LINE1_IL3 = data[11]
-    # LINE1_Ang_I1 = data[9]
-    # LINE1_Ang_I2 = data[10]
-    # LINE1_Ang_I3 = data[11]
-    # LINE1_z0z1_mag = data[12]
-    # LINE1_z0z1_ang = data[13]
-
-    
-    print(f"LINE1_U1: {LINE1_U1}")
-    print(f"LINE1_U2: {LINE1_U2}")
-    print(f"LINE1_U3: {LINE1_U3}")
-    # print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
-    # print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
-    # print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
-    print(f"LINE1_IL1: {LINE1_IL1}")
-    print(f"LINE1_IL2: {LINE1_IL2}")
-    print(f"LINE1_IL3: {LINE1_IL3}")
-    # print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
-    # print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
-    # print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
-    # print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
-    # print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect(mqtt_broker, mqtt_port, 60)
-
-client.loop_forever()
+    def connect(self):
+        self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
+        self.client.loop_forever()  # Start a blocking loop to handle MQTT messages
