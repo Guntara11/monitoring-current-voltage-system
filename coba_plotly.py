@@ -21,10 +21,12 @@ import random
 import plotly.express as px
 import dash_daq as daq
 
-mqtt_broker = "broker.emqx.io"  # Sesuaikan dengan broker MQTT yang Anda gunakan
+#Mqtt Broker
+mqtt_broker = "broker.emqx.io"
 mqtt_port = 1883
 mqtt_topic = "data/sensor"
 
+#Connect To MongoDB
 try:
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["MVCS"]
@@ -34,9 +36,6 @@ try:
     connected = True
 except pymongo.errors.ConnectionFailure:
     connected = False
-
-# config_folder = 'config_imp'
-# config_files = [os.path.join(config_folder, f) for f in os.listdir(config_folder) if f.endswith('.json')]
 
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
@@ -60,6 +59,7 @@ header = html.H4(
     style={'fontFamily': 'Rubik, sans-serif'}
 )
 
+#Dropdown1 Select Config for Graph Zone
 dropdown = html.Div(
     [
         html.Label('Select Config File :', style={'color': 'white'}),
@@ -72,6 +72,7 @@ dropdown = html.Div(
     className="mb-4",
 )
 
+#Dropdown2 for select config changes parameter
 dropdown2 = html.Div(
     [
         html.Label('Select Config File for Parameters :', style={'color': 'white'}),
@@ -84,6 +85,7 @@ dropdown2 = html.Div(
     className="mb-1",
 )
 
+#Filter start input textbox
 filter_start_input = dbc.Row([
     html.Label("Start Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
     html.Div(
@@ -95,6 +97,8 @@ filter_start_input = dbc.Row([
 ],
     className="my-1"
 )
+
+#Filter end input textbox
 filter_end_input = dbc.Row([
     html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
     html.Div([
@@ -105,6 +109,7 @@ filter_end_input = dbc.Row([
     className="my-1",
 )
 
+#Line Parameter textbox
 line_param = html.Div([dbc.Row([
         html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
         html.Label("Enter RGZ data ", style={'color': 'white'}),
@@ -259,6 +264,15 @@ dbc.Row([
 ),
 ])
 
+#Apply Changes Button
+Apply_button = html.Div(
+    [
+        dbc.Button("Apply Changes", id="apply-button", size="sm", color="success", className="me-1", n_clicks=0)
+    ],
+    className="d-grid gap-2 my-3",
+)
+
+#Filter Button
 Filter_button = html.Div(
     [
         dbc.Button("Filter Data", id="filter-button", color="success", className="me-1", n_clicks=0)
@@ -266,6 +280,7 @@ Filter_button = html.Div(
     className="d-grid gap-2 my-3",
 )
 
+# Save CSV Button
 csv_button = html.Div([
     html.Button("Save CSV", id="save-csv-button", className="btn btn-success me-1", n_clicks=0)
 ],
@@ -274,13 +289,7 @@ csv_button = html.Div([
 
 filter_time = dbc.Form([filter_start_input, filter_end_input])
 
-Apply_button = html.Div(
-    [
-        dbc.Button("Apply Changes", id="apply-button", size="sm", color="success", className="me-1", n_clicks=0)
-    ],
-    className="d-grid gap-2 my-3",
-)
-
+#Card control1
 control1 = dbc.Card(
     [dropdown, filter_time, 
      dbc.Row([
@@ -312,6 +321,7 @@ control1 = dbc.Card(
     body=True,
 )
 
+# Card control2
 control2 = dbc.Card([
     dropdown2,line_param, 
     dbc.Row([
@@ -324,12 +334,7 @@ control2 = dbc.Card([
     style={"height": 740, "width": 400},
     body=True,)
 
-# Fungsi untuk menghasilkan nilai tegangan dan arus secara acak
-def get_voltage_current_value():
-    voltage_value = random.uniform(200, 240)
-    current_value = random.uniform(3, 7)
-    return voltage_value, current_value
-
+# Card voltage an current values
 card_voltage = dbc.Card(
     [
         dbc.CardBody(
@@ -452,6 +457,12 @@ app.layout = dbc.Container(
 # zb_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 # zc_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
 
+# Fungsi untuk menghasilkan nilai tegangan dan arus secara acak
+def get_voltage_current_value():
+    voltage_value = random.uniform(200, 240)
+    current_value = random.uniform(3, 7)
+    return voltage_value, current_value
+
 # Callback for filtering data based on timestamps
 @app.callback(
     Output('mongo-datatable', 'children'),
@@ -496,58 +507,55 @@ def filter_data(n_clicks, start_time, end_time):
                 filter_action="native",  # Aktifkan penyaringan baris
                 sort_action="native",  # Aktifkan sorting
                 sort_mode="multi",  # Aktifkan sorting multi kolom
-                page_size=20,  # Atur jumlah baris per halaman
+                page_size=20,
             ),
         ]
     else:
         return []
-def on_connect(client, userdata, flags, rc):
-    print("Connected to MQTT Broker with result code " + str(rc))
-    client.subscribe(mqtt_topic)
 
-def on_message(client, userdata, msg):
-    if msg.topic == mqtt_topic:
-        data = json.loads(msg.payload)
-        params(data)
-
-def params(data):
+def params():
     while True :
-        LINE1_U1 = data[1]
-        LINE1_U2 = data[2]
-        LINE1_U3 = data[3]
-        LINE1_Ang_U1 = data[0]
-        LINE1_Ang_U2 = data[4]
-        LINE1_Ang_U3 = data[5]
-        LINE1_IL1 = data[9]
-        LINE1_IL2 = data[10]
-        LINE1_IL3 = data[11]
-        LINE1_Ang_I1 = data[6]
-        LINE1_Ang_I2 = data[7]
-        LINE1_Ang_I3 = data[8]
-        LINE1_z0z1_mag = data[12]
-        LINE1_z0z1_ang = data[13]
+        # LINE1_U1 = 89236.961
+        # LINE1_U2 = 89521.813
+        # LINE1_U3 = 89844.727
+        LINE1_Ang_U1 = 117.274
+        LINE1_Ang_U2 = 356.92
+        LINE1_Ang_U3 = 237.173
 
-        # print(f"LINE1_U1: {LINE1_U1}")
-        # print(f"LINE1_U2: {LINE1_U2}")
-        # print(f"LINE1_U3: {LINE1_U3}")
-        # print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
-        # print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
-        # print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
-        # print(f"LINE1_IL1: {LINE1_IL1}")
-        # print(f"LINE1_IL2: {LINE1_IL2}")
-        # print(f"LINE1_IL3: {LINE1_IL3}")
-        # print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
-        # print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
-        # print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
-        # print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
-        # print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
+        INC_Data_IL = round(random.uniform(1, 20), 1)
+        INC_Data_U = round(random.uniform(100, 200), 1)
+        INC_Data_IL_Min = round(random.uniform(-20, -1),1)
+        INC_Data_U_Min = round(random.uniform(-200, -100),1)
+
+        LINE1_IL1 = 150 + INC_Data_IL + INC_Data_IL_Min
+        LINE1_IL2 = 150 + INC_Data_IL + INC_Data_IL_Min
+        LINE1_IL3 = 150 + INC_Data_IL + INC_Data_IL_Min
+        LINE1_U1 = 800 + INC_Data_U + INC_Data_U_Min
+        LINE1_U2 = 800 + INC_Data_U + INC_Data_U_Min
+        LINE1_U3 = 800 + INC_Data_U + INC_Data_U_Min
+
+        if LINE1_IL1 >= 200:
+            LINE1_IL1 = 0
+        
+        # elif LINE1_IL2 >= 200:
+        #     LINE1_IL2 = 0
+        
+        # elif LINE1_IL3 >= 200:
+        #     LINE1_IL3 = 0
+
+        LINE1_Ang_I1 = 112.977
+        LINE1_Ang_I2 = 0.044
+        LINE1_Ang_I3 = 232.82
+
+        LINE1_z0z1_mag = 6.181
+        LINE1_z0z1_ang = -2.55
 
         time.sleep(0.2)
         return LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_IL1, LINE1_IL2,\
-                    LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, LINE1_z0z1_mag, LINE1_z0z1_ang
-
+                LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, LINE1_z0z1_mag, LINE1_z0z1_ang
 ZA_data = []
 
+# Update Graph
 @app.callback(
     [Output('phase-to-gnd-graph', 'figure'),
      Output('phase-to-phase-graph', 'figure')],
@@ -636,21 +644,6 @@ def update_graphs(n, selected_config):
     df_ZA = pd.DataFrame(ZA_data[-50:], columns=['ZA_Real', 'ZA_Imag'])
     df_ZA['Frame'] = df_ZA.index
 
-    # # Setelah pembaruan data ZA_data
-    # ZA_Real_min = min(df_ZA['ZA_Real'])
-    # ZA_Real_max = max(df_ZA['ZA_Real'])
-    # ZA_Imag_min = min(df_ZA['ZA_Imag'])
-    # ZA_Imag_max = max(df_ZA['ZA_Imag'])
-
-    # # Tentukan faktor zoom in dan zoom out
-    # zoom_factor = 0.0000000000000000000001
-
-    # # Sesuaikan rentang sumbu x dan y
-    # x_range = [ZA_Real_min - zoom_factor * (ZA_Real_max - ZA_Real_min),
-    #         ZA_Real_max + zoom_factor * (ZA_Real_max - ZA_Real_min)]
-    # y_range = [ZA_Imag_min - zoom_factor * (ZA_Imag_max - ZA_Imag_min),
-    #         ZA_Imag_max + zoom_factor * (ZA_Imag_max - ZA_Imag_min)]
-
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -708,6 +701,7 @@ def update_graphs(n, selected_config):
         yaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)') #range=y_range)
     )
     
+    return fig_phase_to_gnd, fig_phase_to_phase
     # # Memeriksa apakah jumlah data dalam ZA_data melebihi maksimum yang diizinkan
     # if len(ZA_data) > max_data:
     #     # Menghitung berapa banyak data yang harus diganti
@@ -824,10 +818,9 @@ def update_graphs(n, selected_config):
 
     # # Atur warna dan gaya garis
     # fig_phase_to_phase.update_traces(line=dict(color='green', width=2))
-
-    # Kembalikan grafik yang diperbarui
-    return fig_phase_to_gnd, fig_phase_to_phase
-
+    # return fig_phase_to_gnd, fig_phase_to_phase
+    
+# Save Data CSV
 @app.callback(
     Output('save-csv-button', 'n_clicks'),
     [Input('filter-button', 'n_clicks')],
@@ -935,13 +928,6 @@ def update_values(n):
     voltage_value, current_value = get_voltage_current_value()
     return f"{voltage_value:.2f} V", f"{current_value:.2f} A"
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect(mqtt_broker, mqtt_port, 60)
-
-client.loop_forever()
 # # MQTT data reception
 # def on_message(client, userdata, message):
 #     data = json.loads(message.payload.decode())
