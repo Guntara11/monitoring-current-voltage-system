@@ -1,45 +1,44 @@
-import streamlit as st
-import pymongo
-import pandas as pd
+import dash
+from dash import dcc, html, Input, Output
+import plotly.graph_objs as go
+from cobaProsesMqtt import mqtt_data
+import time
 
 
-
-
-# Replace these values with your MongoDB connection details
-mongo_uri = "mongodb+srv://guntara11:Assalaam254@cluster0.zqxli6w.mongodb.net/myDB"
-collection_name = "MyCollection"
-
-# Connect to MongoDB
-client = pymongo.MongoClient(mongo_uri)
-
-# Access the specified database and collection
-db = client.get_database()
-collection = db[collection_name]
-
-
-# Retrieve data from MongoDB
-def get_data():
-    query = {}
-    cursor = collection.find(query)
-    data_list = [document for document in cursor]
-    return data_list
-
-# Streamlit app
-st.title("MongoDB Data Visualization")
-
-# Display raw data
-st.subheader("Raw Data:")
-raw_data = get_data()
-st.write(pd.DataFrame(raw_data))
-
-# Scatter plot
-st.subheader("Scatter Plot:")
-scatter_df = pd.DataFrame(raw_data)
-scatter_plot = st.scatter_chart(scatter_df, x='voltage', y='current')
-
-# Update the data every 1 second
 while True:
-    scatter_df = pd.DataFrame(get_data())
-    scatter_plot.scatter_chart(scatter_df, x='voltage', y='current')
+    print(mqtt_data)
+    time.sleep(1)
+# app = dash.Dash(__name__)
 
-# streamlit run plot_streamlit.py
+# # Define Dash layout
+# app.layout = html.Div([
+#     dcc.Graph(id='live-graph'),
+#     dcc.Interval(
+#         id='graph-update',
+#         interval=1000,  # Update every 1 second
+#         n_intervals=0
+#     )
+# ])
+
+# @app.callback(Output('live-graph', 'figure'),
+#               [Input('graph-update', 'n_intervals')])
+# def update_graph(n):
+#     # Extract data from the shared variable for plotting
+#     # For example, assuming the MQTT data has two values (x, y)
+#     x_data = [data[0] for data in mqtt_data]
+#     y_data = [data[1] for data in mqtt_data]
+
+#     # Plot the data
+#     trace = go.Scatter(
+#         x=x_data,
+#         y=y_data,
+#         mode='lines',
+#         name='Data'
+#     )
+
+#     layout = go.Layout(title='MQTT Data')
+
+#     return {'data': [trace], 'layout': layout}
+
+# if __name__ == '__main__':
+#     app.run_server(debug=True)

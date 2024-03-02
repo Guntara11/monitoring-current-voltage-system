@@ -35,54 +35,14 @@ try:
 except pymongo.errors.ConnectionFailure:
     connected = False
 
-def handle_mqtt_data(data):
-    # Process the received data here
-    LINE1_U1 = data[1]
-    LINE1_U2 = data[2]
-    LINE1_U3 = data[3]
-    LINE1_Ang_U1 = data[0]
-    LINE1_Ang_U2 = data[4]
-    LINE1_Ang_U3 = data[5]
-    LINE1_IL1 = data[9]
-    LINE1_IL2 = data[10]
-    LINE1_IL3 = data[11]
-    LINE1_Ang_I1 = data[6]
-    LINE1_Ang_I2 = data[7]
-    LINE1_Ang_I3 = data[8]
-    LINE1_z0z1_mag = data[12]
-    LINE1_z0z1_ang = data[13]
-    
-    line_calc = LineCalculation()
-    line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
-                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
-                                LINE1_z0z1_mag, LINE1_z0z1_ang)
-    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
 
-    ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
-    print(f"LINE1_U1: {LINE1_U1}")
-    print(f"LINE1_U2: {LINE1_U2}")
-    print(f"LINE1_U3: {LINE1_U3}")
-    print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
-    print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
-    print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
-    print(f"LINE1_IL1: {LINE1_IL1}")
-    print(f"LINE1_IL2: {LINE1_IL2}")
-    print(f"LINE1_IL3: {LINE1_IL3}")
-    print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
-    print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
-    print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
-    print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
-    print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
-    # print(ZA_data)
 
 
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
 
-ZA_data = []
-mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
-mqtt_client.connect()
-
+ZA_Real = []
+ZA_Imag = []
 # Read keys directly from MongoDB collection "Parameter"
 parameter_data = collection_Parameter.find_one({})
 if parameter_data:
@@ -565,9 +525,59 @@ def filter_data(n_clicks, start_time, end_time):
      Output('phase-to-phase-graph', 'figure')],
     [Input('interval-component', 'n_intervals'),
      Input('config-dropdown', 'value')])
-def update_graphs(n, selected_config):
+
+def handle_mqtt_data(data):
+    # Process the received data here
+    LINE1_U1 = data[1]
+    LINE1_U2 = data[2]
+    LINE1_U3 = data[3]
+    LINE1_Ang_U1 = data[0]
+    LINE1_Ang_U2 = data[4]
+    LINE1_Ang_U3 = data[5]
+    LINE1_IL1 = data[9]
+    LINE1_IL2 = data[10]
+    LINE1_IL3 = data[11]
+    LINE1_Ang_I1 = data[6]
+    LINE1_Ang_I2 = data[7]
+    LINE1_Ang_I3 = data[8]
+    LINE1_z0z1_mag = data[12]
+    LINE1_z0z1_ang = data[13]
+    
+    line_calc = LineCalculation()
+    line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                LINE1_z0z1_mag, LINE1_z0z1_ang)
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+
+    ZA_Real.append(LINE1_ZA_Real)
+    ZA_Imag.append(LINE1_ZA_Imag)
+    if len(ZA_Real) >= 51:
+        ZA_Real.pop(0)
+    if len(ZA_Imag) >=51:
+        ZA_Imag.pop(0)
+    # print(f"LINE1_U1: {LINE1_U1}")
+    # print(f"LINE1_U2: {LINE1_U2}")
+    # print(f"LINE1_U3: {LINE1_U3}")
+    # print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
+    # print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
+    # print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
+    # print(f"LINE1_IL1: {LINE1_IL1}")
+    # print(f"LINE1_IL2: {LINE1_IL2}")
+    # print(f"LINE1_IL3: {LINE1_IL3}")
+    # print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
+    # print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
+    # print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
+    # print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
+    # print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
+    # # print(ZA_data)
+
+def run_mqtt_data_retrieval():
     mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
     mqtt_client.connect()
+
+def update_graphs(n, selected_config):
+    # mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    # mqtt_client.connect()
     # Periksa apakah nilai selected_config tidak kosong
     if not selected_config:
 
@@ -642,14 +652,14 @@ def update_graphs(n, selected_config):
     # # Menambahkan data baru ke ZA_data
     # ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
     # Periksa jika jumlah data ZA_data sudah mencapai 50
-    if len(ZA_data) >= 50:
-        # Hapus 1 data pertama dari ZA_data
-        ZA_data.pop(0)
+    # if len(ZA_data) >= 50:
+    #     # Hapus 1 data pertama dari ZA_data
+    #     ZA_data.pop(0)
 
-    # Perbarui dataframe df_ZA dengan 50 data terakhir
-    df_ZA = pd.DataFrame(ZA_data[-50:], columns=['ZA_Real', 'ZA_Imag'])
-    df_ZA['Frame'] = df_ZA.index
-
+    # # Perbarui dataframe df_ZA dengan 50 data terakhir
+    # df_ZA = pd.DataFrame(ZA_data[-50:], columns=['ZA_Real', 'ZA_Imag'])
+    # df_ZA['Frame'] = df_ZA.index
+    df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -953,4 +963,7 @@ def update_values(n):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)
+    while True:
+        run_mqtt_data_retrieval()
+        app.run_server(debug=True, port=8050)
+        time.sleep(0.2)
