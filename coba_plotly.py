@@ -515,16 +515,6 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
-    
-
-
-
-# Update Graph
-@app.callback(
-    [Output('phase-to-gnd-graph', 'figure'),
-     Output('phase-to-phase-graph', 'figure')],
-    [Input('interval-component', 'n_intervals'),
-     Input('config-dropdown', 'value')])
 
 def handle_mqtt_data(data):
     # Process the received data here
@@ -575,7 +565,16 @@ def run_mqtt_data_retrieval():
     mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
     mqtt_client.connect()
 
-def update_graphs(n, selected_config):
+# Update Graph
+@app.callback(
+    [Output('phase-to-gnd-graph', 'figure'),
+     Output('phase-to-phase-graph', 'figure')],
+    [Input('interval-component', 'n_intervals'),
+     Input('config-dropdown', 'value')],
+    [State('phase-to-gnd-graph', 'relayoutData'),
+     State('phase-to-phase-graph', 'relayoutData')])
+
+def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     # mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
     # mqtt_client.connect()
     # Periksa apakah nilai selected_config tidak kosong
@@ -677,8 +676,7 @@ def update_graphs(n, selected_config):
                                     line=dict(color='#03B77A', width=5))
     
     # Plot ZA_Data
-    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], 
-                                      animation_group='Frame', markers=True).data[0])
+    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     # Update layout
     fig_phase_to_gnd.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -705,8 +703,7 @@ def update_graphs(n, selected_config):
                                     line=dict(color='#03B77A', width=5))
 
     #plot ZA_DAta
-    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], 
-                                      animation_group="Frame", markers=True).data[0])
+    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     
     # Update layout
     fig_phase_to_phase.update_layout(
@@ -717,6 +714,26 @@ def update_graphs(n, selected_config):
         yaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)') #range=y_range)
     )
     
+    # Memeriksa apakah ada perubahan zoom pada plot phase-to-gnd
+    if relayout_data_gnd:
+        zoom_info_gnd = relayout_data_gnd
+
+        # Memeriksa apakah zoom in atau zoom out pada plot phase-to-gnd
+        if 'xaxis.range[0]' in zoom_info_gnd:
+            fig_phase_to_gnd.update_xaxes(range=[zoom_info_gnd['xaxis.range[0]'], zoom_info_gnd['xaxis.range[1]']])
+        if 'yaxis.range[0]' in zoom_info_gnd:
+            fig_phase_to_gnd.update_yaxes(range=[zoom_info_gnd['yaxis.range[0]'], zoom_info_gnd['yaxis.range[1]']])
+
+    # Memeriksa apakah ada perubahan zoom pada plot phase-to-phase
+    if relayout_data_phase:
+        zoom_info_phase = relayout_data_phase
+
+        # Memeriksa apakah zoom in atau zoom out pada plot phase-to-phase
+        if 'xaxis.range[0]' in zoom_info_phase:
+            fig_phase_to_phase.update_xaxes(range=[zoom_info_phase['xaxis.range[0]'], zoom_info_phase['xaxis.range[1]']])
+        if 'yaxis.range[0]' in zoom_info_phase:
+            fig_phase_to_phase.update_yaxes(range=[zoom_info_phase['yaxis.range[0]'], zoom_info_phase['yaxis.range[1]']])
+
     return fig_phase_to_gnd, fig_phase_to_phase
     # # Memeriksa apakah jumlah data dalam ZA_data melebihi maksimum yang diizinkan
     # if len(ZA_data) > max_data:
