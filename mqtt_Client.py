@@ -41,6 +41,7 @@ def handle_mqtt_data(data):
 
 def run_mqtt_data_retrieval():
     mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    mqtt_client.set_mqtt_topic1("data/sensor1")
     mqtt_client.connect()
 
 if __name__ == "__main__":

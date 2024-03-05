@@ -22,6 +22,9 @@ import plotly.express as px
 import dash_daq as daq
 from mqtt_Client import MQTTClient
 from get_mqtt_data import ZA_data, process_Mag_data
+import cobaProsesMqtt
+
+
 
 #Connect To MongoDB
 try:
@@ -33,6 +36,7 @@ try:
     connected = True
 except pymongo.errors.ConnectionFailure:
     connected = False
+
 
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
@@ -108,63 +112,63 @@ filter_end_input = dbc.Row([
 
 #Line Parameter textbox
 line_param = html.Div([dbc.Row([
-        html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
-        html.Label("Enter RGZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz1", size="sm", placeholder="RGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz2", size="sm", placeholder="RGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rgz3", size="sm", placeholder="RGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter XGZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz1", size="sm", placeholder="XGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz2", size="sm", placeholder="XGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="xgz3", size="sm", placeholder="XGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        )
-],
-),
-dbc.Row([
-        html.Label("Enter RPZ data ", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz1", size="sm", placeholder="RPZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz2", size="sm", placeholder="RPZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        ),
-        dbc.Col(
-            html.Div([
-                dbc.Input(type="Text", id="rpz3", size="sm", placeholder="RPZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
-            ], className="mx-1")
-        )
-],
-),
+            html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
+            html.Label("Enter RGZ data ", style={'color': 'white'}),
+            dbc.Col(
+                html.Div([
+                    dbc.Input(type="Text", id="rgz1", size="sm", placeholder="RGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                ], className="mx-1")
+            ), 
+            dbc.Col(
+                html.Div([
+                    dbc.Input(type="Text", id="rgz2", size="sm", placeholder="RGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                ], className="mx-1")
+            ),
+            dbc.Col(
+                html.Div([
+                    dbc.Input(type="Text", id="rgz3", size="sm", placeholder="RGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                ], className="mx-1")
+            )
+    ],
+    ),
+            dbc.Row([
+                    html.Label("Enter XGZ data ", style={'color': 'white'}),
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="xgz1", size="sm", placeholder="XGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    ), 
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="xgz2", size="sm", placeholder="XGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    ),
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="xgz3", size="sm", placeholder="XGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    )
+            ],
+            ),
+            dbc.Row([
+                    html.Label("Enter RPZ data ", style={'color': 'white'}),
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="rpz1", size="sm", placeholder="RPZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    ), 
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="rpz2", size="sm", placeholder="RPZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    ),
+                    dbc.Col(
+                        html.Div([
+                            dbc.Input(type="Text", id="rpz3", size="sm", placeholder="RPZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
+                        ], className="mx-1")
+                    )
+            ],
+            ),
 dbc.Row([
         html.Label("Enter XPZ data ", style={'color': 'white'}),
         dbc.Col(
@@ -502,8 +506,12 @@ def filter_data(n_clicks, start_time, end_time):
     else:
         return []
 
-mag_data = process_Mag_data()
-ZA_Real, ZA_Imag = ZA_data(mag_data)
+
+mqtt_data = 1 
+mqtt_mag_data = cobaProsesMqtt.run_mqtt_data_retrieval()
+mag_data = cobaProsesMqtt.unpack_mag_data()
+print("line_data", mag_data)
+# ZA_Real, ZA_Imag = ZA_data(mag_data)
 
 # Update Graph
 @app.callback(
@@ -513,6 +521,7 @@ ZA_Real, ZA_Imag = ZA_data(mag_data)
      Input('config-dropdown', 'value')],
     [State('phase-to-gnd-graph', 'relayoutData'),
      State('phase-to-phase-graph', 'relayoutData')])
+
 
 def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     # Periksa apakah nilai selected_config tidak kosong
@@ -574,7 +583,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
     
-    df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    # df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -592,7 +601,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
                                     line=dict(color='#03B77A', width=5))
     
     # Plot ZA_Data
-    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+    # fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     # Update layout
     fig_phase_to_gnd.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -619,7 +628,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
                                     line=dict(color='#03B77A', width=5))
 
     #plot ZA_DAta
-    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+    # fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     
     # Update layout
     fig_phase_to_phase.update_layout(
@@ -651,8 +660,10 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
             fig_phase_to_phase.update_yaxes(range=[zoom_info_phase['yaxis.range[0]'], zoom_info_phase['yaxis.range[1]']])
 
     return fig_phase_to_gnd, fig_phase_to_phase
-    
-# Save Data CSV
+
+
+###########################################################################################
+                                    # Save Data CSV
 @app.callback(
     Output('save-csv-button', 'n_clicks'),
     [Input('filter-button', 'n_clicks')],
@@ -678,6 +689,8 @@ def save_csv(n_clicks, start_time, end_time):
         return 0  # Mengatur kembali nilai n_clicks tombol "Save CSV" menjadi 0
     else:
         raise PreventUpdate
+
+############################################################################################
 
 # Callback to update parameter values in MongoDB
 @app.callback(

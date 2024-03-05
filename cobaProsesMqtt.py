@@ -12,25 +12,14 @@ LINE_Phase_Angles = []
 LINE_V_Harm = []
 LINE_I_Harm = []
 
-
+LINE1_z0z1_mag = 6.181
+LINE1_z0z1_ang = -2.55
 
 
 
 ZA_Real = []
 ZA_Imag = []
-IA_data= []
-IA_data_ang= []
-IB_data= []
-IB_data_ang= []
-IC_data= []
-IC_data_ang= []
 
-VA_data= []
-VA_data_ang= []
-VB_data= []
-VB_data_ang= []
-VC_data= []
-VC_data_ang= []
 
 def handle_Mag_data(data):
     LINE_Mag_VI.append(data)
@@ -48,94 +37,103 @@ def handle_Iharm_data(data):
     LINE_I_Harm.append(data)
     LINE_I_Harm[:] = data
 
-<<<<<<< Updated upstream
-    return {'data': [trace], 'layout': layout}
 
-
-
-def handle_mqtt_data(data):
-    # Process the received data here
-    LINE1_U1 = data[1]
-    LINE1_U2 = data[2]
-    LINE1_U3 = data[3]
-    LINE1_Ang_U1 = data[0]
-    LINE1_Ang_U2 = data[4]
-    LINE1_Ang_U3 = data[5]
-    LINE1_IL1 = data[9]
-    LINE1_IL2 = data[10]
-    LINE1_IL3 = data[11]
-    LINE1_Ang_I1 = data[6]
-    LINE1_Ang_I2 = data[7]
-    LINE1_Ang_I3 = data[8]
-    LINE1_z0z1_mag = data[12]
-    LINE1_z0z1_ang = data[13]
-
-    print(f"LINE1_U1: {LINE1_U1}")
-    print(f"LINE1_U2: {LINE1_U2}")
-    print(f"LINE1_U3: {LINE1_U3}")
-    print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
-    print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
-    print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
-    print(f"LINE1_IL1: {LINE1_IL1}")
-    print(f"LINE1_IL2: {LINE1_IL2}")
-    print(f"LINE1_IL3: {LINE1_IL3}")
-    print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
-    print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
-    print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
-    print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
-    print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
-
-        # Perform calculations using LineCalculation class
-    line_calc = LineCalculation()
-    calculated_values = line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
-                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
-                                LINE1_z0z1_mag, LINE1_z0z1_ang)
-=======
-def process_data():
+def unpack_mag_data():
     if len(LINE_Mag_VI) == 0:
-        pass
+        return (0,) * 14  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
     else:
-        LINE2_Freq = LINE_Mag_VI[0]
-        LINE2_U1 = LINE_Mag_VI[1]
-        LINE2_U2 = LINE_Mag_VI[2]
-        LINE2_U3 = LINE_Mag_VI[3]
-        LINE2_Uavg = LINE_Mag_VI[4]
-        LINE2_U12 = LINE_Mag_VI[5]
-        LINE2_U23 = LINE_Mag_VI[6]
-        LINE2_U31 = LINE_Mag_VI[7]
-        LINE2_ULavg = LINE_Mag_VI[8]
-        LINE2_IL1 = LINE_Mag_VI[9]
-        LINE2_IL2 = LINE_Mag_VI[10]
-        LINE2_IL3 = LINE_Mag_VI[11]
-        LINE2_ILavg = LINE_Mag_VI[12]
-        LINE2_IN = LINE_Mag_VI[13]
->>>>>>> Stashed changes
+        LINE1_Freq = LINE_Mag_VI[0]
+        LINE1_U1 = LINE_Mag_VI[1]
+        LINE1_U2 = LINE_Mag_VI[2]
+        LINE1_U3 = LINE_Mag_VI[3]
+        LINE1_Uavg = LINE_Mag_VI[4]
+        LINE1_U12 = LINE_Mag_VI[5]
+        LINE1_U23 = LINE_Mag_VI[6]
+        LINE1_U31 = LINE_Mag_VI[7]
+        LINE1_ULavg = LINE_Mag_VI[8]
+        LINE1_IL1 = LINE_Mag_VI[9]
+        LINE1_IL2 = LINE_Mag_VI[10]
+        LINE1_IL3 = LINE_Mag_VI[11]
+        LINE1_ILavg = LINE_Mag_VI[12]
+        LINE1_IN = LINE_Mag_VI[13]
+        return LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN
+    # return None
+
+
+def unpack_phase_data():
+    if len(LINE_Phase_Angles) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_Ang_U1 = 0
+        LINE1_Ang_U2 = LINE_Phase_Angles[0]
+        LINE1_Ang_U3 = LINE_Phase_Angles[1]
+        LINE1_Ang_I1 = LINE_Phase_Angles[2]
+        LINE1_Ang_I2 = LINE_Phase_Angles[3]
+        LINE1_Ang_I3 = LINE_Phase_Angles[4]
+        return LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3
+    # return None
+
+def unpack_Iharm_data():
+    if len(LINE_I_Harm) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_IA3rd_Harm = LINE_I_Harm[0]
+        LINE1_IA5th_Harm = LINE_I_Harm[1]
+        LINE1_IB3rd_Harm = LINE_I_Harm[2]
+        LINE1_IB5th_Harm = LINE_I_Harm[3]
+        LINE1_IC3rd_Harm = LINE_I_Harm[4]
+        LINE1_IC5th_Harm = LINE_I_Harm[5]
+        
+        return  LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm
+    # return None
+
+def unpack_Vharm_data():
+    if len(LINE_V_Harm) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_VA3rd_Harm = LINE_V_Harm[0]
+        LINE1_VA5th_Harm = LINE_V_Harm[1]
+        LINE1_VB3rd_Harm = LINE_V_Harm[2]
+        LINE1_VB5th_Harm = LINE_V_Harm[3]
+        LINE1_VC3rd_Harm = LINE_V_Harm[4]
+        LINE1_VC5th_Harm = LINE_V_Harm[5]
+        
+        return  LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm
+    # return None
+
+
+def process_data():
     
-    return LINE2_Freq
-# def handle_ang_data(data):
-#     LINE2_Ang_U2 = data[0]
-#     LINE2_Ang_U3 = data[1]
-#     LINE2_Ang_I1 = data[2]
-#     LINE2_Ang_I2 = data[3]
-#     LINE2_Ang_I3 = data[4]
-#     print(data)
+    LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
+    LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
+    LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm = unpack_Iharm_data()
+    LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm = unpack_Vharm_data()
+    VAB = LINE1_U12 
+    VBC = LINE1_U12
+    VA = LINE1_U1
+    IA = LINE1_IL1  
+    IA_ang = LINE1_Ang_I1
+    line_calc = LineCalculation()
+    
+    try :
+        line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                    LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                    LINE1_z0z1_mag, LINE1_z0z1_ang)
+        LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
 
-
-# def handle_ang_data(data):
-#     LINE2_Ang_U2 = data[0]
-#     LINE2_Ang_U3 = data[1]
-#     LINE2_Ang_I1 = data[2]
-#     LINE2_Ang_I2 = data[3]
-#     LINE2_Ang_I3 = data[4]
-#     print(data)
-
+        ZA_Real.append(LINE1_ZA_Real)
+        ZA_Imag.append(LINE1_ZA_Imag)
+        if len(ZA_Real) >= 2:
+            ZA_Real.pop(0)
+        if len(ZA_Imag) >=2:
+            ZA_Imag.pop(0)
+    except ZeroDivisionError:
+        pass
 
 def run_mqtt_data_retrieval():
     mqtt_client = MQTTClient(on_data_callback=handle_Mag_data)
     mqtt_client.set_mqtt_topic1("data/sensor1")  # Set MQTT topic 1
     mqtt_client.connect()
-
-
 
 
 def run_mqtt_angle_retreival():
@@ -157,31 +155,22 @@ def run_mqtt_Iharm_retreival():
 
 
 
+
 if __name__ == "__main__":
-    freq = process_data()
     while True:
         run_mqtt_data_retrieval()
-        run_mqtt_angle_retreival()
-        run_mqtt_Vharm_retreival()
-        run_mqtt_Iharm_retreival()
-        print("MAG DATA", LINE_Mag_VI)
-        print("FREQ DATA", freq)
-        print("PHASE DATA", LINE_Phase_Angles)
-        print("Vharm DATA", LINE_V_Harm)
-        print("Iharm DATA", LINE_I_Harm)
+        line_data = unpack_mag_data()
+        # run_mqtt_angle_retreival()
+        # phasedata = unpack_phase_data()
+        # run_mqtt_Vharm_retreival()
+        # Vharm_data = unpack_Vharm_data()
+        # run_mqtt_Iharm_retreival() 
+        # Iharm_data = unpack_Iharm_data()
+        # process_data()
+        print("line_data", line_data)
+        # print("phasedata :",phasedata)
+        # print("Vharm data :", Vharm_data)
+        # print("Iharm data :", Iharm_data)
         # print("ZA_real", ZA_Real)
-        # print("ZA_Imag", ZA_Imag)
-        # print("IA_data", IA_data)
-        # print("IA_data_ang", IA_data_ang)
-        # print("IB_data", IB_data)
-        # print("IB_data_ang", IB_data_ang)
-        # print("IC_data", IC_data)
-        # print("IC_data_ang", IC_data_ang)
-
-        # print("VA_data", VA_data)
-        # print("VA_data_ang", VA_data_ang)
-        # print("VB_data", VB_data)
-        # print("VB_data_ang", VB_data_ang)
-        # print("VC_data", VC_data)
-        # print("VC_data_ang", VC_data_ang)
-        # time.sleep(0.4)
+        # print("ZA_imag", ZA_Imag)
+        time.sleep(0.4)
