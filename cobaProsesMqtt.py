@@ -1,48 +1,54 @@
-import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import plotly.graph_objs as go
 import utils
 from utils import LineCalculation, MQTTClient
 import time
+import math 
+import cmath
+import struct
+
+
+
+LINE_Mag_VI = []
+LINE_Phase_Angles = []
+LINE_V_Harm = []
+LINE_I_Harm = []
+
+
+
+
 
 ZA_Real = []
 ZA_Imag = []
+IA_data= []
+IA_data_ang= []
+IB_data= []
+IB_data_ang= []
+IC_data= []
+IC_data_ang= []
 
-# Initialize Dash app
-app = dash.Dash(__name__)
+VA_data= []
+VA_data_ang= []
+VB_data= []
+VB_data_ang= []
+VC_data= []
+VC_data_ang= []
 
-# Define layout of the app
-app.layout = html.Div([
-    dcc.Graph(id='live-update-graph'),
-    dcc.Interval(
-        id='interval-component',
-        interval=500,  # in milliseconds
-        n_intervals=0
-    )
-])
+def handle_Mag_data(data):
+    LINE_Mag_VI.append(data)
+    LINE_Mag_VI[:] = data
 
-# Callback to update the graph
-@app.callback(Output('live-update-graph', 'figure'),
-              [Input('interval-component', 'n_intervals')])
-def update_graph_live(n):
-    if len(ZA_Real) == 0 or len(ZA_Imag) == 0:
-        return {'data': []}  # No data to plot yet
+def handle_Phase_data(data):
+    LINE_Phase_Angles.append(data)
+    LINE_Phase_Angles[:] = data
 
-    trace = go.Scatter(
-        x=ZA_Real,
-        y=ZA_Imag,
-        mode='lines+markers',
-        name='ZA Real vs Imag'
-    )
+def handle_Vharm_data(data):
+    LINE_V_Harm.append(data)
+    LINE_V_Harm[:] = data
 
-    layout = go.Layout(
-        title='ZA Real vs Imag',
-        xaxis=dict(title='ZA Real'),
-        yaxis=dict(title='ZA Imag'),
-        showlegend=True
-    )
+def handle_Iharm_data(data):
+    LINE_I_Harm.append(data)
+    LINE_I_Harm[:] = data
 
+<<<<<<< Updated upstream
     return {'data': [trace], 'layout': layout}
 
 
@@ -84,23 +90,98 @@ def handle_mqtt_data(data):
     calculated_values = line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
                                 LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
                                 LINE1_z0z1_mag, LINE1_z0z1_ang)
+=======
+def process_data():
+    if len(LINE_Mag_VI) == 0:
+        pass
+    else:
+        LINE2_Freq = LINE_Mag_VI[0]
+        LINE2_U1 = LINE_Mag_VI[1]
+        LINE2_U2 = LINE_Mag_VI[2]
+        LINE2_U3 = LINE_Mag_VI[3]
+        LINE2_Uavg = LINE_Mag_VI[4]
+        LINE2_U12 = LINE_Mag_VI[5]
+        LINE2_U23 = LINE_Mag_VI[6]
+        LINE2_U31 = LINE_Mag_VI[7]
+        LINE2_ULavg = LINE_Mag_VI[8]
+        LINE2_IL1 = LINE_Mag_VI[9]
+        LINE2_IL2 = LINE_Mag_VI[10]
+        LINE2_IL3 = LINE_Mag_VI[11]
+        LINE2_ILavg = LINE_Mag_VI[12]
+        LINE2_IN = LINE_Mag_VI[13]
+>>>>>>> Stashed changes
     
-    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
-    # print("LINE1_ZA_Real = {0}\nLINE1_ZA_Imag = {1}"
-    #               .format(LINE1_ZA_Real, LINE1_ZA_Imag)) 
-    ZA_Real.append(LINE1_ZA_Real)
-    ZA_Imag.append(LINE1_ZA_Imag)
-    if len(ZA_Real) >= 51:
-        ZA_Real.pop(0)
-    if len(ZA_Imag) >=51:
-        ZA_Imag.pop(0)
+    return LINE2_Freq
+# def handle_ang_data(data):
+#     LINE2_Ang_U2 = data[0]
+#     LINE2_Ang_U3 = data[1]
+#     LINE2_Ang_I1 = data[2]
+#     LINE2_Ang_I2 = data[3]
+#     LINE2_Ang_I3 = data[4]
+#     print(data)
+
+
+# def handle_ang_data(data):
+#     LINE2_Ang_U2 = data[0]
+#     LINE2_Ang_U3 = data[1]
+#     LINE2_Ang_I1 = data[2]
+#     LINE2_Ang_I2 = data[3]
+#     LINE2_Ang_I3 = data[4]
+#     print(data)
+
 
 def run_mqtt_data_retrieval():
-    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    mqtt_client = MQTTClient(on_data_callback=handle_Mag_data)
+    mqtt_client.set_mqtt_topic1("data/sensor1")  # Set MQTT topic 1
     mqtt_client.connect()
 
+
+
+
+def run_mqtt_angle_retreival():
+    mqtt_client = MQTTClient(on_data_callback=handle_Phase_data)
+    mqtt_client.set_mqtt_topic2("data/sensor2")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+def run_mqtt_Vharm_retreival():
+
+    mqtt_client = MQTTClient(on_data_callback=handle_Vharm_data)
+    mqtt_client.set_mqtt_topic2("data/sensor3")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+def run_mqtt_Iharm_retreival():
+
+    mqtt_client = MQTTClient(on_data_callback=handle_Iharm_data)
+    mqtt_client.set_mqtt_topic2("data/sensor4")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+
+
 if __name__ == "__main__":
+    freq = process_data()
     while True:
         run_mqtt_data_retrieval()
-        app.run_server(debug=True, use_reloader=False)
-        time.sleep(0.2)
+        run_mqtt_angle_retreival()
+        run_mqtt_Vharm_retreival()
+        run_mqtt_Iharm_retreival()
+        print("MAG DATA", LINE_Mag_VI)
+        print("FREQ DATA", freq)
+        print("PHASE DATA", LINE_Phase_Angles)
+        print("Vharm DATA", LINE_V_Harm)
+        print("Iharm DATA", LINE_I_Harm)
+        # print("ZA_real", ZA_Real)
+        # print("ZA_Imag", ZA_Imag)
+        # print("IA_data", IA_data)
+        # print("IA_data_ang", IA_data_ang)
+        # print("IB_data", IB_data)
+        # print("IB_data_ang", IB_data_ang)
+        # print("IC_data", IC_data)
+        # print("IC_data_ang", IC_data_ang)
+
+        # print("VA_data", VA_data)
+        # print("VA_data_ang", VA_data_ang)
+        # print("VB_data", VB_data)
+        # print("VB_data_ang", VB_data_ang)
+        # print("VC_data", VC_data)
+        # print("VC_data_ang", VC_data_ang)
+        # time.sleep(0.4)

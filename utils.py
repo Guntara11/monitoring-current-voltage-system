@@ -49,6 +49,7 @@ class MQTTClient:
         self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
         self.client.loop_start()  # Start a blocking loop to handle MQTT messages
 
+
 class LineCalculation:
     def __init__(self):
         self.real_data = []

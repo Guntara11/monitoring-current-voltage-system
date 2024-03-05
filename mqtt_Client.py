@@ -1,77 +1,52 @@
-# import random
-# import time
-# import json
-# import csv
-# import paho.mqtt.client as mqtt
+import utils
+from utils import LineCalculation, MQTTClient
+import time
 
-# mqtt_broker = "broker.emqx.io"  # Ganti dengan alamat broker MQTT Anda
-# mqtt_port = 1883
-# mqtt_topic = "topic/sensor_data"
-# mqtt_topic2 = "topic/dummy_impendance"
 
-# client = mqtt.Client()
+ZA_Real = []
+ZA_Imag = []
 
-# def on_connect(client, userdata, flags, rc):
-#     print("Connected to MQTT Broker with result code " + str(rc))
+def handle_mqtt_data(data):
+    # Process the received data here
+    LINE1_U1 = data[1]
+    LINE1_U2 = data[2]
+    LINE1_U3 = data[3]
+    LINE1_Ang_U1 = data[0]
+    LINE1_Ang_U2 = data[4]
+    LINE1_Ang_U3 = data[5]
+    LINE1_IL1 = data[9]
+    LINE1_IL2 = data[10]
+    LINE1_IL3 = data[11]
+    LINE1_Ang_I1 = data[6]
+    LINE1_Ang_I2 = data[7]
+    LINE1_Ang_I3 = data[8]
+    LINE1_z0z1_mag = data[12]
+    LINE1_z0z1_ang = data[13]
 
-# client.on_connect = on_connect
-# client.connect(mqtt_broker, mqtt_port, 60)
-
-# impedance = {"x": 10, 
-#             "y": 20}
-# client.publish(mqtt_topic2, json.dumps(impedance))
-
-# csv_file_path = "sensor_data.csv"
-# max_data_entries = 50
-# data_buffer = []
-
-# while True:
-#     data = {"voltage": round(random.uniform(-10, 10), 2), 
-#             "current": round(random.uniform(-10, 10), 2)}
+        # Perform calculations using LineCalculation class
+    line_calc = LineCalculation()
+    calculated_values = line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                LINE1_z0z1_mag, LINE1_z0z1_ang)
     
-#     client.publish(mqtt_topic, json.dumps(data))
+    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+    # print("LINE1_ZA_Real = {0}\nLINE1_ZA_Imag = {1}"
+    #               .format(LINE1_ZA_Real, LINE1_ZA_Imag)) 
+    ZA_Real.append(LINE1_ZA_Real)
+    ZA_Imag.append(LINE1_ZA_Imag)
+    if len(ZA_Real) >= 2:
+        ZA_Real.pop(0)
+    if len(ZA_Imag) >=2:
+        ZA_Imag.pop(0)
+
+def run_mqtt_data_retrieval():
+    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
+    mqtt_client.connect()
+
+if __name__ == "__main__":
     
-#     if len(data_buffer) < max_data_entries:
-#         data_buffer.append(data)
-#     else:
-#         data_buffer.pop(0)  # Remove the oldest entry
-#         data_buffer.append(data)
-    
-#     with open(csv_file_path, mode='w', newline='') as csv_file:
-#         fieldnames = ['timestamp', 'voltage', 'current']
-#         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-#         writer.writeheader()
-        
-#         for i, entry in enumerate(data_buffer):
-#             timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-#             data_to_write = {'timestamp': timestamp, 'voltage': entry['voltage'], 'current': entry['current']}
-#             writer.writerow(data_to_write)
-    
-#     print(f"Random data: {data}")
-#     time.sleep(0.2)
-
-import paho.mqtt.client as mqtt
-import json
-
-class MQTTClient:
-    def __init__(self, on_data_callback):
-        self.mqtt_broker = "broker.emqx.io"
-        self.mqtt_port = 1883
-        self.mqtt_topic = "data/sensor"
-        self.client = mqtt.Client()
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.on_data_callback = on_data_callback
-
-    def on_connect(self, client, userdata, flags, rc):
-        print("Connected to MQTT Broker with result code " + str(rc))
-        client.subscribe(self.mqtt_topic)
-
-    def on_message(self, client, userdata, msg):
-        if msg.topic == self.mqtt_topic:
-            data = json.loads(msg.payload)
-            self.on_data_callback(data)
-
-    def connect(self):
-        self.client.connect(self.mqtt_broker, self.mqtt_port, 60)
-        self.client.loop_start()  # Start a blocking loop to handle MQTT messages
+    while True:
+        run_mqtt_data_retrieval()
+        print("ZA_real", ZA_Real)
+        print("ZA_Imag", ZA_Imag)
+        time.sleep(1)
