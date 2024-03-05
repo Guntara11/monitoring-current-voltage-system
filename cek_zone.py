@@ -5,9 +5,9 @@ from utils import ZoneCalculation
 
 
 
-client = pymongo.MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/?retryWrites=true&w=majority")
-db = client["MyData"]
-collection = db["Params"]
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+db = client["MVCS"]
+collection = db["Parameter"]
 
 # Define the filter to retrieve data for "Line_1"
 choice = input("select line :")

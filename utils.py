@@ -10,18 +10,38 @@ class MQTTClient:
     def __init__(self, on_data_callback):
         self.mqtt_broker = "broker.emqx.io"
         self.mqtt_port = 1883
-        self.mqtt_topic = "data/sensor"
+        self.mqtt_topic1 = None
+        self.mqtt_topic2 = None
+        self.mqtt_topic3 = None
+        self.mqtt_topic4 = None
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.on_data_callback = on_data_callback
 
+    def set_mqtt_topic1(self, topic):
+        self.mqtt_topic1 = topic
+
+    def set_mqtt_topic2(self, topic):
+        self.mqtt_topic2 = topic
+        
+    def set_mqtt_topic3(self, topic):
+        self.mqtt_topic3 = topic
+
+    def set_mqtt_topic4(self, topic):
+        self.mqtt_topic4 = topic
+
     def on_connect(self, client, userdata, flags, rc):
-        print("Connected to MQTT Broker with result code " + str(rc))
-        client.subscribe(self.mqtt_topic)
+        # print("Connected to MQTT Broker with result code " + str(rc))
+        if self.mqtt_topic1:
+            client.subscribe(self.mqtt_topic1)
+        if self.mqtt_topic2:
+            client.subscribe(self.mqtt_topic2)
+        if self.mqtt_topic3:
+            client.subscribe(self.mqtt_topic2)
 
     def on_message(self, client, userdata, msg):
-        if msg.topic == self.mqtt_topic:
+        if msg.topic == self.mqtt_topic1 or msg.topic == self.mqtt_topic2 or msg.topic == self.mqtt_topic3:
             data = json.loads(msg.payload)
             self.on_data_callback(data)
 

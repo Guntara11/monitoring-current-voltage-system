@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 import plotly.graph_objs as go
 from collections import deque
 import utils
-from utils import LineCalculation
+from utils import LineCalculation, ZoneCalculation
 import pymongo
 import pandas as pd
 import dash_ag_grid as dag
@@ -21,28 +21,22 @@ import random
 import plotly.express as px
 import dash_daq as daq
 from mqtt_Client import MQTTClient
-
-
+from get_mqtt_data import ZA_data, process_Mag_data
 
 #Connect To MongoDB
 try:
-    client = pymongo.MongoClient("mongodb+srv://sopiand23:Manusiakuat1@mycluster.bfapaaq.mongodb.net/")
-    db = client["MyData"]
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    db = client["MVCS"]
     collection_LINE = db["LINE"]
-    collection_Params = db["MyCollect"]
-    collection_Parameter = db["Params"]
+    collection_Params = db["Params"]
+    collection_Parameter = db["Parameter"]
     connected = True
 except pymongo.errors.ConnectionFailure:
     connected = False
 
-
-
-
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
 
-ZA_Real = []
-ZA_Imag = []
 # Read keys directly from MongoDB collection "Parameter"
 parameter_data = collection_Parameter.find_one({})
 if parameter_data:
@@ -452,14 +446,6 @@ app.layout = dbc.Container(
     fluid=True
 )
 
-# Initialize data storage
-# mqtt_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)
-# Initialize data storage
-
-# za_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
-# zb_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
-# zc_data = {'x': deque(maxlen=50), 'y': deque(maxlen=50)}
-
 # Fungsi untuk menghasilkan nilai tegangan dan arus secara acak
 def get_voltage_current_value():
     voltage_value = random.uniform(200, 240)
@@ -516,54 +502,8 @@ def filter_data(n_clicks, start_time, end_time):
     else:
         return []
 
-def handle_mqtt_data(data):
-    # Process the received data here
-    LINE1_U1 = data[1]
-    LINE1_U2 = data[2]
-    LINE1_U3 = data[3]
-    LINE1_Ang_U1 = data[0]
-    LINE1_Ang_U2 = data[4]
-    LINE1_Ang_U3 = data[5]
-    LINE1_IL1 = data[9]
-    LINE1_IL2 = data[10]
-    LINE1_IL3 = data[11]
-    LINE1_Ang_I1 = data[6]
-    LINE1_Ang_I2 = data[7]
-    LINE1_Ang_I3 = data[8]
-    LINE1_z0z1_mag = data[12]
-    LINE1_z0z1_ang = data[13]
-    
-    line_calc = LineCalculation()
-    line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
-                                LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
-                                LINE1_z0z1_mag, LINE1_z0z1_ang)
-    LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
-
-    ZA_Real.append(LINE1_ZA_Real)
-    ZA_Imag.append(LINE1_ZA_Imag)
-    if len(ZA_Real) >= 51:
-        ZA_Real.pop(0)
-    if len(ZA_Imag) >=51:
-        ZA_Imag.pop(0)
-    # print(f"LINE1_U1: {LINE1_U1}")
-    # print(f"LINE1_U2: {LINE1_U2}")
-    # print(f"LINE1_U3: {LINE1_U3}")
-    # print(f"LINE1_Ang_U1: {LINE1_Ang_U1}")
-    # print(f"LINE1_Ang_U2: {LINE1_Ang_U2}")
-    # print(f"LINE1_Ang_U3: {LINE1_Ang_U3}")
-    # print(f"LINE1_IL1: {LINE1_IL1}")
-    # print(f"LINE1_IL2: {LINE1_IL2}")
-    # print(f"LINE1_IL3: {LINE1_IL3}")
-    # print(f"LINE1_Ang_I1: {LINE1_Ang_I1}")
-    # print(f"LINE1_Ang_I2: {LINE1_Ang_I2}")
-    # print(f"LINE1_Ang_I3: {LINE1_Ang_I3}")
-    # print(f"LINE1_z0z1_mag: {LINE1_z0z1_mag}")
-    # print(f"LINE1_z0z1_ang: {LINE1_z0z1_ang}")
-    # # print(ZA_data)
-
-def run_mqtt_data_retrieval():
-    mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
-    mqtt_client.connect()
+mag_data = process_Mag_data()
+ZA_Real, ZA_Imag = ZA_data(mag_data)
 
 # Update Graph
 @app.callback(
@@ -575,8 +515,6 @@ def run_mqtt_data_retrieval():
      State('phase-to-phase-graph', 'relayoutData')])
 
 def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
-    # mqtt_client = MQTTClient(on_data_callback=handle_mqtt_data)
-    # mqtt_client.connect()
     # Periksa apakah nilai selected_config tidak kosong
     if not selected_config:
 
@@ -635,29 +573,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     # Ekstraksi titik-titik dari data phase-to-phase
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
-
-    # # Update nilai-nilai dari utils.py menggunakan fungsi params()
-    # LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, \
-    # LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3, \
-    # LINE1_z0z1_mag, LINE1_z0z1_ang = handle_mqtt_data()
-
-    # # Gunakan LineCalculation untuk mendapatkan data ZA
-    # line_calc = LineCalculation()  # Panggil LineCalculation di sini
-    # line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
-    #                             LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
-    #                             LINE1_z0z1_mag, LINE1_z0z1_ang)
-    # LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
-
-    # # Menambahkan data baru ke ZA_data
-    # ZA_data.append((LINE1_ZA_Real, LINE1_ZA_Imag))
-    # Periksa jika jumlah data ZA_data sudah mencapai 50
-    # if len(ZA_data) >= 50:
-    #     # Hapus 1 data pertama dari ZA_data
-    #     ZA_data.pop(0)
-
-    # # Perbarui dataframe df_ZA dengan 50 data terakhir
-    # df_ZA = pd.DataFrame(ZA_data[-50:], columns=['ZA_Real', 'ZA_Imag'])
-    # df_ZA['Frame'] = df_ZA.index
+    
     df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
@@ -735,123 +651,6 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
             fig_phase_to_phase.update_yaxes(range=[zoom_info_phase['yaxis.range[0]'], zoom_info_phase['yaxis.range[1]']])
 
     return fig_phase_to_gnd, fig_phase_to_phase
-    # # Memeriksa apakah jumlah data dalam ZA_data melebihi maksimum yang diizinkan
-    # if len(ZA_data) > max_data:
-    #     # Menghitung berapa banyak data yang harus diganti
-    #     replace_count = len(ZA_data) - max_data
-        
-    #     # Mengganti data awal dengan data baru secara berurutan
-    #     for _ in range(replace_count):
-    #         ZA_data.pop(0)
-
-    # # Membuat list koordinat x dan y dari ZA_data
-    # x = [point[0] for point in ZA_data]
-    # y = [point[1] for point in ZA_data]
-
-    # # Menentukan rentang sumbu x dan y sesuai dengan titik-titik ZA_data
-    # x_range = [min(x), max(x)]
-    # y_range = [min(y), max(y)]
-
-    ## Scatter plot for MQTT data
-    # mqtt_trace = go.Scatter(x=list(mqtt_data['x']),
-    #                         y=list(mqtt_data['y']),
-    #                         mode='lines+markers',
-    #                         name='Voltage vs Current')
-    
-    # # Create scatter plot for Phase-to-Gnd
-    # fig_phase_to_gnd = go.Figure()
-    # fig_phase_to_gnd.add_trace(go.Scatter(
-    #     x=config_x_phase_to_gnd,
-    #     y=config_y_phase_to_gnd,
-    #     mode='lines+markers',
-    #     name='Config Data',
-    #     marker=dict(color='white', size=5),
-    #     line=dict(color='#03B77A', width=5),
-    #     textfont=dict(color='white')
-    # ))
-
-    # fig_phase_to_gnd.add_trace(go.Scatter(
-    #     x=x,
-    #     y=y,
-    #     mode='markers',
-    #     name='ZA Data',
-    #     marker=dict(color='#1974D2', size=10),
-    #     # line=dict(color='#1974D2', width=3),
-    #     textfont=dict(color='white')
-    # ))
-    # fig_phase_to_gnd.update_layout(
-    #     title='Phase-to-Gnd',
-    #     xaxis_title='Voltage',
-    #     yaxis_title='Current',
-    #     plot_bgcolor='rgba(0, 0, 0, 0)',
-    #     paper_bgcolor='rgba(255, 255, 255, 0.05)',
-    #     font=dict(color='white'),
-    #     xaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)'),
-    #     yaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)'),
-        # Set autoscale untuk zoom otomatis
-        # xaxis_range=x_range,
-        # yaxis_range=y_range
-    # )
-
-    # # Create scatter plot for Phase-to-Phase
-    # fig_phase_to_phase = go.Figure()
-    # fig_phase_to_phase.add_trace(go.Scatter(
-    #     x=config_x_phase_to_phase,
-    #     y=config_y_phase_to_phase,
-    #     mode='lines+markers',
-    #     name='Config Data',
-    #     marker=dict(color='white', size=5),
-    #     line=dict(color='#03B77A', width=5),
-    #     textfont=dict(color='white')
-    # ))
-    # fig_phase_to_phase.add_trace(go.Scatter(
-    #     x=x,
-    #     y=y,
-    #     mode='markers',
-    #     name='ZA Data',
-    #     marker=dict(color='#1974D2', size=10),
-    #     # line=dict(color='#1974D2', width=3),
-    #     textfont=dict(color='white')
-    # ))
-    # fig_phase_to_phase.update_layout(
-    #     title='Phase-to-Phase',
-    #     xaxis_title='Voltage',
-    #     yaxis_title='Current',
-    #     plot_bgcolor='rgba(0, 0, 0, 0)',
-    #     paper_bgcolor='rgba(255, 255, 255, 0.05)',
-    #     font=dict(color='white'),
-    #     xaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)'),
-    #     yaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)'),
-        # Set autoscale untuk zoom otomatis
-        # xaxis_range=x_range,
-        # yaxis_range=y_range
-    # )
-    # # Membuat DataFrame untuk phase_to_gnd
-    # df_phase_to_gnd = pd.DataFrame({
-    #     'Voltage': config_x_phase_to_gnd,
-    #     'Current': config_y_phase_to_gnd
-    # })
-
-    # # Membuat DataFrame untuk phase_to_phase
-    # df_phase_to_phase = pd.DataFrame({
-    #     'Voltage': config_x_phase_to_phase,
-    #     'Current': config_y_phase_to_phase
-    # })
-    
-    # # Plot scatter plot untuk Phase-to-Gnd
-    # fig_phase_to_gnd = px.scatter(df_phase_to_gnd, x=config_x_phase_to_gnd, y=config_y_phase_to_gnd, title='Phase-to-Gnd',
-    #                             labels={'x': 'Voltage', 'y': 'Current'}, color_discrete_sequence=['white'])
-
-    # # Atur warna dan gaya garis
-    # fig_phase_to_gnd.update_traces(line=dict(color='green', width=2))
-
-    # # Plot scatter plot untuk Phase-to-Phase
-    # fig_phase_to_phase = px.scatter(df_phase_to_phase, x=config_x_phase_to_phase, y=config_y_phase_to_phase, title='Phase-to-Phase',
-    #                                 labels={'x': 'Voltage', 'y': 'Current'}, color_discrete_sequence=['white'])
-
-    # # Atur warna dan gaya garis
-    # fig_phase_to_phase.update_traces(line=dict(color='green', width=2))
-    # return fig_phase_to_gnd, fig_phase_to_phase
     
 # Save Data CSV
 @app.callback(
@@ -879,7 +678,7 @@ def save_csv(n_clicks, start_time, end_time):
         return 0  # Mengatur kembali nilai n_clicks tombol "Save CSV" menjadi 0
     else:
         raise PreventUpdate
-    
+
 # Callback to update parameter values in MongoDB
 @app.callback(
     Output('rgz1', 'value'),
@@ -944,13 +743,186 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
             # Update parameter values directly into Parameter collection
             collection_Parameter.update_one({'_id': parameter_id}, {'$set': {'rgz1': float_values[0], 'rgz2': float_values[1], 'rgz3': float_values[2], 'xgz1': float_values[3], 'xgz2': float_values[4], 'xgz3': float_values[5], 'rpz1': float_values[6], 'rpz2': float_values[7], 'rpz3': float_values[8], 'xpz1': float_values[9], 'xpz2': float_values[10], 'xpz3': float_values[11], 'angle': float_values[12], 'z0z1_mag': float_values[13], 'z0z1_ang': float_values[14], 'delta_t': float_values[15], 'id2': float_values[16], 'line_length': float_values[17], 'CT_RATIO_HV': float_values[18], 'CT_RATIO_LV': float_values[19], 'VT_RATIO_HV': float_values[20], 'VT_RATIO_LV': float_values[21], 'CTVT_RATIO': float_values[22]}})
             
-            # Mengembalikan nilai-nilai yang diperbarui agar ditampilkan di layout
-            return float_values
-        else:
-            raise PreventUpdate
-    else:
-        raise PreventUpdate
+            if selected_config:
+                filter_query = {"_id": selected_config}
+                # Lakukan perhitungan berdasarkan nilai dari collection_Parameter yang diperbarui
+                result = collection_Parameter.find_one(filter_query)
 
+                if result:
+                    LINE1_xpz1 = result.get('xpz1')
+                    LINE1_xpz2 = result.get('xpz2')
+                    LINE1_xpz3 = result.get('xpz3')
+                    LINE1_rpz1 = result.get('rpz1')
+                    LINE1_rpz2 = result.get('rpz2')
+                    LINE1_rpz3 = result.get('rpz3')
+                    LINE1_xgz1 = result.get('xgz1')
+                    LINE1_xgz2 = result.get('xgz2')
+                    LINE1_xgz3 = result.get('xgz3')
+                    LINE1_rgz1 = result.get('rgz1')
+                    LINE1_rgz2 = result.get('rgz2')
+                    LINE1_rgz3 = result.get('rgz3')
+                    LINE1_angle = result.get('angle')
+                    LINE1_z0z1_mag = result.get('z0z1_mag')
+                    LINE1_z0z1_ang = result.get('z0z1_ang')
+                    zone_calc = ZoneCalculation()
+
+                    zone_calc.calculate_values(LINE1_xpz1, LINE1_xpz2, LINE1_xpz3, LINE1_rpz1, LINE1_rpz2, LINE1_rpz3,
+                                        LINE1_xgz1, LINE1_xgz2, LINE1_xgz3, LINE1_rgz1, LINE1_rgz2, LINE1_rgz3, LINE1_angle, LINE1_z0z1_mag,
+                                        LINE1_z0z1_ang)
+
+                    ################################# PHASE TO GROUND ################################################
+                    # Getting the real and imaginary data
+                    LINE1_Z1_PG_Real, LINE1_Z2_PG_Real, LINE1_Z3_PG_Real =  zone_calc.get_PG_real_data()
+                    pg_LINE1_reach_z1_x, pg_LINE1_reach_z2_x, pg_LINE1_reach_z3_x = LINE1_Z1_PG_Real, LINE1_Z2_PG_Real, LINE1_Z3_PG_Real
+
+                    LINE1_Z1_PG_Imag, LINE1_Z2_PG_Imag, LINE1_Z3_PG_Imag = zone_calc.get_PG_imag_data()
+                    pg_LINE1_reach_z1_y, pg_LINE1_reach_z2_y, pg_LINE1_reach_z3_y = LINE1_Z1_PG_Imag, LINE1_Z2_PG_Imag, LINE1_Z3_PG_Imag
+
+                    pg_top_right_z1_x, pg_top_right_z2_x, pg_top_right_z3_x =  zone_calc.get_tr_pg_x()
+
+                    pg_top_right_z1_y= pg_LINE1_reach_z1_y
+                    pg_top_right_z2_y= pg_LINE1_reach_z2_y
+                    pg_top_right_z3_y= pg_LINE1_reach_z3_y
+
+                    pg_top_left_z1_x= LINE1_Z1_PG_Real-(0.5*LINE1_rgz1)
+                    pg_top_left_z1_y= pg_LINE1_reach_z1_y
+                    pg_top_left_z2_x= LINE1_Z2_PG_Real-(0.5*LINE1_rgz2)
+                    pg_top_left_z2_y= pg_LINE1_reach_z2_y
+                    pg_top_left_z3_x= LINE1_Z3_PG_Real-(0.5*LINE1_rgz3)
+                    pg_top_left_z3_y= pg_LINE1_reach_z3_y
+
+
+
+                    pg_down_right_z1_x, pg_down_right_z2_x, pg_down_right_z3_x = zone_calc.get_dr_pg_x()
+                    pg_down_right_z1_y, pg_down_right_z2_y, pg_down_right_z3_y = zone_calc.get_dr_pg_y()
+
+
+                    pg_down_left_z1_x= -0.5 * pg_down_right_z1_x
+                    pg_down_left_z1_y= 0.5 * abs(pg_down_right_z1_y)
+                    pg_down_left_z2_x= -0.5 * pg_down_right_z2_x
+                    pg_down_left_z2_y= 0.5 * abs(pg_down_right_z2_y)
+                    pg_down_left_z3_x= -0.5 * pg_down_right_z3_x
+                    pg_down_left_z3_y= 0.5 * abs(pg_down_right_z2_y)
+
+                    pg_right_side_z1_x= pg_top_right_z1_x
+                    pg_right_side_z1_y= pg_LINE1_reach_z1_y
+                    pg_right_side_z2_x= pg_top_right_z2_x
+                    pg_right_side_z2_y= pg_LINE1_reach_z2_y
+                    pg_right_side_z3_x= pg_top_right_z3_x
+                    pg_right_side_z3_y= pg_LINE1_reach_z3_y
+
+                    pg_left_side_z1_x= pg_down_left_z1_x
+                    pg_left_side_z1_y= pg_down_left_z1_y
+                    pg_left_side_z2_x= pg_down_left_z2_x
+                    pg_left_side_z2_y= pg_down_left_z1_y
+                    pg_left_side_z3_x= pg_down_left_z3_x
+                    pg_left_side_z3_y= pg_down_left_z1_y
+
+                    ################################# PHASE TO PHASE ################################################
+
+                    # Getting the real and imaginary data
+                    LINE1_Z1_PP_Real, LINE1_Z2_PP_Real, LINE1_Z3_PP_Real =  zone_calc.get_PP_real_data()
+                    pp_LINE1_reach_z1_x, pp_LINE1_reach_z2_x, pp_LINE1_reach_z3_x = LINE1_Z1_PP_Real, LINE1_Z2_PP_Real, LINE1_Z3_PP_Real
+
+                    LINE1_Z1_PP_Imag, LINE1_Z2_PP_Imag, LINE1_Z3_PP_Imag = zone_calc.get_PP_imag_data()
+                    pp_LINE1_reach_z1_y, pp_LINE1_reach_z2_y, pp_LINE1_reach_z3_y = LINE1_Z1_PP_Imag, LINE1_Z2_PP_Imag, LINE1_Z3_PP_Imag
+
+                    pp_top_right_z1_x, pp_top_right_z2_x, pp_top_right_z3_x =  zone_calc.get_tr_pp_x()
+
+
+                    pp_top_right_z1_y= pp_LINE1_reach_z1_y
+                    pp_top_right_z2_y= pp_LINE1_reach_z2_y
+                    pp_top_right_z3_y= pp_LINE1_reach_z3_y
+
+                    pp_top_left_z1_x= LINE1_Z1_PP_Real-(0.5*LINE1_rpz1)
+                    pp_top_left_z1_y= pp_LINE1_reach_z1_y
+                    pp_top_left_z2_x= LINE1_Z2_PP_Real-(0.5*LINE1_rpz2)
+                    pp_top_left_z2_y= pp_LINE1_reach_z2_y
+                    pp_top_left_z3_x= LINE1_Z3_PP_Real-(0.5*LINE1_rpz3)
+                    pp_top_left_z3_y= pp_LINE1_reach_z3_y
+
+                    pp_down_right_z1_x, pp_down_right_z2_x, pp_down_right_z3_x = zone_calc.get_dr_pp_x()
+                    pp_down_right_z1_y, pp_down_right_z2_y, pp_down_right_z3_y = zone_calc.get_dr_pp_y()
+
+                    pp_down_left_z1_x= -0.5 * pp_down_right_z1_x
+                    pp_down_left_z1_y= 0.5 * abs(pp_down_right_z1_y)
+                    pp_down_left_z2_x= -0.5 * pp_down_right_z2_x
+                    pp_down_left_z2_y= 0.5 * abs(pp_down_right_z2_y)
+                    pp_down_left_z3_x= -0.5 * pp_down_right_z3_x
+                    pp_down_left_z3_y= 0.5 * abs(pp_down_right_z3_y)
+
+                    pp_right_side_z1_x= pp_top_right_z1_x
+                    pp_right_side_z1_y= pp_LINE1_reach_z1_y
+                    pp_right_side_z2_x= pp_top_right_z2_x
+                    pp_right_side_z2_y= pp_LINE1_reach_z2_y
+                    pp_right_side_z3_x= pp_top_right_z3_x
+                    pp_right_side_z3_y= pp_LINE1_reach_z3_y
+
+                    pp_left_side_z1_x= pp_down_left_z1_x
+                    pp_left_side_z1_y= pp_down_left_z1_y
+                    pp_left_side_z2_x= pp_down_left_z2_x
+                    pp_left_side_z2_y= pp_down_left_z1_y
+                    pp_left_side_z3_x= pp_down_left_z3_x
+                    pp_left_side_z3_y= pp_down_left_z1_y
+
+
+                    # Simpan hasil perhitungan ke dalam dokumen collection_LINE
+                    line_data = {
+                        "_id": parameter_id,
+                        "phase_to_gnd": {
+                            "point": {"x": 0, "y": 0},
+                            "reach_z1": {"x": pg_LINE1_reach_z1_x, "y": pg_LINE1_reach_z1_y},
+                            "reach_z2": {"x": pg_LINE1_reach_z2_x, "y": pg_LINE1_reach_z2_y},
+                            "reach_z3": {"x": pg_LINE1_reach_z3_x, "y": pg_LINE1_reach_z3_y},
+                            "kanan_atas_z3": {"x": pg_top_right_z3_x, "y": pg_top_right_z3_y},
+                            "kanan_atas_z2": {"x": pg_top_right_z2_x, "y": pg_top_right_z2_y},
+                            "kanan_atas_z1": {"x": pg_top_right_z1_x, "y": pg_top_right_z1_y},
+                            "kanan_bawah_z1": {"x": pg_down_right_z1_x, "y": pg_down_right_z1_y},
+                            "kiri_bawah_z1": {"x": pg_down_left_z1_x, "y": pg_down_left_z1_y},
+                            "kiri_atas_z1": {"x": pg_top_left_z1_x, "y": pg_top_left_z1_y},
+                            "kiri_atas_z2": {"x": pg_top_left_z2_x, "y": pg_top_left_z2_y},
+                            "kiri_atas_z3": {"x": pg_top_left_z3_x, "y": pg_top_left_z3_y},
+                            "kanan_samping_z3": {"x": pg_right_side_z3_x, "y": pg_right_side_z3_y},
+                            "kanan_samping_z2": {"x": pg_right_side_z2_x, "y": pg_right_side_z2_y},
+                            "kiri_samping_z2": {"x": pg_left_side_z2_x, "y": pg_left_side_z2_y},
+                            "kiri_samping_z1": {"x": pg_left_side_z1_x, "y": pg_left_side_z1_y},
+                            "kanan_samping_z1": {"x": pg_right_side_z1_x, "y": pg_right_side_z1_y},
+                            "kanan_bawah_z2": {"x": pg_down_right_z2_x, "y": pg_down_right_z2_y},
+                            "kiri_bawah_z2": {"x": pg_down_left_z2_x, "y": pg_down_left_z2_y},
+                            "kiri_samping_z3": {"x": pg_left_side_z3_x, "y": pg_left_side_z3_y},
+                            "kiri_bawah_z3": {"x": pg_down_left_z3_x, "y": pg_down_left_z3_y},
+                            "kanan_bawah_z3": {"x": pg_down_right_z3_x, "y": pg_down_right_z3_y}
+                        },
+                        "phase_to_phase": {
+                            "kiri_samping_z3": {"x": pp_left_side_z3_x, "y": pp_left_side_z3_y},
+                            "kanan_bawah_z3_2": {"x": pp_down_right_z3_x, "y": pp_down_right_z3_y},
+                            "kanan_atas_z3_2": {"x": pp_top_right_z3_x, "y": pp_top_right_z3_y},
+                            "kiri_atas_z3_2": {"x": pp_top_left_z3_x, "y": pp_top_left_z3_y},
+                            "kiri_bawah_z3_2": {"x": pp_down_left_z3_x, "y": pp_down_left_z3_y},
+                            "kiri_bawah_z2": {"x": pp_down_left_z2_x, "y": pp_down_left_z2_y},
+                            "kiri_samping_z2": {"x": pp_left_side_z2_x, "y": pp_left_side_z2_y},
+                            "kiri_atas_z2": {"x": pp_top_left_z2_x, "y": pp_top_left_z2_y},
+                            "kanan_atas_z2_2": {"x": pp_top_right_z2_x, "y": pp_top_right_z2_y},
+                            "kanan_samping_z2_2": {"x": pp_right_side_z2_x, "y": pp_right_side_z2_y},
+                            "kanan_bawah_z2_2": {"x": pp_down_right_z2_x, "y": pp_down_right_z2_y},
+                            "kanan_bawah_z1": {"x": pp_down_right_z1_x, "y": pp_down_right_z1_y},
+                            "kanan_samping_z1": {"x": pp_right_side_z1_x, "y": pp_right_side_z1_y},
+                            "kanan_atas_z1": {"x": pp_top_right_z1_x, "y": pp_top_right_z1_y},
+                            "start_point": {"x": 0, "y": 0},
+                            "kiri_atas_z1_2": {"x": pp_top_left_z1_x, "y": pp_top_left_z1_y},
+                            "kiri_samping_z1_2": {"x": pp_left_side_z1_x, "y": pp_left_side_z1_y},
+                            "kiri_bawah_z1_2": {"x": pp_down_left_z1_x, "y": pp_down_left_z1_y},
+                            "reach_z1": {"x": pp_LINE1_reach_z1_x, "y": pp_LINE1_reach_z1_y},
+                            "reach_z2": {"x": pp_LINE1_reach_z2_x, "y": pp_LINE1_reach_z2_y},
+                            "reach_z3": {"x": pp_LINE1_reach_z3_x, "y": pp_LINE1_reach_z3_y},
+                            "kanan_bawah_z3": {"x": pp_down_right_z3_x, "y": pp_down_right_z3_y}
+                        }
+                    }
+
+                    collection_LINE.update_one({'_id': parameter_id}, {'$set': line_data}, upsert=True)
+
+                    return float_values[0], float_values[1], float_values[2], float_values[3], float_values[4], float_values[5], float_values[6], float_values[7], float_values[8], float_values[9], float_values[10], float_values[11], float_values[12], float_values[13], float_values[14], float_values[15], float_values[16], float_values[17], float_values[18], float_values[19], float_values[20], float_values[21], float_values[22]
+    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
 # Callback untuk memperbarui nilai tegangan dan arus setiap detik
 @app.callback(
     [Output("voltage-value", "children"),
@@ -961,26 +933,9 @@ def update_values(n):
     voltage_value, current_value = get_voltage_current_value()
     return f"{voltage_value:.2f} V", f"{current_value:.2f} A"
 
-# # MQTT data reception
-# def on_message(client, userdata, message):
-#     data = json.loads(message.payload.decode())
-#     voltage = data.get('voltage')
-#     current = data.get('current')
-
-#     if voltage is not None and current is not None:
-#         mqtt_data['x'].append(voltage)
-#         mqtt_data['y'].append(current)
-
-# # Initialize MQTT client
-# mqtt_client = mqtt.Client()
-# mqtt_client.on_message = on_message
-# mqtt_client.connect(mqtt_broker, 1883, 60)
-# mqtt_client.subscribe(mqtt_topic)
-# mqtt_client.loop_start()
-
 # Run the app
 if __name__ == '__main__':
     while True:
-        run_mqtt_data_retrieval()
+        # run_mqtt_data_retrieval()
         app.run_server(debug=True, port=8050)
         time.sleep(0.2)
