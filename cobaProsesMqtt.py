@@ -127,6 +127,7 @@ def process_data():
             ZA_Real.pop(0)
         if len(ZA_Imag) >=2:
             ZA_Imag.pop(0)
+
     except ZeroDivisionError:
         pass
 
@@ -166,8 +167,10 @@ if __name__ == "__main__":
         # Vharm_data = unpack_Vharm_data()
         # run_mqtt_Iharm_retreival() 
         # Iharm_data = unpack_Iharm_data()
-        # process_data()
+        process_data()
         print("line_data", line_data)
+        print("ZA_Real:", ZA_Real)
+        print("ZA_Imag:", ZA_Imag)
         # print("phasedata :",phasedata)
         # print("Vharm data :", Vharm_data)
         # print("Iharm data :", Iharm_data)

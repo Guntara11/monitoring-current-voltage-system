@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 import plotly.graph_objs as go
 from collections import deque
 import utils
-from utils import LineCalculation, ZoneCalculation
+from utils import LineCalculation, ZoneCalculation, MQTTClient
 import pymongo
 import pandas as pd
 import dash_ag_grid as dag
@@ -20,9 +20,6 @@ import time
 import random
 import plotly.express as px
 import dash_daq as daq
-from mqtt_Client import MQTTClient
-from get_mqtt_data import ZA_data, process_Mag_data
-import cobaProsesMqtt
 
 
 
@@ -335,33 +332,146 @@ control2 = dbc.Card([
     style={"height": 740, "width": 400},
     body=True,)
 
-# Card voltage an current values
-card_voltage = dbc.Card(
+# Card voltage and current values
+card_combined = dbc.Card(
     [
         dbc.CardBody(
-        [
-            html.H4("Voltage", className="card-title", 
-                    style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-            html.H2(id="voltage-value", className="card-subtitle mb-2 text-muted", 
-                    style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '28px'}),
-        ]
-        )
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("VA", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VA-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VB", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VB-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VC", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VC-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VAB", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VAB-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VBC", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VBC-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VCA", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VCA-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VAN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VAN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("VBN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VBN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VCN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="VCN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IA", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="IA-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IB", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="IB-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IC", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="IC-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("Arus_Netral_beban_Normal", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="Arus_Netral_beban_Normal-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("Arus_Netral_beban_Puncak", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="Arus_Netral_beban_Puncak-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+            ])
+        ),
     ],
 )
 
-card_current = dbc.Card(
-    [
-        dbc.CardBody(
-        [
-            html.H4("Current", className="card-title", 
-                    style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-            html.H2(id="current-value", className="card-subtitle mb-2 text-muted", 
-                    style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '28px'}),
-        ]
-        )
-    ],
-)
-
+###################################################### App Layout ########################################################################
 app.layout = dbc.Container(
     [
         header,
@@ -397,14 +507,9 @@ app.layout = dbc.Container(
                     [
                         dbc.Row([
                                 dbc.Col([
-                                    card_voltage,
-                                ],  width=6,
-                                style={'margin-bottom': '5mm','color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '28px'}
-                                ),
-                                dbc.Col([
-                                    card_current,
-                                ],  width=6,
-                                style={'margin-bottom': '5mm','color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '28px'}
+                                    card_combined,
+                                ],  width=12,
+                                style={'margin-bottom': '5mm','color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}
                                 ),
                             ]),
                         dbc.Row(
@@ -450,11 +555,7 @@ app.layout = dbc.Container(
     fluid=True
 )
 
-# Fungsi untuk menghasilkan nilai tegangan dan arus secara acak
-def get_voltage_current_value():
-    voltage_value = random.uniform(200, 240)
-    current_value = random.uniform(3, 7)
-    return voltage_value, current_value
+######################################################### Filter DAta ######################################################################
 
 # Callback for filtering data based on timestamps
 @app.callback(
@@ -500,18 +601,147 @@ def filter_data(n_clicks, start_time, end_time):
                 filter_action="native",  # Aktifkan penyaringan baris
                 sort_action="native",  # Aktifkan sorting
                 sort_mode="multi",  # Aktifkan sorting multi kolom
-                page_size=20,
+                page_size=10,
             ),
         ]
     else:
         return []
 
+########################################################## Update Grafph ###############################################################
+LINE_Mag_VI = []
+LINE_Phase_Angles = []
+LINE_V_Harm = []
+LINE_I_Harm = []
 
-mqtt_data = 1 
-mqtt_mag_data = cobaProsesMqtt.run_mqtt_data_retrieval()
-mag_data = cobaProsesMqtt.unpack_mag_data()
-print("line_data", mag_data)
-# ZA_Real, ZA_Imag = ZA_data(mag_data)
+LINE1_z0z1_mag = 6.181
+LINE1_z0z1_ang = -2.55
+
+ZA_Real = []
+ZA_Imag = []
+
+def handle_Mag_data(data):
+    LINE_Mag_VI.append(data)
+    LINE_Mag_VI[:] = data
+
+def handle_Phase_data(data):
+    LINE_Phase_Angles.append(data)
+    LINE_Phase_Angles[:] = data
+
+def handle_Vharm_data(data):
+    LINE_V_Harm.append(data)
+    LINE_V_Harm[:] = data
+
+def handle_Iharm_data(data):
+    LINE_I_Harm.append(data)
+    LINE_I_Harm[:] = data
+
+def unpack_mag_data():
+    if len(LINE_Mag_VI) == 0:
+        return (0,) * 14  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_Freq = LINE_Mag_VI[0]
+        LINE1_U1 = LINE_Mag_VI[1]
+        LINE1_U2 = LINE_Mag_VI[2]
+        LINE1_U3 = LINE_Mag_VI[3]
+        LINE1_Uavg = LINE_Mag_VI[4]
+        LINE1_U12 = LINE_Mag_VI[5]
+        LINE1_U23 = LINE_Mag_VI[6]
+        LINE1_U31 = LINE_Mag_VI[7]
+        LINE1_ULavg = LINE_Mag_VI[8]
+        LINE1_IL1 = LINE_Mag_VI[9]
+        LINE1_IL2 = LINE_Mag_VI[10]
+        LINE1_IL3 = LINE_Mag_VI[11]
+        LINE1_ILavg = LINE_Mag_VI[12]
+        LINE1_IN = LINE_Mag_VI[13]
+        return LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN
+    # return None
+
+def unpack_phase_data():
+    if len(LINE_Phase_Angles) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_Ang_U1 = 0
+        LINE1_Ang_U2 = LINE_Phase_Angles[0]
+        LINE1_Ang_U3 = LINE_Phase_Angles[1]
+        LINE1_Ang_I1 = LINE_Phase_Angles[2]
+        LINE1_Ang_I2 = LINE_Phase_Angles[3]
+        LINE1_Ang_I3 = LINE_Phase_Angles[4]
+        return LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3
+    # return None
+
+def unpack_Iharm_data():
+    if len(LINE_I_Harm) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_IA3rd_Harm = LINE_I_Harm[0]
+        LINE1_IA5th_Harm = LINE_I_Harm[1]
+        LINE1_IB3rd_Harm = LINE_I_Harm[2]
+        LINE1_IB5th_Harm = LINE_I_Harm[3]
+        LINE1_IC3rd_Harm = LINE_I_Harm[4]
+        LINE1_IC5th_Harm = LINE_I_Harm[5]
+        
+        return  LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm
+    # return None
+
+def unpack_Vharm_data():
+    if len(LINE_V_Harm) == 0:
+        return (0,) * 6  # Return a tuple of 14 zeros if LINE_Phase_Angles is empty
+    else:
+        LINE1_VA3rd_Harm = LINE_V_Harm[0]
+        LINE1_VA5th_Harm = LINE_V_Harm[1]
+        LINE1_VB3rd_Harm = LINE_V_Harm[2]
+        LINE1_VB5th_Harm = LINE_V_Harm[3]
+        LINE1_VC3rd_Harm = LINE_V_Harm[4]
+        LINE1_VC5th_Harm = LINE_V_Harm[5]
+        
+        return  LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm
+    # return None
+
+def process_data():
+    
+    LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
+    LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
+
+    line_calc = LineCalculation()
+    
+    try :
+        line_calc.calculate_values(LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3,
+                                    LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
+                                    LINE1_z0z1_mag, LINE1_z0z1_ang)
+        LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
+
+        ZA_Real.append(LINE1_ZA_Real)
+        ZA_Imag.append(LINE1_ZA_Imag)
+        if len(ZA_Real) >= 50:
+            ZA_Real.pop(0)
+        if len(ZA_Imag) >= 50:
+            ZA_Imag.pop(0)
+
+    except ZeroDivisionError:
+        pass
+
+def run_mqtt_data_retrieval():
+    mqtt_client = MQTTClient(on_data_callback=handle_Mag_data)
+    mqtt_client.set_mqtt_topic1("data/sensor1")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+
+def run_mqtt_angle_retreival():
+    mqtt_client = MQTTClient(on_data_callback=handle_Phase_data)
+    mqtt_client.set_mqtt_topic2("data/sensor2")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+def run_mqtt_Vharm_retreival():
+
+    mqtt_client = MQTTClient(on_data_callback=handle_Vharm_data)
+    mqtt_client.set_mqtt_topic2("data/sensor3")  # Set MQTT topic 1
+    mqtt_client.connect()
+
+def run_mqtt_Iharm_retreival():
+
+    mqtt_client = MQTTClient(on_data_callback=handle_Iharm_data)
+    mqtt_client.set_mqtt_topic2("data/sensor4")  # Set MQTT topic 1
+    mqtt_client.connect()
 
 # Update Graph
 @app.callback(
@@ -522,13 +752,12 @@ print("line_data", mag_data)
     [State('phase-to-gnd-graph', 'relayoutData'),
      State('phase-to-phase-graph', 'relayoutData')])
 
-
 def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
-    # Periksa apakah nilai selected_config tidak kosong
+    process_data()
     if not selected_config:
 
         return [{'data': [], 'layout': {
-                    'title': 'Phase-to-Gnd',
+                   'title': 'Phase-to-Gnd',
                     'xaxis': {'title': 'Voltage'},
                     'yaxis': {'title': 'Current'},
                     'annotations': [{
@@ -583,7 +812,11 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
     
-    # df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    
+    print("ZA_Real:", ZA_Real)
+    print("ZA_Imag:", ZA_Imag)
+    
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -601,7 +834,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
                                     line=dict(color='#03B77A', width=5))
     
     # Plot ZA_Data
-    # fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     # Update layout
     fig_phase_to_gnd.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -628,7 +861,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
                                     line=dict(color='#03B77A', width=5))
 
     #plot ZA_DAta
-    # fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     
     # Update layout
     fig_phase_to_phase.update_layout(
@@ -662,8 +895,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     return fig_phase_to_gnd, fig_phase_to_phase
 
 
-###########################################################################################
-                                    # Save Data CSV
+####################################################### Save Data CSV ################################################################
 @app.callback(
     Output('save-csv-button', 'n_clicks'),
     [Input('filter-button', 'n_clicks')],
@@ -690,7 +922,7 @@ def save_csv(n_clicks, start_time, end_time):
     else:
         raise PreventUpdate
 
-############################################################################################
+########################################################## Update Parameter ###################################################################
 
 # Callback to update parameter values in MongoDB
 @app.callback(
@@ -936,19 +1168,75 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
 
                     return float_values[0], float_values[1], float_values[2], float_values[3], float_values[4], float_values[5], float_values[6], float_values[7], float_values[8], float_values[9], float_values[10], float_values[11], float_values[12], float_values[13], float_values[14], float_values[15], float_values[16], float_values[17], float_values[18], float_values[19], float_values[20], float_values[21], float_values[22]
     return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
-# Callback untuk memperbarui nilai tegangan dan arus setiap detik
+
+#################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
+def get_voltage_current():
+    LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
+    LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
+    LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm = unpack_Iharm_data()
+    LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm = unpack_Vharm_data()
+    LINE1_IN_NL = 10
+    LINE1_IN_PL = 20
+
+    # Voltage and Current Values
+    IN = LINE1_IN
+    IA = LINE1_IL1 
+    IA_Ang = LINE1_Ang_I1
+    IB = LINE1_IL2 
+    IB_Ang = LINE1_Ang_I2
+    IC = LINE1_IL3
+    IC_Ang = LINE1_Ang_I3
+
+    VA = LINE1_U1 
+    VA_Ang = LINE1_Ang_U1
+    VB = LINE1_U2 
+    VB_Ang = LINE1_Ang_U2
+    VC = LINE1_U3 
+    VC_Ang = LINE1_Ang_U3
+
+    VAB = LINE1_U12 
+    VBC = LINE1_U23
+    VCA = LINE1_U31
+    VAN = LINE1_U1
+    VBN = LINE1_U2
+    VCN = LINE1_U3
+
+    Arus_Netral_beban_Normal = LINE1_IN_NL
+    Arus_Netral_beban_Puncak = LINE1_IN_PL
+
+    return VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
+
 @app.callback(
-    [Output("voltage-value", "children"),
-     Output("current-value", "children")],
+    [Output("VA-value", "children"),
+     Output("VB-value", "children"),
+     Output("VC-value", "children"),
+     Output("VAB-value", "children"),
+     Output("VBC-value", "children"),
+     Output("VCA-value", "children"),
+     Output("VAN-value", "children"),
+     Output("VBN-value", "children"),
+     Output("VCN-value", "children"),
+     Output("IN-value", "children"),
+     Output("IA-value", "children"),
+     Output("IB-value", "children"),
+     Output("IC-value", "children"),
+     Output("Arus_Netral_beban_Normal-value", "children"),
+     Output("Arus_Netral_beban_Puncak-value", "children")],
     [Input("interval-component", "n_intervals")]
 )
-def update_values(n):
-    voltage_value, current_value = get_voltage_current_value()
-    return f"{voltage_value:.2f} V", f"{current_value:.2f} A"
-
+def update_voltage_current_values(n):
+    # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
+    VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak = get_voltage_current()
+    
+    # Kembalikan nilai-nilai dalam format yang sesuai untuk card "card_voltage" dan "card_current"
+    return f"{VA:.2f}", f"{VB:.2f}", f"{VC:.2f}", f"{VAB:.2f}", f"{VBC:.2f}", f"{VCA:.2f}", f"{VAN:.2f}", f"{VBN:.2f}", f"{VCN:.2f}", f"{IN:.2f}", f"{IA:.2f}", f"{IB:.2f}", f"{IC:.2f}", f"{Arus_Netral_beban_Normal:.2f}", f"{Arus_Netral_beban_Puncak:.2f}"
 # Run the app
 if __name__ == '__main__':
     while True:
-        # run_mqtt_data_retrieval()
+        run_mqtt_data_retrieval()
+        line_data = unpack_mag_data()
+        run_mqtt_angle_retreival()
+        print("line_data", line_data)
+        process_data()
         app.run_server(debug=True, port=8050)
         time.sleep(0.2)
