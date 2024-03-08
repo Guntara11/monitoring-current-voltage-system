@@ -196,7 +196,13 @@ class LineCalculation:
         else:
             raise ValueError("Invalid Z_type. Must be 'AB' or 'BC' or 'CA'.")
         
-        if abs((self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] -self.complex_data[IL_topIndex])) > 1e-10:
+        Z_Complex = (self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] - self.complex_data[IL_topIndex])
+        
+        Z_Real = Z_Complex.real
+        Z_Imag = Z_Complex.imag
+        data_list.extend([Z_Real, Z_Imag])
+
+        if abs(Z_Complex) > 1e-10:
             LINE1_Z_Mag = abs((self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]) / (self.complex_data[IL_bottomIndex] -self.complex_data[IL_topIndex]))
             LINE1_diff_Vbot_Vtop = self.complex_data[V_bottomIndex] - self.complex_data[V_topIndex]
             LINE1_diff_Ibot_Itop = self.complex_data[IL_bottomIndex] - self.complex_data[IL_topIndex]
@@ -247,16 +253,15 @@ class LineCalculation:
         return LINE1_ZC_Real, LINE1_ZC_Imag, LINE1_ZC_Mag, LINE1_ZC_Ang, LINE1_ZC_R, LINE1_ZC_X
     
     def get_ZAB_data(self):
-        LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X = self.data_ZAB
-        return LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X
-
+        LINE1_ZAB_Real, LINE1_ZAB_Imag, LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X = self.data_ZAB
+        return LINE1_ZAB_Real, LINE1_ZAB_Imag, LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X
     def get_ZBC_data(self):
-        LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X = self.data_ZBC
-        return LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X
-
+        LINE1_ZBC_Real, LINE1_ZBC_Imag, LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X = self.data_ZBC
+        return LINE1_ZBC_Real, LINE1_ZBC_Imag, LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X
     def get_ZCA_data(self):
-        LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X = self.data_ZCA
-        return LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X
+        LINE1_ZCA_Real, LINE1_ZCA_Imag, LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X= self.data_ZCA
+        return LINE1_ZCA_Real, LINE1_ZCA_Imag, LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X
+
 
 
 class ZoneCalculation:
