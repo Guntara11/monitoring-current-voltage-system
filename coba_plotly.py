@@ -17,13 +17,10 @@ from datetime import datetime
 from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 from dash.exceptions import PreventUpdate
 import time
-import random
 import plotly.express as px
 import dash_daq as daq
 
 
-
-#Connect To MongoDB
 try:
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["MVCS"]
@@ -33,7 +30,6 @@ try:
     connected = True
 except pymongo.errors.ConnectionFailure:
     connected = False
-
 
 # Initialize Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
@@ -83,30 +79,27 @@ dropdown2 = html.Div(
     className="mb-1",
 )
 
-#Filter start input textbox
-filter_start_input = dbc.Row([
-    html.Label("Start Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
-    html.Div(
-        [
-            dbc.Input(type="Timestamp", id="start-time", placeholder="Start Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
-            dbc.Label("Enter Start Time"),
-        ],
-    ),
-],
-    className="my-1"
+dropdown_Z = html.Div(
+    [
+        html.Label('Select Z Values :', style={'color': 'white'}),
+        dcc.Dropdown(
+            id='dropdown-Z',
+            options=[
+                {'label': 'ZA', 'value': 'ZA'},
+                {'label': 'ZB', 'value': 'ZB'},
+                {'label': 'ZC', 'value': 'ZC'},
+                {'label': 'ZAB', 'value': 'ZAB'},
+                {'label': 'ZBC', 'value': 'ZBC'},
+                {'label': 'ZCA', 'value': 'ZCA'},
+            ],
+            value=None,  # Tidak ada nilai default yang dipilih
+            style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}
+        )
+    ],
+    className="mb-4",
 )
 
-#Filter end input textbox
-filter_end_input = dbc.Row([
-    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
-    html.Div([
-        dbc.Input(type="Timestamp", id="end-time", placeholder="End Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
-    ]),
-    dbc.Label("Enter End Time"),
-],
-    className="my-1",
-)
-
+##################################################### Changes Params ########################################################################
 #Line Parameter textbox
 line_param = html.Div([dbc.Row([
             html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
@@ -270,6 +263,31 @@ Apply_button = html.Div(
     className="d-grid gap-2 my-3",
 )
 
+##################################################### Filter Data ######################################################################
+#Filter start input textbox
+filter_start_input = dbc.Row([
+    html.Label("Start Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div(
+        [
+            dbc.Input(type="Timestamp", id="start-time", placeholder="Start Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
+            dbc.Label("Enter Start Time"),
+        ],
+    ),
+],
+    className="my-1"
+)
+
+#Filter end input textbox
+filter_end_input = dbc.Row([
+    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div([
+        dbc.Input(type="Timestamp", id="end-time", placeholder="End Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
+    ]),
+    dbc.Label("Enter End Time"),
+],
+    className="my-1",
+)
+
 #Filter Button
 Filter_button = html.Div(
     [
@@ -287,9 +305,10 @@ csv_button = html.Div([
 
 filter_time = dbc.Form([filter_start_input, filter_end_input])
 
+###################################################### Card Control ##########################################################################
 #Card control1
 control1 = dbc.Card(
-    [dropdown, filter_time, 
+    [dropdown, dropdown_Z, filter_time, 
      dbc.Row([
          dbc.Col(
             Filter_button
@@ -315,7 +334,7 @@ control1 = dbc.Card(
             )
     ])
     ],
-    style={"height": 450, "width": 400},
+    style={"height": 540, "width": 400},
     body=True,
 )
 
@@ -332,7 +351,7 @@ control2 = dbc.Card([
     style={"height": 740, "width": 400},
     body=True,)
 
-# Card voltage and current values
+################################################## Card voltage and current values ###########################################################
 card_combined = dbc.Card(
     [
         dbc.CardBody(
@@ -340,57 +359,57 @@ card_combined = dbc.Card(
                 dbc.Col([
                     html.Div([
                         html.H4("VA", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VA-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
                         html.H4("VB", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VB-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
                         html.H4("VC", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VC-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VA_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VA_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VB_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VB_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VC_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VC_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
                         html.H4("VAB", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VAB-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("VBC", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="VBC-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("VCA", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="VCA-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("VAN", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="VAN-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 
@@ -400,50 +419,58 @@ card_combined = dbc.Card(
             dbc.Row([
                 dbc.Col([
                     html.Div([
+                        html.H4("VBC", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VBC-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VCA", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VCA-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VAN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VAN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
                         html.H4("VBN", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VBN-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
                         html.H4("VCN", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VCN-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
-                        html.H4("IN", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                        html.H4("VA_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VA_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
-                        html.H4("IA", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="IA-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IB", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="IB-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IC", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
-                        html.H2(id="IC-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                        html.H4("VB_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VB_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
             ])
@@ -452,18 +479,162 @@ card_combined = dbc.Card(
             dbc.Row([
                 dbc.Col([
                     html.Div([
+                        html.H4("VC_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VC_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VA_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VA_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VB_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VB_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("VC_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="VC_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IA", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IA-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IB", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IB-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IC", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IC-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("IA_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IA_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IB_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IB_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IC_Ang", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IC_Ang-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IA_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IA_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IB_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IB_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IC_3rd", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IC_3rd-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IA_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IA_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("IB_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IB_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IC_5th", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IC_5th-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
                         html.H4("Arus_Netral_beban_Normal", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="Arus_Netral_beban_Normal-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
                         html.H4("Arus_Netral_beban_Puncak", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="Arus_Netral_beban_Puncak-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
             ])
@@ -618,6 +789,16 @@ LINE1_z0z1_ang = -2.55
 
 ZA_Real = []
 ZA_Imag = []
+ZB_Real = []
+ZB_Imag = []
+ZC_Real = []
+ZC_Imag = []
+ZAB_Real = []
+ZAB_Imag = []
+ZBC_Real = []
+ZBC_Imag = []
+ZCA_Real = []
+ZCA_Imag = []
 
 def handle_Mag_data(data):
     LINE_Mag_VI.append(data)
@@ -709,13 +890,57 @@ def process_data():
                                     LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3,
                                     LINE1_z0z1_mag, LINE1_z0z1_ang)
         LINE1_ZA_Real, LINE1_ZA_Imag, LINE1_ZA_Mag, LINE1_ZA_Ang, LINE1_ZA_R, LINE1_ZA_X = line_calc.get_ZA_data()
-
         ZA_Real.append(LINE1_ZA_Real)
         ZA_Imag.append(LINE1_ZA_Imag)
         if len(ZA_Real) >= 50:
             ZA_Real.pop(0)
         if len(ZA_Imag) >= 50:
             ZA_Imag.pop(0)
+
+        # Mendapatkan data ZB
+        LINE1_ZB_Real, LINE1_ZB_Imag, LINE1_ZB_Mag, LINE1_ZB_Ang, LINE1_ZB_R, LINE1_ZB_X = line_calc.get_ZB_data()
+        ZB_Real.append(LINE1_ZB_Real)
+        ZB_Imag.append(LINE1_ZB_Imag)
+        if len(ZB_Real) >= 50:
+            ZB_Real.pop(0)
+        if len(ZB_Imag) >= 50:
+            ZB_Imag.pop(0)
+
+        # Mendapatkan data ZC
+        LINE1_ZC_Real, LINE1_ZC_Imag, LINE1_ZC_Mag, LINE1_ZC_Ang, LINE1_ZC_R, LINE1_ZC_X = line_calc.get_ZC_data()
+        ZC_Real.append(LINE1_ZC_Real)
+        ZC_Imag.append(LINE1_ZC_Imag)
+        if len(ZC_Real) >= 50:
+            ZC_Real.pop(0)
+        if len(ZC_Imag) >= 50:
+            ZC_Imag.pop(0)
+
+        # Mendapatkan data ZAB
+        LINE1_ZAB_Real, LINE1_ZAB_Imag, LINE1_ZAB_Mag, LINE1_ZAB_Ang, LINE1_ZAB_R, LINE1_ZAB_X = line_calc.get_ZAB_data()
+        ZAB_Real.append(LINE1_ZAB_Real)
+        ZAB_Imag.append(LINE1_ZAB_Imag)
+        if len(ZAB_Real) >= 50:
+            ZAB_Real.pop(0)
+        if len(ZAB_Imag) >= 50:
+            ZAB_Imag.pop(0)
+
+        # Mendapatkan data ZBC
+        LINE1_ZBC_Real, LINE1_ZBC_Imag, LINE1_ZBC_Mag, LINE1_ZBC_Ang, LINE1_ZBC_R, LINE1_ZBC_X = line_calc.get_ZBC_data()
+        ZBC_Real.append(LINE1_ZBC_Real)
+        ZBC_Imag.append(LINE1_ZBC_Imag)
+        if len(ZBC_Real) >= 50:
+            ZBC_Real.pop(0)
+        if len(ZBC_Imag) >= 50:
+            ZBC_Imag.pop(0)
+
+        # Mendapatkan data ZCA
+        LINE1_ZCA_Real, LINE1_ZCA_Imag, LINE1_ZCA_Mag, LINE1_ZCA_Ang, LINE1_ZCA_R, LINE1_ZCA_X = line_calc.get_ZCA_data()
+        ZCA_Real.append(LINE1_ZCA_Real)
+        ZCA_Imag.append(LINE1_ZCA_Imag)
+        if len(ZCA_Real) >= 50:
+            ZCA_Real.pop(0)
+        if len(ZCA_Imag) >= 50:
+            ZCA_Imag.pop(0)
 
     except ZeroDivisionError:
         pass
@@ -748,11 +973,12 @@ def run_mqtt_Iharm_retreival():
     [Output('phase-to-gnd-graph', 'figure'),
      Output('phase-to-phase-graph', 'figure')],
     [Input('interval-component', 'n_intervals'),
-     Input('config-dropdown', 'value')],
+     Input('config-dropdown', 'value'),
+     Input('dropdown-Z', 'value')],
     [State('phase-to-gnd-graph', 'relayoutData'),
      State('phase-to-phase-graph', 'relayoutData')])
 
-def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
+def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_data_phase):
     process_data()
     if not selected_config:
 
@@ -812,10 +1038,25 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
     
-    df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    df_Z = None
+    if selected_Z is None:
+        df_Z = pd.DataFrame()  # DataFrame kosong jika belum ada data Z yang dipilih
+    elif selected_Z == 'ZA':
+        df_Z = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    elif selected_Z == 'ZB':
+        df_Z = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
+    elif selected_Z == 'ZC':
+        df_Z = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
+    elif selected_Z == 'ZAB':
+        df_Z = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
+    elif selected_Z == 'ZBC':
+        df_Z = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
+    elif selected_Z == 'ZCA':
+        df_Z = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
+
     
-    print("ZA_Real:", ZA_Real)
-    print("ZA_Imag:", ZA_Imag)
+    # print("ZA_Real:", ZA_Real)
+    # print("ZA_Imag:", ZA_Imag)
     
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
@@ -833,8 +1074,34 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     fig_phase_to_gnd.update_traces(marker=dict(color='white', size=5),
                                     line=dict(color='#03B77A', width=5))
     
-    # Plot ZA_Data
-    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+
+    # Plot Z for phase to gnd graph
+    if not df_Z.empty:
+        if selected_Z == 'ZA':
+            za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
+            za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(za_trace.data[0])
+        elif selected_Z == 'ZB':
+            zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
+            zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(zb_trace.data[0])
+        elif selected_Z == 'ZC':
+            zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
+            zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(zc_trace.data[0])
+        elif selected_Z == 'ZAB':
+            zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
+            zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(zab_trace.data[0])
+        elif selected_Z == 'ZBC':
+            zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
+            zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(zbc_trace.data[0])
+        elif selected_Z == 'ZCA':
+            zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
+            zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_gnd.add_trace(zca_trace.data[0])
+
     # Update layout
     fig_phase_to_gnd.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -860,9 +1127,33 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     fig_phase_to_phase.update_traces(marker=dict(color='white', size=5),
                                     line=dict(color='#03B77A', width=5))
 
-    #plot ZA_DAta
-    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
-    
+    # Plot Z for phase to phase graph
+    if not df_Z.empty:
+        if selected_Z == 'ZA':
+            za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
+            za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(za_trace.data[0])
+        elif selected_Z == 'ZB':
+            zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
+            zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(zb_trace.data[0])
+        elif selected_Z == 'ZC':
+            zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
+            zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(zc_trace.data[0])
+        elif selected_Z == 'ZAB':
+            zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
+            zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(zab_trace.data[0])
+        elif selected_Z == 'ZBC':
+            zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
+            zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(zbc_trace.data[0])
+        elif selected_Z == 'ZCA':
+            zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
+            zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+            fig_phase_to_phase.add_trace(zca_trace.data[0])
+            
     # Update layout
     fig_phase_to_phase.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -1178,13 +1469,13 @@ def get_voltage_current():
     LINE1_IN_NL = 10
     LINE1_IN_PL = 20
 
-    # Voltage and Current Values
     IN = LINE1_IN
+
     IA = LINE1_IL1 
     IA_Ang = LINE1_Ang_I1
     IB = LINE1_IL2 
     IB_Ang = LINE1_Ang_I2
-    IC = LINE1_IL3
+    IC = LINE1_IL3 
     IC_Ang = LINE1_Ang_I3
 
     VA = LINE1_U1 
@@ -1192,51 +1483,89 @@ def get_voltage_current():
     VB = LINE1_U2 
     VB_Ang = LINE1_Ang_U2
     VC = LINE1_U3 
-    VC_Ang = LINE1_Ang_U3
+    VC_Ang =LINE1_Ang_U3
 
     VAB = LINE1_U12 
-    VBC = LINE1_U23
-    VCA = LINE1_U31
-    VAN = LINE1_U1
-    VBN = LINE1_U2
-    VCN = LINE1_U3
+    VBC = LINE1_U12 
+    VCA = LINE1_U12 
+
+    VAN = LINE1_U1 
+    VBN = LINE1_U2 
+    VCN = LINE1_U3 
+
+    #3rd Harmonics
+    IA_3rd = LINE1_IA3rd_Harm 
+    IB_3rd = LINE1_IB3rd_Harm 
+    IC_3rd = LINE1_IC3rd_Harm 
+    VA_3rd = LINE1_VA3rd_Harm 
+    VB_3rd = LINE1_VB3rd_Harm 
+    VC_3rd = LINE1_VC3rd_Harm 
+
+    #5th Harmonics
+    IA_5th = LINE1_IA5th_Harm 
+    IB_5th = LINE1_IB5th_Harm 
+    IC_5th = LINE1_IC5th_Harm 
+    VA_5th = LINE1_VA5th_Harm 
+    VB_5th = LINE1_VB5th_Harm 
+    VC_5th = LINE1_VC5th_Harm 
 
     Arus_Netral_beban_Normal = LINE1_IN_NL
     Arus_Netral_beban_Puncak = LINE1_IN_PL
 
-    return VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
+    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
 
+# Define your callback functions here
 @app.callback(
     [Output("VA-value", "children"),
+     Output("VA_Ang-value", "children"),
      Output("VB-value", "children"),
+     Output("VB_Ang-value", "children"),
      Output("VC-value", "children"),
+     Output("VC_Ang-value", "children"),
+     Output("IN-value", "children"),
+     Output("IA-value", "children"),
+     Output("IA_Ang-value", "children"),
+     Output("IB-value", "children"),
+     Output("IB_Ang-value", "children"),
+     Output("IC-value", "children"),
+     Output("IC_Ang-value", "children"),
      Output("VAB-value", "children"),
      Output("VBC-value", "children"),
      Output("VCA-value", "children"),
      Output("VAN-value", "children"),
      Output("VBN-value", "children"),
      Output("VCN-value", "children"),
-     Output("IN-value", "children"),
-     Output("IA-value", "children"),
-     Output("IB-value", "children"),
-     Output("IC-value", "children"),
+     Output("IA_3rd-value", "children"),
+     Output("IB_3rd-value", "children"),
+     Output("IC_3rd-value", "children"),
+     Output("IA_5th-value", "children"),
+     Output("IB_5th-value", "children"),
+     Output("IC_5th-value", "children"),
+     Output("VA_3rd-value", "children"),
+     Output("VB_3rd-value", "children"),
+     Output("VC_3rd-value", "children"),
+     Output("VA_5th-value", "children"),
+     Output("VB_5th-value", "children"),
+     Output("VC_5th-value", "children"),
      Output("Arus_Netral_beban_Normal-value", "children"),
      Output("Arus_Netral_beban_Puncak-value", "children")],
     [Input("interval-component", "n_intervals")]
 )
+
 def update_voltage_current_values(n):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
-    VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak = get_voltage_current()
-    
-    # Kembalikan nilai-nilai dalam format yang sesuai untuk card "card_voltage" dan "card_current"
-    return f"{VA:.2f}", f"{VB:.2f}", f"{VC:.2f}", f"{VAB:.2f}", f"{VBC:.2f}", f"{VCA:.2f}", f"{VAN:.2f}", f"{VBN:.2f}", f"{VCN:.2f}", f"{IN:.2f}", f"{IA:.2f}", f"{IB:.2f}", f"{IC:.2f}", f"{Arus_Netral_beban_Normal:.2f}", f"{Arus_Netral_beban_Puncak:.2f}"
+    (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = get_voltage_current()
+
+    return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
+
+
 # Run the app
 if __name__ == '__main__':
     while True:
         run_mqtt_data_retrieval()
-        line_data = unpack_mag_data()
         run_mqtt_angle_retreival()
-        print("line_data", line_data)
+        run_mqtt_Vharm_retreival()
+        run_mqtt_Iharm_retreival()
         process_data()
         app.run_server(debug=True, port=8050)
         time.sleep(0.2)
