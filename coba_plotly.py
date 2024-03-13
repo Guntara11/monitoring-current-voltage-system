@@ -79,25 +79,25 @@ dropdown2 = html.Div(
     className="mb-1",
 )
 
-dropdown_Z = html.Div(
-    [
-        html.Label('Select Z Values :', style={'color': 'white'}),
-        dcc.Dropdown(
-            id='dropdown-Z',
-            options=[
-                {'label': 'ZA', 'value': 'ZA'},
-                {'label': 'ZB', 'value': 'ZB'},
-                {'label': 'ZC', 'value': 'ZC'},
-                {'label': 'ZAB', 'value': 'ZAB'},
-                {'label': 'ZBC', 'value': 'ZBC'},
-                {'label': 'ZCA', 'value': 'ZCA'},
-            ],
-            value=None,  # Tidak ada nilai default yang dipilih
-            style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}
-        )
-    ],
-    className="mb-4",
-)
+# dropdown_Z = html.Div(
+#     [
+#         html.Label('Select Z Values :', style={'color': 'white'}),
+#         dcc.Dropdown(
+#             id='dropdown-Z',
+#             options=[
+#                 {'label': 'ZA', 'value': 'ZA'},
+#                 {'label': 'ZB', 'value': 'ZB'},
+#                 {'label': 'ZC', 'value': 'ZC'},
+#                 {'label': 'ZAB', 'value': 'ZAB'},
+#                 {'label': 'ZBC', 'value': 'ZBC'},
+#                 {'label': 'ZCA', 'value': 'ZCA'},
+#             ],
+#             value=None,  # Tidak ada nilai default yang dipilih
+#             style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}
+#         )
+#     ],
+#     className="mb-4",
+# )
 
 ##################################################### Changes Params ########################################################################
 #Line Parameter textbox
@@ -253,6 +253,25 @@ dbc.Row([
         ), 
 ],
 ),
+# dbc.Row([
+#         html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
+#         dbc.Col(
+#             html.Div([
+#                 dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+#             ], className="mx-1")
+#         ), 
+#         dbc.Col(
+#             html.Div([
+#                 dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+#             ], className="mx-1")
+#         ), 
+#         dbc.Col(
+#             html.Div([
+#                 dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+#             ], className="mx-1")
+#         ), 
+# ],
+# ),
 ])
 
 #Apply Changes Button
@@ -308,7 +327,7 @@ filter_time = dbc.Form([filter_start_input, filter_end_input])
 ###################################################### Card Control ##########################################################################
 #Card control1
 control1 = dbc.Card(
-    [dropdown, dropdown_Z, filter_time, 
+    [dropdown, filter_time, 
      dbc.Row([
          dbc.Col(
             Filter_button
@@ -334,7 +353,7 @@ control1 = dbc.Card(
             )
     ])
     ],
-    style={"height": 540, "width": 400},
+    style={"height": 450, "width": 400},
     body=True,
 )
 
@@ -354,6 +373,42 @@ control2 = dbc.Card([
 ################################################## Card voltage and current values ###########################################################
 card_combined = dbc.Card(
     [
+        dbc.CardBody(
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.H4("SETPOINT_IN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="SETPOINT_IN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("IN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("Arus_Netral_beban_Normal", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="Arus_Netral_beban_Normal-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.H4("Arus_Netral_beban_Puncak", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H2(id="Arus_Netral_beban_Puncak-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
+                ]),
+            ])
+        ),
         dbc.CardBody(
             dbc.Row([
                 dbc.Col([
@@ -404,6 +459,10 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("VAB", className="card-title", 
@@ -412,11 +471,6 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
-                
-            ])
-        ),
-        dbc.CardBody(
-            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("VBC", className="card-title", 
@@ -457,6 +511,10 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("VA_3rd", className="card-title", 
@@ -473,10 +531,6 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
-            ])
-        ),
-        dbc.CardBody(
-            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("VC_3rd", className="card-title", 
@@ -509,6 +563,10 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("IA", className="card-title", 
@@ -533,10 +591,6 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
-            ])
-        ),
-        dbc.CardBody(
-            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("IA_Ang", className="card-title", 
@@ -561,7 +615,11 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
-                dbc.Col([
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
+               dbc.Col([
                     html.Div([
                         html.H4("IA_3rd", className="card-title", 
                                 style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
@@ -593,10 +651,6 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
-            ])
-        ),
-        dbc.CardBody(
-            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("IB_5th", className="card-title", 
@@ -612,31 +666,7 @@ card_combined = dbc.Card(
                         html.H2(id="IC_5th-value", className="card-subtitle mb-2 text-muted", 
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IN", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("Arus_Netral_beban_Normal", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="Arus_Netral_beban_Normal-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("Arus_Netral_beban_Puncak", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="Arus_Netral_beban_Puncak-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
+                ]), 
             ])
         ),
     ],
@@ -973,12 +1003,11 @@ def run_mqtt_Iharm_retreival():
     [Output('phase-to-gnd-graph', 'figure'),
      Output('phase-to-phase-graph', 'figure')],
     [Input('interval-component', 'n_intervals'),
-     Input('config-dropdown', 'value'),
-     Input('dropdown-Z', 'value')],
+     Input('config-dropdown', 'value')],
     [State('phase-to-gnd-graph', 'relayoutData'),
      State('phase-to-phase-graph', 'relayoutData')])
 
-def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_data_phase):
+def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     process_data()
     if not selected_config:
 
@@ -1038,26 +1067,30 @@ def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_da
     config_x_phase_to_phase = [phase_to_phase_data[key]['x'] for key in phase_to_phase_data]
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
     
-    df_Z = None
-    if selected_Z is None:
-        df_Z = pd.DataFrame()  # DataFrame kosong jika belum ada data Z yang dipilih
-    elif selected_Z == 'ZA':
-        df_Z = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
-    elif selected_Z == 'ZB':
-        df_Z = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
-    elif selected_Z == 'ZC':
-        df_Z = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
-    elif selected_Z == 'ZAB':
-        df_Z = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
-    elif selected_Z == 'ZBC':
-        df_Z = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
-    elif selected_Z == 'ZCA':
-        df_Z = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
+    df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    df_ZB = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
+    df_ZC = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
+    df_ZAB = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
+    df_ZBC = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
+    df_ZCA = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
 
-    
-    # print("ZA_Real:", ZA_Real)
-    # print("ZA_Imag:", ZA_Imag)
-    
+    # df_Z = None
+    # if selected_Z is None:
+    #     df_Z = pd.DataFrame()  # DataFrame kosong jika belum ada data Z yang dipilih
+    # elif selected_Z == 'ZA':
+    #     df_Z = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
+    # elif selected_Z == 'ZB':
+    #     df_Z = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
+    # elif selected_Z == 'ZC':
+    #     df_Z = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
+    # elif selected_Z == 'ZAB':
+    #     df_Z = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
+    # elif selected_Z == 'ZBC':
+    #     df_Z = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
+    # elif selected_Z == 'ZCA':
+    #     df_Z = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
+
+
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -1075,32 +1108,44 @@ def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_da
                                     line=dict(color='#03B77A', width=5))
     
 
-    # Plot Z for phase to gnd graph
-    if not df_Z.empty:
-        if selected_Z == 'ZA':
-            za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
-            za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(za_trace.data[0])
-        elif selected_Z == 'ZB':
-            zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
-            zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(zb_trace.data[0])
-        elif selected_Z == 'ZC':
-            zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
-            zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(zc_trace.data[0])
-        elif selected_Z == 'ZAB':
-            zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
-            zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(zab_trace.data[0])
-        elif selected_Z == 'ZBC':
-            zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
-            zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(zbc_trace.data[0])
-        elif selected_Z == 'ZCA':
-            zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
-            zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_gnd.add_trace(zca_trace.data[0])
+    # Plot ZA for phase to gnd graph
+    za_trace = px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
+    za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_gnd.add_trace(za_trace.data[0])
+    # Plot ZB for phase to gnd graph
+    zb_trace = px.line(df_ZB, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
+    zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_gnd.add_trace(zb_trace.data[0])
+    # Plot ZC for phase to gnd graph
+    zc_trace = px.line(df_ZC, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
+    zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_gnd.add_trace(zc_trace.data[0])
+
+    # if not df_Z.empty:
+    #     if selected_Z == 'ZA':
+    #         za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
+    #         za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(za_trace.data[0])
+    #     elif selected_Z == 'ZB':
+    #         zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
+    #         zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(zb_trace.data[0])
+    #     elif selected_Z == 'ZC':
+    #         zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
+    #         zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(zc_trace.data[0])
+    #     elif selected_Z == 'ZAB':
+    #         zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
+    #         zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(zab_trace.data[0])
+    #     elif selected_Z == 'ZBC':
+    #         zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
+    #         zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(zbc_trace.data[0])
+    #     elif selected_Z == 'ZCA':
+    #         zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
+    #         zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_gnd.add_trace(zca_trace.data[0])
 
     # Update layout
     fig_phase_to_gnd.update_layout(
@@ -1127,32 +1172,44 @@ def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_da
     fig_phase_to_phase.update_traces(marker=dict(color='white', size=5),
                                     line=dict(color='#03B77A', width=5))
 
-    # Plot Z for phase to phase graph
-    if not df_Z.empty:
-        if selected_Z == 'ZA':
-            za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
-            za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(za_trace.data[0])
-        elif selected_Z == 'ZB':
-            zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
-            zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(zb_trace.data[0])
-        elif selected_Z == 'ZC':
-            zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
-            zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(zc_trace.data[0])
-        elif selected_Z == 'ZAB':
-            zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
-            zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(zab_trace.data[0])
-        elif selected_Z == 'ZBC':
-            zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
-            zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(zbc_trace.data[0])
-        elif selected_Z == 'ZCA':
-            zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
-            zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-            fig_phase_to_phase.add_trace(zca_trace.data[0])
+    # Plot ZAB for phase to phase graph
+    zab_trace = px.line(df_ZAB, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
+    zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_phase.add_trace(zab_trace.data[0])
+    # Plot ZAB for phase to phase graph
+    zbc_trace = px.line(df_ZBC, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
+    zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_phase.add_trace(zbc_trace.data[0])
+    # Plot ZAB for phase to phase graph
+    zca_trace = px.line(df_ZCA, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
+    zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    fig_phase_to_phase.add_trace(zca_trace.data[0])
+
+    # if not df_Z.empty:
+    #     if selected_Z == 'ZA':
+    #         za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
+    #         za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(za_trace.data[0])
+    #     elif selected_Z == 'ZB':
+    #         zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
+    #         zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(zb_trace.data[0])
+    #     elif selected_Z == 'ZC':
+    #         zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
+    #         zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(zc_trace.data[0])
+    #     elif selected_Z == 'ZAB':
+    #         zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
+    #         zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(zab_trace.data[0])
+    #     elif selected_Z == 'ZBC':
+    #         zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
+    #         zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(zbc_trace.data[0])
+    #     elif selected_Z == 'ZCA':
+    #         zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
+    #         zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
+    #         fig_phase_to_phase.add_trace(zca_trace.data[0])
             
     # Update layout
     fig_phase_to_phase.update_layout(
@@ -1466,6 +1523,7 @@ def get_voltage_current():
     LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
     LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm = unpack_Iharm_data()
     LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm = unpack_Vharm_data()
+    LINE1_SETPOINT_IN = 22
     LINE1_IN_NL = 10
     LINE1_IN_PL = 20
 
@@ -1509,10 +1567,11 @@ def get_voltage_current():
     VB_5th = LINE1_VB5th_Harm 
     VC_5th = LINE1_VC5th_Harm 
 
+    SETPOINT_IN = LINE1_SETPOINT_IN
     Arus_Netral_beban_Normal = LINE1_IN_NL
     Arus_Netral_beban_Puncak = LINE1_IN_PL
 
-    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
+    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
 
 # Define your callback functions here
 @app.callback(
@@ -1547,6 +1606,7 @@ def get_voltage_current():
      Output("VA_5th-value", "children"),
      Output("VB_5th-value", "children"),
      Output("VC_5th-value", "children"),
+     Output("SETPOINT_IN-value", "children"),
      Output("Arus_Netral_beban_Normal-value", "children"),
      Output("Arus_Netral_beban_Puncak-value", "children")],
     [Input("interval-component", "n_intervals")]
@@ -1554,9 +1614,44 @@ def get_voltage_current():
 
 def update_voltage_current_values(n):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
-    (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = get_voltage_current()
+    (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = get_voltage_current()
+    # Round the values to 3 decimal places
+    VA = round(VA, 3)
+    VA_Ang = round(VA_Ang, 3)
+    VB = round(VB, 3)
+    VB_Ang = round(VB_Ang, 3)
+    VC = round(VC, 3)
+    VC_Ang = round(VC_Ang, 3)
+    IN = round(IN, 3)
+    IA = round(IA, 3)
+    IA_Ang = round(IA_Ang, 3)
+    IB = round(IB, 3)
+    IB_Ang = round(IB_Ang, 3)
+    IC = round(IC, 3)
+    IC_Ang = round(IC_Ang, 3)
+    VAB = round(VAB, 3)
+    VBC = round(VBC, 3)
+    VCA = round(VCA, 3)
+    VAN = round(VAN, 3)
+    VBN = round(VBN, 3)
+    VCN = round(VCN, 3)
+    IA_3rd = round(IA_3rd, 3)
+    IB_3rd = round(IB_3rd, 3)
+    IC_3rd = round(IC_3rd, 3)
+    IA_5th = round(IA_5th, 3)
+    IB_5th = round(IB_5th, 3)
+    IC_5th = round(IC_5th, 3)
+    VA_3rd = round(VA_3rd, 3)
+    VB_3rd = round(VB_3rd, 3)
+    VC_3rd = round(VC_3rd, 3)
+    VA_5th = round(VA_5th, 3)
+    VB_5th = round(VB_5th, 3)
+    VC_5th = round(VC_5th, 3)
+    SETPOINT_IN = round(SETPOINT_IN, 3)
+    Arus_Netral_beban_Normal = round(Arus_Netral_beban_Normal, 3)
+    Arus_Netral_beban_Puncak = round(Arus_Netral_beban_Puncak, 3)
 
-    return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
+    return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
 
 
 # Run the app
@@ -1568,4 +1663,3 @@ if __name__ == '__main__':
         run_mqtt_Iharm_retreival()
         process_data()
         app.run_server(debug=True, port=8050)
-        time.sleep(0.2)

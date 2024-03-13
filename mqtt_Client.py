@@ -50,4 +50,3 @@ if __name__ == "__main__":
         run_mqtt_data_retrieval()
         print("ZA_real", ZA_Real)
         print("ZA_Imag", ZA_Imag)
-        time.sleep(1)
