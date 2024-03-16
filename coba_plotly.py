@@ -20,6 +20,9 @@ import time
 import plotly.express as px
 import dash_daq as daq
 
+
+
+#Connect To MongoDB
 try:
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["MVCS"]
@@ -78,7 +81,30 @@ dropdown2 = html.Div(
     className="mb-1",
 )
 
-##################################################### Changes Params ########################################################################
+#Filter start input textbox
+filter_start_input = dbc.Row([
+    html.Label("Start Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div(
+        [
+            dbc.Input(type="Timestamp", id="start-time", placeholder="Start Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
+            dbc.Label("Enter Start Time"),
+        ],
+    ),
+],
+    className="my-1"
+)
+
+#Filter end input textbox
+filter_end_input = dbc.Row([
+    html.Label("End Timestamp (YYYY-MM-DD_HH:MM:SS)", style={'color': 'white'}),
+    html.Div([
+        dbc.Input(type="Timestamp", id="end-time", placeholder="End Time", size="md", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}),
+    ]),
+    dbc.Label("Enter End Time"),
+],
+    className="my-1",
+)
+
 #Line Parameter textbox
 line_param = html.Div([dbc.Row([
             html.Label('Config Parameter', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
@@ -358,7 +384,7 @@ control1 = dbc.Card(
             )
     ])
     ],
-    style={"height": 450, "width": 400},
+    style={"height": 540, "width": 400},
     body=True,
 )
 
@@ -437,7 +463,7 @@ card_combined = dbc.Card(
                         html.H4("VC", className="card-title", 
                                 style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="VC-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
@@ -476,6 +502,11 @@ card_combined = dbc.Card(
                                 style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
+                
+            ])
+        ),
+        dbc.CardBody(
+            dbc.Row([
                 dbc.Col([
                     html.Div([
                         html.H4("VBC", className="card-title", 
@@ -522,10 +553,10 @@ card_combined = dbc.Card(
             dbc.Row([
                 dbc.Col([
                     html.Div([
-                        html.H4("VA_3rd", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="VA_3rd-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H4("IN", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="IN-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
@@ -593,83 +624,27 @@ card_combined = dbc.Card(
                         html.H4("IC", className="card-title", 
                                 style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
                         html.H2(id="IC-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IA_Ang", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IA_Ang-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IB_Ang", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IB_Ang-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IC_Ang", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IC_Ang-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
             ])
         ),
         dbc.CardBody(
             dbc.Row([
-               dbc.Col([
+                dbc.Col([
                     html.Div([
-                        html.H4("IA_3rd", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IA_3rd-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H4("Arus_Netral_beban_Normal", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="Arus_Netral_beban_Normal-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]),
                 dbc.Col([
                     html.Div([
-                        html.H4("IB_3rd", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IB_3rd-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IC_3rd", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IC_3rd-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IA_5th", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IA_5th-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IB_5th", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IB_5th-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                    ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
-                ]),
-                dbc.Col([
-                    html.Div([
-                        html.H4("IC_5th", className="card-title", 
-                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
-                        html.H2(id="IC_5th-value", className="card-subtitle mb-2 text-muted", 
-                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '14px'}),
+                        html.H4("Arus_Netral_beban_Puncak", className="card-title", 
+                                style={'color': '#00FF00', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '20px'}),
+                        html.H2(id="Arus_Netral_beban_Puncak-value", className="card-subtitle mb-2 text-muted", 
+                                style={'color': '#FFFFFF', 'fontFamily': 'Electrolize, sans-serif', 'fontSize': '24px'}),
                     ], style={'background-color': '#212529', 'padding': '10px', 'border-radius': '10px', 'text-align': 'center'})
                 ]), 
             ])
@@ -1008,11 +983,12 @@ def run_mqtt_Iharm_retreival():
     [Output('phase-to-gnd-graph', 'figure'),
      Output('phase-to-phase-graph', 'figure')],
     [Input('interval-component', 'n_intervals'),
-     Input('config-dropdown', 'value')],
+     Input('config-dropdown', 'value'),
+     Input('dropdown-Z', 'value')],
     [State('phase-to-gnd-graph', 'relayoutData'),
      State('phase-to-phase-graph', 'relayoutData')])
 
-def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
+def update_graphs(n, selected_config, selected_Z, relayout_data_gnd, relayout_data_phase):
     process_data()
     if not selected_config:
 
@@ -1073,12 +1049,10 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     config_y_phase_to_phase = [phase_to_phase_data[key]['y'] for key in phase_to_phase_data]
     
     df_ZA = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
-    df_ZB = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
-    df_ZC = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
-    df_ZAB = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
-    df_ZBC = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
-    df_ZCA = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
-
+    
+    print("ZA_Real:", ZA_Real)
+    print("ZA_Imag:", ZA_Imag)
+    
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -1095,20 +1069,8 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     fig_phase_to_gnd.update_traces(marker=dict(color='white', size=5),
                                     line=dict(color='#03B77A', width=5))
     
-
-    # Plot ZA for phase to gnd graph
-    za_trace = px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
-    za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_gnd.add_trace(za_trace.data[0])
-    # Plot ZB for phase to gnd graph
-    zb_trace = px.line(df_ZB, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
-    zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_gnd.add_trace(zb_trace.data[0])
-    # Plot ZC for phase to gnd graph
-    zc_trace = px.line(df_ZC, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
-    zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_gnd.add_trace(zc_trace.data[0])
-
+    # Plot ZA_Data
+    fig_phase_to_gnd.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
     # Update layout
     fig_phase_to_gnd.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -1134,19 +1096,9 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     fig_phase_to_phase.update_traces(marker=dict(color='white', size=5),
                                     line=dict(color='#03B77A', width=5))
 
-    # Plot ZAB for phase to phase graph
-    zab_trace = px.line(df_ZAB, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
-    zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_phase.add_trace(zab_trace.data[0])
-    # Plot ZAB for phase to phase graph
-    zbc_trace = px.line(df_ZBC, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
-    zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_phase.add_trace(zbc_trace.data[0])
-    # Plot ZAB for phase to phase graph
-    zca_trace = px.line(df_ZCA, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
-    zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    fig_phase_to_phase.add_trace(zca_trace.data[0])
-            
+    #plot ZA_DAta
+    fig_phase_to_phase.add_trace(px.line(df_ZA, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True).data[0])
+    
     # Update layout
     fig_phase_to_phase.update_layout(
         plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -1529,12 +1481,11 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     VC_Ang =LINE1_Ang_U3
 
     VAB = LINE1_U12 
-    VBC = LINE1_U12 
-    VCA = LINE1_U12 
-
-    VAN = LINE1_U1 
-    VBN = LINE1_U2 
-    VCN = LINE1_U3 
+    VBC = LINE1_U23
+    VCA = LINE1_U31
+    VAN = LINE1_U1
+    VBN = LINE1_U2
+    VCN = LINE1_U3
 
     #3rd Harmonics
     IA_3rd = LINE1_IA3rd_Harm 
@@ -1556,8 +1507,9 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     Arus_Netral_beban_Normal = LINE1_IN_NL
     Arus_Netral_beban_Puncak = LINE1_IN_PL
 
-    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
+    return VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
 
+# Define your callback functions here
 @app.callback(
     [Output("VA-value", "children"),
      Output("VA_Ang-value", "children"),
@@ -1578,19 +1530,10 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
      Output("VAN-value", "children"),
      Output("VBN-value", "children"),
      Output("VCN-value", "children"),
-     Output("IA_3rd-value", "children"),
-     Output("IB_3rd-value", "children"),
-     Output("IC_3rd-value", "children"),
-     Output("IA_5th-value", "children"),
-     Output("IB_5th-value", "children"),
-     Output("IC_5th-value", "children"),
-     Output("VA_3rd-value", "children"),
-     Output("VB_3rd-value", "children"),
-     Output("VC_3rd-value", "children"),
-     Output("VA_5th-value", "children"),
-     Output("VB_5th-value", "children"),
-     Output("VC_5th-value", "children"),
-     Output("SETPOINT_IN-value", "children"),
+     Output("IN-value", "children"),
+     Output("IA-value", "children"),
+     Output("IB-value", "children"),
+     Output("IC-value", "children"),
      Output("Arus_Netral_beban_Normal-value", "children"),
      Output("Arus_Netral_beban_Puncak-value", "children")],
     [Input("interval-component", "n_intervals")],
@@ -1598,55 +1541,12 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
      State("IN_NL", "value"),
      State("IN_PL", "value")]
 )
-def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
+def update_voltage_current_values(n):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
-    voltage_current_values = get_voltage_current(SETPOINT_IN, IN_NL, IN_PL)
-
-    if voltage_current_values is not None:
-        (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = voltage_current_values
-
-        # Pastikan SETPOINT_IN, Arus_Netral_beban_Normal, dan Arus_Netral_beban_Puncak adalah NoneType
-        SETPOINT_IN = round(float(SETPOINT_IN), 3) if SETPOINT_IN and SETPOINT_IN != "N/A" else "N/A"
-        Arus_Netral_beban_Normal = round(float(Arus_Netral_beban_Normal), 3) if Arus_Netral_beban_Normal and Arus_Netral_beban_Normal != "N/A" else "N/A"
-        Arus_Netral_beban_Puncak = round(float(Arus_Netral_beban_Puncak), 3) if Arus_Netral_beban_Puncak and Arus_Netral_beban_Puncak != "N/A" else "N/A"
-
-        # Bulatkan nilai-nilai lainnya
-        VA = round(VA, 3)
-        VA_Ang = round(VA_Ang, 3)
-        VB = round(VB, 3)
-        VB_Ang = round(VB_Ang, 3)
-        VC = round(VC, 3)
-        VC_Ang = round(VC_Ang, 3)
-        IN = round(IN, 3)
-        IA = round(IA, 3)
-        IA_Ang = round(IA_Ang, 3)
-        IB = round(IB, 3)
-        IB_Ang = round(IB_Ang, 3)
-        IC = round(IC, 3)
-        IC_Ang = round(IC_Ang, 3)
-        VAB = round(VAB, 3)
-        VBC = round(VBC, 3)
-        VCA = round(VCA, 3)
-        VAN = round(VAN, 3)
-        VBN = round(VBN, 3)
-        VCN = round(VCN, 3)
-        IA_3rd = round(IA_3rd, 3)
-        IB_3rd = round(IB_3rd, 3)
-        IC_3rd = round(IC_3rd, 3)
-        IA_5th = round(IA_5th, 3)
-        IB_5th = round(IB_5th, 3)
-        IC_5th = round(IC_5th, 3)
-        VA_3rd = round(VA_3rd, 3)
-        VB_3rd = round(VB_3rd, 3)
-        VC_3rd = round(VC_3rd, 3)
-        VA_5th = round(VA_5th, 3)
-        VB_5th = round(VB_5th, 3)
-        VC_5th = round(VC_5th, 3)
-
-        return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
-    else:
-        # Handle the case when voltage_current_values is None
-        return ("N/A",) * 37
+    VA, VB, VC, VAB, VBC, VCA, VAN, VBN, VCN, IN, IA, IB, IC, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak = get_voltage_current()
+    
+    # Kembalikan nilai-nilai dalam format yang sesuai untuk card "card_voltage" dan "card_current"
+    return f"{VA:.2f}", f"{VB:.2f}", f"{VC:.2f}", f"{VAB:.2f}", f"{VBC:.2f}", f"{VCA:.2f}", f"{VAN:.2f}", f"{VBN:.2f}", f"{VCN:.2f}", f"{IN:.2f}", f"{IA:.2f}", f"{IB:.2f}", f"{IC:.2f}", f"{Arus_Netral_beban_Normal:.2f}", f"{Arus_Netral_beban_Puncak:.2f}"
 # Run the app
 if __name__ == '__main__':
     while True:
