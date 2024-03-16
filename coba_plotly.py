@@ -20,7 +20,6 @@ import time
 import plotly.express as px
 import dash_daq as daq
 
-
 try:
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["MVCS"]
@@ -78,26 +77,6 @@ dropdown2 = html.Div(
     ],
     className="mb-1",
 )
-
-# dropdown_Z = html.Div(
-#     [
-#         html.Label('Select Z Values :', style={'color': 'white'}),
-#         dcc.Dropdown(
-#             id='dropdown-Z',
-#             options=[
-#                 {'label': 'ZA', 'value': 'ZA'},
-#                 {'label': 'ZB', 'value': 'ZB'},
-#                 {'label': 'ZC', 'value': 'ZC'},
-#                 {'label': 'ZAB', 'value': 'ZAB'},
-#                 {'label': 'ZBC', 'value': 'ZBC'},
-#                 {'label': 'ZCA', 'value': 'ZCA'},
-#             ],
-#             value=None,  # Tidak ada nilai default yang dipilih
-#             style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'}
-#         )
-#     ],
-#     className="mb-4",
-# )
 
 ##################################################### Changes Params ########################################################################
 #Line Parameter textbox
@@ -393,7 +372,7 @@ control2 = dbc.Card([
      ]
      ),    
         ],
-    style={"height": 800, "width": 400},
+    style={"height": 1050, "width": 400},
     body=True,)
 
 ################################################## Card voltage and current values ###########################################################
@@ -1009,19 +988,19 @@ def run_mqtt_data_retrieval():
 
 def run_mqtt_angle_retreival():
     mqtt_client = MQTTClient(on_data_callback=handle_Phase_data)
-    mqtt_client.set_mqtt_topic2("data/sensor2")  # Set MQTT topic 1
+    mqtt_client.set_mqtt_topic2("data/sensor2")  # Set MQTT topic 2
     mqtt_client.connect()
 
 def run_mqtt_Vharm_retreival():
 
     mqtt_client = MQTTClient(on_data_callback=handle_Vharm_data)
-    mqtt_client.set_mqtt_topic2("data/sensor3")  # Set MQTT topic 1
+    mqtt_client.set_mqtt_topic2("data/sensor3")  # Set MQTT topic 3
     mqtt_client.connect()
 
 def run_mqtt_Iharm_retreival():
 
     mqtt_client = MQTTClient(on_data_callback=handle_Iharm_data)
-    mqtt_client.set_mqtt_topic2("data/sensor4")  # Set MQTT topic 1
+    mqtt_client.set_mqtt_topic2("data/sensor4")  # Set MQTT topic 4
     mqtt_client.connect()
 
 # Update Graph
@@ -1100,23 +1079,6 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     df_ZBC = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
     df_ZCA = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
 
-    # df_Z = None
-    # if selected_Z is None:
-    #     df_Z = pd.DataFrame()  # DataFrame kosong jika belum ada data Z yang dipilih
-    # elif selected_Z == 'ZA':
-    #     df_Z = pd.DataFrame({'ZA_Real': ZA_Real, 'ZA_Imag': ZA_Imag})
-    # elif selected_Z == 'ZB':
-    #     df_Z = pd.DataFrame({'ZB_Real': ZB_Real, 'ZB_Imag': ZB_Imag})
-    # elif selected_Z == 'ZC':
-    #     df_Z = pd.DataFrame({'ZC_Real': ZC_Real, 'ZC_Imag': ZC_Imag})
-    # elif selected_Z == 'ZAB':
-    #     df_Z = pd.DataFrame({'ZAB_Real': ZAB_Real, 'ZAB_Imag': ZAB_Imag})
-    # elif selected_Z == 'ZBC':
-    #     df_Z = pd.DataFrame({'ZBC_Real': ZBC_Real, 'ZBC_Imag': ZBC_Imag})
-    # elif selected_Z == 'ZCA':
-    #     df_Z = pd.DataFrame({'ZCA_Real': ZCA_Real, 'ZCA_Imag': ZCA_Imag})
-
-
     # Di dalam callback function update_graphs
     df_phase_to_gnd = pd.DataFrame({
         'Voltage': config_x_phase_to_gnd,
@@ -1146,32 +1108,6 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     zc_trace = px.line(df_ZC, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
     zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
     fig_phase_to_gnd.add_trace(zc_trace.data[0])
-
-    # if not df_Z.empty:
-    #     if selected_Z == 'ZA':
-    #         za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
-    #         za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(za_trace.data[0])
-    #     elif selected_Z == 'ZB':
-    #         zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
-    #         zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(zb_trace.data[0])
-    #     elif selected_Z == 'ZC':
-    #         zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
-    #         zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(zc_trace.data[0])
-    #     elif selected_Z == 'ZAB':
-    #         zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
-    #         zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(zab_trace.data[0])
-    #     elif selected_Z == 'ZBC':
-    #         zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
-    #         zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(zbc_trace.data[0])
-    #     elif selected_Z == 'ZCA':
-    #         zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
-    #         zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_gnd.add_trace(zca_trace.data[0])
 
     # Update layout
     fig_phase_to_gnd.update_layout(
@@ -1210,32 +1146,6 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
     zca_trace = px.line(df_ZCA, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
     zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
     fig_phase_to_phase.add_trace(zca_trace.data[0])
-
-    # if not df_Z.empty:
-    #     if selected_Z == 'ZA':
-    #         za_trace = px.line(df_Z, x="ZA_Real", y="ZA_Imag", color_discrete_sequence=['#1974D2'], markers=True)
-    #         za_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(za_trace.data[0])
-    #     elif selected_Z == 'ZB':
-    #         zb_trace = px.line(df_Z, x="ZB_Real", y="ZB_Imag", color_discrete_sequence=['#C724B1'], markers=True)
-    #         zb_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(zb_trace.data[0])
-    #     elif selected_Z == 'ZC':
-    #         zc_trace = px.line(df_Z, x="ZC_Real", y="ZC_Imag", color_discrete_sequence=['#E0E722'], markers=True)
-    #         zc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(zc_trace.data[0])
-    #     elif selected_Z == 'ZAB':
-    #         zab_trace = px.line(df_Z, x="ZAB_Real", y="ZAB_Imag", color_discrete_sequence=['#FFAD00'], markers=True)
-    #         zab_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(zab_trace.data[0])
-    #     elif selected_Z == 'ZBC':
-    #         zbc_trace = px.line(df_Z, x="ZBC_Real", y="ZBC_Imag", color_discrete_sequence=['#D22730'], markers=True)
-    #         zbc_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(zbc_trace.data[0])
-    #     elif selected_Z == 'ZCA':
-    #         zca_trace = px.line(df_Z, x="ZCA_Real", y="ZCA_Imag", color_discrete_sequence=['#AFFC41'], markers=True)
-    #         zca_trace.update_traces(line=dict(width=5), marker=dict(size=10))
-    #         fig_phase_to_phase.add_trace(zca_trace.data[0])
             
     # Update layout
     fig_phase_to_phase.update_layout(
@@ -1540,7 +1450,7 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
                             "reach_z1": {"x": pp_LINE1_reach_z1_x, "y": pp_LINE1_reach_z1_y},
                             "reach_z2": {"x": pp_LINE1_reach_z2_x, "y": pp_LINE1_reach_z2_y},
                             "reach_z3": {"x": pp_LINE1_reach_z3_x, "y": pp_LINE1_reach_z3_y},
-                            "kanan_bawah_z3": {"x": pp_down_right_z3_x, "y": pp_down_right_z3_y}
+                            "kanan_samping_z3_2": {"x": pp_right_side_z3_x, "y": pp_right_side_z3_y}
                         }
                     }
 
@@ -1575,48 +1485,23 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
      Output('last-CTVT_RATIO-value', 'children'),
      Output('last-SETPOINT_IN-value', 'children'),
      Output('last-IN_NL-value', 'children'),
-     Output('last-IN_PL-value', 'children'),
-     ],
-    [Input('apply-button', 'n_clicks')],
-    [State('rgz1', 'value'),
-     State('rgz2', 'value'),
-     State('rgz3', 'value'),
-     State('xgz1', 'value'), 
-     State('xgz2', 'value'), 
-     State('xgz3', 'value'), 
-     State('rpz1', 'value'), 
-     State('rpz2', 'value'), 
-     State('rpz3', 'value'), 
-     State('xpz1', 'value'), 
-     State('xpz2', 'value'), 
-     State('xpz3', 'value'), 
-     State('angle', 'value'), 
-     State('z0z1_mag', 'value'), 
-     State('z0z1_ang', 'value'), 
-     State('delta_t', 'value'), 
-     State('id2', 'value'), 
-     State('line_length', 'value'), 
-     State('CT_RATIO_HV', 'value'), 
-     State('CT_RATIO_LV', 'value'), 
-     State('VT_RATIO_HV', 'value'), 
-     State('VT_RATIO_LV', 'value'), 
-     State('CTVT_RATIO', 'value'),
-     State('SETPOINT_IN', 'value'),
-     State('IN_NL', 'value'),
-     State('IN_PL', 'value'),
-     State('config-param-dropdown', 'value')]  # Tambahkan State untuk variabel selected_config
+     Output('last-IN_PL-value', 'children')],
+    [Input('config-param-dropdown', 'value')]  # Input yang digunakan adalah nilai yang dipilih dari dropdown
 )
-def update_last_values(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL, selected_config):
-    if n_clicks is not None and n_clicks > 0:
-        float_values = [float(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL]]
-        if all(value is not None for value in float_values) and selected_config:
-            parameter_id = selected_config  
-            # Update parameter values dengan menggunakan operator $set
-            collection_Parameter.update_one(
-                {'_id': parameter_id},
-                {'$set': {'rgz1': float_values[0], 'rgz2': float_values[1], 'rgz3': float_values[2], 'xgz1': float_values[3], 'xgz2': float_values[4], 'xgz3': float_values[5], 'rpz1': float_values[6], 'rpz2': float_values[7], 'rpz3': float_values[8], 'xpz1': float_values[9], 'xpz2': float_values[10], 'xpz3': float_values[11], 'angle': float_values[12], 'z0z1_mag': float_values[13], 'z0z1_ang': float_values[14], 'delta_t': float_values[15], 'id2': float_values[16], 'line_length': float_values[17], 'CT_RATIO_HV': float_values[18], 'CT_RATIO_LV': float_values[19], 'VT_RATIO_HV': float_values[20], 'VT_RATIO_LV': float_values[21], 'CTVT_RATIO': float_values[22]}}
-            )
-    return rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL
+def update_last_values(selected_config):
+    if selected_config:
+        parameter = collection_Parameter.find_one({'_id': selected_config})
+        if parameter:
+            values = []
+            for param in ['rgz1', 'rgz2', 'rgz3', 'xgz1', 'xgz2', 'xgz3', 'rpz1', 'rpz2', 'rpz3', 'xpz1', 'xpz2', 'xpz3', 'angle', 'z0z1_mag', 'z0z1_ang', 'delta_t', 'id2', 'line_length', 'CT_RATIO_HV', 'CT_RATIO_LV', 'VT_RATIO_HV', 'VT_RATIO_LV', 'CTVT_RATIO', 'SETPOINT_IN', 'IN_NL', 'IN_PL']:
+                if param in parameter:
+                    values.append(html.Div(f'Last: {parameter[param]}', style={'color': 'white'}))
+                else:
+                    values.append(html.Div(f'Last: N/A', style={'color': 'white'}))
+            return values
+    # Jika tidak ada config yang dipilih atau tidak ada data untuk config yang dipilih, kembalikan list kosong
+    return [''] * 26
+
 #################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
 def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
@@ -1721,9 +1606,9 @@ def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
         (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = voltage_current_values
 
         # Pastikan SETPOINT_IN, Arus_Netral_beban_Normal, dan Arus_Netral_beban_Puncak adalah NoneType
-        SETPOINT_IN = round(float(SETPOINT_IN), 3) if SETPOINT_IN is not None and SETPOINT_IN != "N/A" else "N/A"
-        Arus_Netral_beban_Normal = round(float(Arus_Netral_beban_Normal), 3) if Arus_Netral_beban_Normal is not None and Arus_Netral_beban_Normal != "N/A" else "N/A"
-        Arus_Netral_beban_Puncak = round(float(Arus_Netral_beban_Puncak), 3) if Arus_Netral_beban_Puncak is not None and Arus_Netral_beban_Puncak != "N/A" else "N/A"
+        SETPOINT_IN = round(float(SETPOINT_IN), 3) if SETPOINT_IN and SETPOINT_IN != "N/A" else "N/A"
+        Arus_Netral_beban_Normal = round(float(Arus_Netral_beban_Normal), 3) if Arus_Netral_beban_Normal and Arus_Netral_beban_Normal != "N/A" else "N/A"
+        Arus_Netral_beban_Puncak = round(float(Arus_Netral_beban_Puncak), 3) if Arus_Netral_beban_Puncak and Arus_Netral_beban_Puncak != "N/A" else "N/A"
 
         # Bulatkan nilai-nilai lainnya
         VA = round(VA, 3)
