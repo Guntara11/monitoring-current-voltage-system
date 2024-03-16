@@ -106,16 +106,19 @@ line_param = html.Div([dbc.Row([
             html.Label("Enter RGZ data ", style={'color': 'white'}),
             dbc.Col(
                 html.Div([
+                    html.Div(id='last-rgz1-value', style={'color': 'white'}),
                     dbc.Input(type="Text", id="rgz1", size="sm", placeholder="RGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                 ], className="mx-1")
             ), 
             dbc.Col(
                 html.Div([
+                    html.Div(id='last-rgz2-value', style={'color': 'white'}),
                     dbc.Input(type="Text", id="rgz2", size="sm", placeholder="RGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                 ], className="mx-1")
             ),
             dbc.Col(
                 html.Div([
+                    html.Div(id='last-rgz3-value', style={'color': 'white'}),
                     dbc.Input(type="Text", id="rgz3", size="sm", placeholder="RGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                 ], className="mx-1")
             )
@@ -125,16 +128,19 @@ line_param = html.Div([dbc.Row([
                     html.Label("Enter XGZ data ", style={'color': 'white'}),
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-xgz1-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="xgz1", size="sm", placeholder="XGZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     ), 
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-xgz2-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="xgz2", size="sm", placeholder="XGZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     ),
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-xgz3-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="xgz3", size="sm", placeholder="XGZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     )
@@ -144,16 +150,19 @@ line_param = html.Div([dbc.Row([
                     html.Label("Enter RPZ data ", style={'color': 'white'}),
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-rpz1-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="rpz1", size="sm", placeholder="RPZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     ), 
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-rpz2-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="rpz2", size="sm", placeholder="RPZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     ),
                     dbc.Col(
                         html.Div([
+                            html.Div(id='last-rpz3-value', style={'color': 'white'}),
                             dbc.Input(type="Text", id="rpz3", size="sm", placeholder="RPZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
                         ], className="mx-1")
                     )
@@ -163,16 +172,19 @@ dbc.Row([
         html.Label("Enter XPZ data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-xpz1-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="xpz1", size="sm", placeholder="XPZ1", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ), 
         dbc.Col(
             html.Div([
+                html.Div(id='last-xpz2-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="xpz2", size="sm", placeholder="XPZ2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ),
         dbc.Col(
             html.Div([
+                html.Div(id='last-xpz3-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="xpz3", size="sm", placeholder="XPZ3", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         )
@@ -182,16 +194,19 @@ dbc.Row([
         html.Label("Enter Angle data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-angle-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="angle", size="sm", placeholder="Angle", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ), 
         dbc.Col(
             html.Div([
+                html.Div(id='last-z0z1_mag-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="z0z1_mag", size="sm", placeholder="z0z1_mag", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ),
         dbc.Col(
             html.Div([
+                html.Div(id='last-z0z1_ang-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="z0z1_ang", size="sm", placeholder="z0z1_ang", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         )
@@ -201,16 +216,19 @@ dbc.Row([
         html.Label("Enter delta_t, id, line_length data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-delta_t-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="delta_t", size="sm", placeholder="delta_t", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ), 
         dbc.Col(
             html.Div([
+                html.Div(id='last-id2-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="id2", size="sm", placeholder="id2", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ),
         dbc.Col(
             html.Div([
+                html.Div(id='last-line_length-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="line_length", size="sm", placeholder="line_length (KM)", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         )
@@ -220,11 +238,13 @@ dbc.Row([
         html.Label("Enter CT RATIO data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-CT_RATIO_HV-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="CT_RATIO_HV", size="sm", placeholder="HV", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ), 
         dbc.Col(
             html.Div([
+                html.Div(id='last-CT_RATIO_LV-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="CT_RATIO_LV", size="sm", placeholder="LV", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         )
@@ -234,11 +254,13 @@ dbc.Row([
         html.Label("Enter VT RATIO data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-VT_RATIO_HV-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="VT_RATIO_HV", size="sm", placeholder="HV", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         ), 
         dbc.Col(
             html.Div([
+                html.Div(id='last-VT_RATIO_LV-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="VT_RATIO_LV", size="sm", placeholder="LV", style={ 'background-color': 'white', 'border-color' : '#2AA198', 'border-width' : '5px'})
             ], className="mx-1")
         )
@@ -248,30 +270,34 @@ dbc.Row([
         html.Label("Enter CT/VT RATIO data ", style={'color': 'white'}),
         dbc.Col(
             html.Div([
+                html.Div(id='last-CTVT_RATIO-value', style={'color': 'white'}),
                 dbc.Input(type="Text", id="CTVT_RATIO", size="sm", placeholder="CT/VT Ratio", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
             ], className="mx-1")
         ), 
 ],
 ),
-# dbc.Row([
-#         html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
-#         dbc.Col(
-#             html.Div([
-#                 dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-#             ], className="mx-1")
-#         ), 
-#         dbc.Col(
-#             html.Div([
-#                 dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-#             ], className="mx-1")
-#         ), 
-#         dbc.Col(
-#             html.Div([
-#                 dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-#             ], className="mx-1")
-#         ), 
-# ],
-# ),
+dbc.Row([
+        html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
+        dbc.Col(
+            html.Div([
+                html.Div(id='last-SETPOINT_IN-value', style={'color': 'white'}),
+                dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                html.Div(id='last-IN_NL-value', style={'color': 'white'}),
+                dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+            ], className="mx-1")
+        ), 
+        dbc.Col(
+            html.Div([
+                html.Div(id='last-IN_PL-value', style={'color': 'white'}),
+                dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+            ], className="mx-1")
+        ), 
+],
+),
 ])
 
 #Apply Changes Button
@@ -367,7 +393,7 @@ control2 = dbc.Card([
      ]
      ),    
         ],
-    style={"height": 740, "width": 400},
+    style={"height": 800, "width": 400},
     body=True,)
 
 ################################################## Card voltage and current values ###########################################################
@@ -1297,6 +1323,9 @@ def save_csv(n_clicks, start_time, end_time):
     Output('VT_RATIO_HV', 'value'),
     Output('VT_RATIO_LV', 'value'),
     Output('CTVT_RATIO', 'value'),
+    Output('SETPOINT_IN', 'value'),
+    Output('IN_NL', 'value'),
+    Output('IN_PL', 'value'),
     Input('apply-button', 'n_clicks'),
     [
         State('rgz1', 'value'), 
@@ -1322,14 +1351,17 @@ def save_csv(n_clicks, start_time, end_time):
         State('VT_RATIO_HV', 'value'), 
         State('VT_RATIO_LV', 'value'), 
         State('CTVT_RATIO', 'value'),
+        State('SETPOINT_IN', 'value'),
+        State('IN_NL', 'value'),
+        State('IN_PL', 'value'),
         State('config-param-dropdown', 'value')
     ]
 )
 
-def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, selected_config):
+def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL, selected_config):
     if n_clicks is not None and n_clicks > 0:
         # Mengonversi nilai menjadi float jika tidak kosong
-        float_values = [float(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO]]
+        float_values = [float(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL]]
         
         if all(value is not None for value in float_values) and selected_config:
             parameter_id = selected_config  
@@ -1514,18 +1546,86 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
 
                     collection_LINE.update_one({'_id': parameter_id}, {'$set': line_data}, upsert=True)
 
-                    return float_values[0], float_values[1], float_values[2], float_values[3], float_values[4], float_values[5], float_values[6], float_values[7], float_values[8], float_values[9], float_values[10], float_values[11], float_values[12], float_values[13], float_values[14], float_values[15], float_values[16], float_values[17], float_values[18], float_values[19], float_values[20], float_values[21], float_values[22]
-    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
+                    return float_values[0], float_values[1], float_values[2], float_values[3], float_values[4], float_values[5], float_values[6], float_values[7], float_values[8], float_values[9], float_values[10], float_values[11], float_values[12], float_values[13], float_values[14], float_values[15], float_values[16], float_values[17], float_values[18], float_values[19], float_values[20], float_values[21], float_values[22], SETPOINT_IN, IN_NL, IN_PL
+    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
 
+@app.callback(
+    [Output('last-rgz1-value', 'children'),
+     Output('last-rgz2-value', 'children'),
+     Output('last-rgz3-value', 'children'),
+     Output('last-xgz1-value', 'children'),
+     Output('last-xgz2-value', 'children'),
+     Output('last-xgz3-value', 'children'),
+     Output('last-rpz1-value', 'children'),
+     Output('last-rpz2-value', 'children'),
+     Output('last-rpz3-value', 'children'),
+     Output('last-xpz1-value', 'children'),
+     Output('last-xpz2-value', 'children'),
+     Output('last-xpz3-value', 'children'),
+     Output('last-angle-value', 'children'),
+     Output('last-z0z1_mag-value', 'children'),
+     Output('last-z0z1_ang-value', 'children'),
+     Output('last-delta_t-value', 'children'),
+     Output('last-id2-value', 'children'),
+     Output('last-line_length-value', 'children'),
+     Output('last-CT_RATIO_HV-value', 'children'),
+     Output('last-CT_RATIO_LV-value', 'children'),
+     Output('last-VT_RATIO_HV-value', 'children'),
+     Output('last-VT_RATIO_LV-value', 'children'),
+     Output('last-CTVT_RATIO-value', 'children'),
+     Output('last-SETPOINT_IN-value', 'children'),
+     Output('last-IN_NL-value', 'children'),
+     Output('last-IN_PL-value', 'children'),
+     ],
+    [Input('apply-button', 'n_clicks')],
+    [State('rgz1', 'value'),
+     State('rgz2', 'value'),
+     State('rgz3', 'value'),
+     State('xgz1', 'value'), 
+     State('xgz2', 'value'), 
+     State('xgz3', 'value'), 
+     State('rpz1', 'value'), 
+     State('rpz2', 'value'), 
+     State('rpz3', 'value'), 
+     State('xpz1', 'value'), 
+     State('xpz2', 'value'), 
+     State('xpz3', 'value'), 
+     State('angle', 'value'), 
+     State('z0z1_mag', 'value'), 
+     State('z0z1_ang', 'value'), 
+     State('delta_t', 'value'), 
+     State('id2', 'value'), 
+     State('line_length', 'value'), 
+     State('CT_RATIO_HV', 'value'), 
+     State('CT_RATIO_LV', 'value'), 
+     State('VT_RATIO_HV', 'value'), 
+     State('VT_RATIO_LV', 'value'), 
+     State('CTVT_RATIO', 'value'),
+     State('SETPOINT_IN', 'value'),
+     State('IN_NL', 'value'),
+     State('IN_PL', 'value'),
+     State('config-param-dropdown', 'value')]  # Tambahkan State untuk variabel selected_config
+)
+def update_last_values(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL, selected_config):
+    if n_clicks is not None and n_clicks > 0:
+        float_values = [float(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL]]
+        if all(value is not None for value in float_values) and selected_config:
+            parameter_id = selected_config  
+            # Update parameter values dengan menggunakan operator $set
+            collection_Parameter.update_one(
+                {'_id': parameter_id},
+                {'$set': {'rgz1': float_values[0], 'rgz2': float_values[1], 'rgz3': float_values[2], 'xgz1': float_values[3], 'xgz2': float_values[4], 'xgz3': float_values[5], 'rpz1': float_values[6], 'rpz2': float_values[7], 'rpz3': float_values[8], 'xpz1': float_values[9], 'xpz2': float_values[10], 'xpz3': float_values[11], 'angle': float_values[12], 'z0z1_mag': float_values[13], 'z0z1_ang': float_values[14], 'delta_t': float_values[15], 'id2': float_values[16], 'line_length': float_values[17], 'CT_RATIO_HV': float_values[18], 'CT_RATIO_LV': float_values[19], 'VT_RATIO_HV': float_values[20], 'VT_RATIO_LV': float_values[21], 'CTVT_RATIO': float_values[22]}}
+            )
+    return rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL
 #################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
-def get_voltage_current():
+def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
     LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
     LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm = unpack_Iharm_data()
     LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm = unpack_Vharm_data()
-    LINE1_SETPOINT_IN = 22
-    LINE1_IN_NL = 10
-    LINE1_IN_PL = 20
+    LINE1_SETPOINT_IN = SETPOINT_IN
+    LINE1_IN_NL = IN_NL
+    LINE1_IN_PL = IN_PL
 
     IN = LINE1_IN
 
@@ -1573,7 +1673,6 @@ def get_voltage_current():
 
     return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
 
-# Define your callback functions here
 @app.callback(
     [Output("VA-value", "children"),
      Output("VA_Ang-value", "children"),
@@ -1609,51 +1708,60 @@ def get_voltage_current():
      Output("SETPOINT_IN-value", "children"),
      Output("Arus_Netral_beban_Normal-value", "children"),
      Output("Arus_Netral_beban_Puncak-value", "children")],
-    [Input("interval-component", "n_intervals")]
+    [Input("interval-component", "n_intervals")],
+    [State("SETPOINT_IN", "value"),
+     State("IN_NL", "value"),
+     State("IN_PL", "value")]
 )
-
-def update_voltage_current_values(n):
+def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
-    (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = get_voltage_current()
-    # Round the values to 3 decimal places
-    VA = round(VA, 3)
-    VA_Ang = round(VA_Ang, 3)
-    VB = round(VB, 3)
-    VB_Ang = round(VB_Ang, 3)
-    VC = round(VC, 3)
-    VC_Ang = round(VC_Ang, 3)
-    IN = round(IN, 3)
-    IA = round(IA, 3)
-    IA_Ang = round(IA_Ang, 3)
-    IB = round(IB, 3)
-    IB_Ang = round(IB_Ang, 3)
-    IC = round(IC, 3)
-    IC_Ang = round(IC_Ang, 3)
-    VAB = round(VAB, 3)
-    VBC = round(VBC, 3)
-    VCA = round(VCA, 3)
-    VAN = round(VAN, 3)
-    VBN = round(VBN, 3)
-    VCN = round(VCN, 3)
-    IA_3rd = round(IA_3rd, 3)
-    IB_3rd = round(IB_3rd, 3)
-    IC_3rd = round(IC_3rd, 3)
-    IA_5th = round(IA_5th, 3)
-    IB_5th = round(IB_5th, 3)
-    IC_5th = round(IC_5th, 3)
-    VA_3rd = round(VA_3rd, 3)
-    VB_3rd = round(VB_3rd, 3)
-    VC_3rd = round(VC_3rd, 3)
-    VA_5th = round(VA_5th, 3)
-    VB_5th = round(VB_5th, 3)
-    VC_5th = round(VC_5th, 3)
-    SETPOINT_IN = round(SETPOINT_IN, 3)
-    Arus_Netral_beban_Normal = round(Arus_Netral_beban_Normal, 3)
-    Arus_Netral_beban_Puncak = round(Arus_Netral_beban_Puncak, 3)
+    voltage_current_values = get_voltage_current(SETPOINT_IN, IN_NL, IN_PL)
 
-    return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
+    if voltage_current_values is not None:
+        (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = voltage_current_values
 
+        # Pastikan SETPOINT_IN, Arus_Netral_beban_Normal, dan Arus_Netral_beban_Puncak adalah NoneType
+        SETPOINT_IN = round(float(SETPOINT_IN), 3) if SETPOINT_IN is not None and SETPOINT_IN != "N/A" else "N/A"
+        Arus_Netral_beban_Normal = round(float(Arus_Netral_beban_Normal), 3) if Arus_Netral_beban_Normal is not None and Arus_Netral_beban_Normal != "N/A" else "N/A"
+        Arus_Netral_beban_Puncak = round(float(Arus_Netral_beban_Puncak), 3) if Arus_Netral_beban_Puncak is not None and Arus_Netral_beban_Puncak != "N/A" else "N/A"
 
+        # Bulatkan nilai-nilai lainnya
+        VA = round(VA, 3)
+        VA_Ang = round(VA_Ang, 3)
+        VB = round(VB, 3)
+        VB_Ang = round(VB_Ang, 3)
+        VC = round(VC, 3)
+        VC_Ang = round(VC_Ang, 3)
+        IN = round(IN, 3)
+        IA = round(IA, 3)
+        IA_Ang = round(IA_Ang, 3)
+        IB = round(IB, 3)
+        IB_Ang = round(IB_Ang, 3)
+        IC = round(IC, 3)
+        IC_Ang = round(IC_Ang, 3)
+        VAB = round(VAB, 3)
+        VBC = round(VBC, 3)
+        VCA = round(VCA, 3)
+        VAN = round(VAN, 3)
+        VBN = round(VBN, 3)
+        VCN = round(VCN, 3)
+        IA_3rd = round(IA_3rd, 3)
+        IB_3rd = round(IB_3rd, 3)
+        IC_3rd = round(IC_3rd, 3)
+        IA_5th = round(IA_5th, 3)
+        IB_5th = round(IB_5th, 3)
+        IC_5th = round(IC_5th, 3)
+        VA_3rd = round(VA_3rd, 3)
+        VB_3rd = round(VB_3rd, 3)
+        VC_3rd = round(VC_3rd, 3)
+        VA_5th = round(VA_5th, 3)
+        VB_5th = round(VB_5th, 3)
+        VC_5th = round(VC_5th, 3)
+
+        return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
+    else:
+        # Handle the case when voltage_current_values is None
+        return ("N/A",) * 37
 # Run the app
 if __name__ == '__main__':
     while True:
