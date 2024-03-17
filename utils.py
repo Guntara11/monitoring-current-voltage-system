@@ -5,6 +5,24 @@ import random
 import time
 import paho.mqtt.client as mqtt
 import json
+import telegram
+
+
+class TelegramConfig:
+    def __init__(self, chat_id, bot_id, threshold):
+        self.telegram_chat_id = chat_id
+        self.telegram_bot_id = bot_id
+        self.threshold = threshold
+
+    def get_telegram_chat_id(self):
+        return self.telegram_chat_id
+
+    def get_telegram_bot_id(self):
+        return self.telegram_bot_id
+
+    def get_threshold(self):
+        return self.threshold
+
 
 class MQTTClient:
     def __init__(self, on_data_callback):
