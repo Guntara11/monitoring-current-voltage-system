@@ -142,14 +142,14 @@ def process_data():
                         'LINE_UL1' : LINE1_U1, 'LINE_UL1-Ang' : LINE1_Ang_U1,
                         'LINE_UL2' : LINE1_U2, 'LINE_UL2-Ang' : LINE1_Ang_U2,
                         'LINE_UL3' : LINE1_U3, 'LINE_UL3-Ang' : LINE1_Ang_U3,
-                        'LINE1_z0z1_mag' : LINE1_z0z1_mag, 'LINE1_z0z1_ang':LINE1_z0z1_ang,
-                        'LINE1_IL1_Real' : str(IL1_Real), 'LINE1_IL2_Real' : str(IL2_Real), 'LINE1_IL3_Real' : str(IL3_Real),
-                        'LINE1_IL1_Imag' : str(IL1_Imag), 'LINE1_IL2_Imag' : str(IL2_Imag), 'LINE1_IL3_Imag' : str(IL3_Imag),
-                        'LINE1_V1_Real' : str(V1_Real), 'LINE1_V2_Real' : str(V2_Real), 'LINE1_V3_Real' : str(V3_Real),
-                        'LINE1_V1_Imag' : str(V1_Imag), 'LINE1_V2_Imag' : str(V2_Imag), 'LINE1_V3_Imag' : str(V3_Imag),
-                        'LINE1_IL1_Complex' : str(IL1_Complex), 'LINE1_IL2_Complex' : str(IL2_Complex), 'LINE1_IL3_Complex' : str(IL3_Complex),
-                        'LINE1_V1_Complex' : str(V1_Complex), 'LINE1_V2_Complex' : str(V2_Complex), 'LINE1_V3_Complex' : str(V3_Complex),
-                        'LINE1_IN_Imag' : str(LINE1_IN_Imag), 'LINE1_IN_Real' : str(LINE1_IN_Real), 'LINE1_IN_Mag' : str(LINE1_IN_Mag), 'LINE1_IN_Ang' : str(LINE1_IN_Ang) 
+                        'LINE_z0z1_mag' : LINE1_z0z1_mag, 'LINE_z0z1_ang':LINE1_z0z1_ang,
+                        'LINE_IL1_Real' : str(IL1_Real), 'LINE_IL2_Real' : str(IL2_Real), 'LINE_IL3_Real' : str(IL3_Real),
+                        'LINE_IL1_Imag' : str(IL1_Imag), 'LINE_IL2_Imag' : str(IL2_Imag), 'LINE_IL3_Imag' : str(IL3_Imag),
+                        'LINE_V1_Real' : str(V1_Real), 'LINE_V2_Real' : str(V2_Real), 'LINE_V3_Real' : str(V3_Real),
+                        'LINE_V1_Imag' : str(V1_Imag), 'LINE_V2_Imag' : str(V2_Imag), 'LINE_V3_Imag' : str(V3_Imag),
+                        'LINE_IL1_Complex' : str(IL1_Complex), 'LINE_IL2_Complex' : str(IL2_Complex), 'LINE_IL3_Complex' : str(IL3_Complex),
+                        'LINE_V1_Complex' : str(V1_Complex), 'LINE_V2_Complex' : str(V2_Complex), 'LINE_V3_Complex' : str(V3_Complex),
+                        'LINE_IN_Imag' : str(LINE1_IN_Imag), 'LINE_IN_Real' : str(LINE1_IN_Real), 'LINE_IN_Mag' : str(LINE1_IN_Mag), 'LINE_IN_Ang' : str(LINE1_IN_Ang) 
                   }
             # Store Data to MongoDB
             collection.insert_one(data_to_write)

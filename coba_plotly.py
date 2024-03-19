@@ -8,8 +8,8 @@ import dash_bootstrap_components as dbc
 import paho.mqtt.client as mqtt
 import plotly.graph_objs as go
 from collections import deque
-import utils
-from utils import LineCalculation, ZoneCalculation, MQTTClient
+import random
+from utils import LineCalculation, ZoneCalculation, MQTTClient, TelegramConfig
 import pymongo
 import pandas as pd
 import dash_ag_grid as dag
@@ -19,7 +19,7 @@ from dash.exceptions import PreventUpdate
 import time
 import plotly.express as px
 import dash_daq as daq
-
+import requests
 
 
 #Connect To MongoDB
@@ -1538,7 +1538,7 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     LINE1_IN_NL = IN_NL
     LINE1_IN_PL = IN_PL
 
-    IN = LINE1_IN
+    IN = round(random.uniform(-1, 10), 2)
 
     IA = LINE1_IL1 
     IA_Ang = LINE1_Ang_I1
@@ -1581,7 +1581,7 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     SETPOINT_IN = LINE1_SETPOINT_IN
     Arus_Netral_beban_Normal = LINE1_IN_NL
     Arus_Netral_beban_Puncak = LINE1_IN_PL
-
+    
     return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
 
 @app.callback(
@@ -1628,6 +1628,8 @@ def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
     voltage_current_values = get_voltage_current(SETPOINT_IN, IN_NL, IN_PL)
 
+    config = TelegramConfig("@Mvcslog", "bot7172672222:AAFqGCbZgQC-ch4KXl7NhfBkTS8OoGq-35E", 150)
+
     if voltage_current_values is not None:
         (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = voltage_current_values
 
@@ -1669,10 +1671,36 @@ def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
         VB_5th = round(VB_5th, 3)
         VC_5th = round(VC_5th, 3)
 
+        # Send to Telegram
+        if IN is not None and SETPOINT_IN != "N/A":
+            send_telegram_alert(config, IN, SETPOINT_IN)
+
         return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
     else:
         # Handle the case when voltage_current_values is None
         return ("N/A",) * 37
+
+######################################################### Send Telegram Alert #####################################################################################
+def send_telegram_alert(config, IN, SETPOINT_IN):
+    # Telegram API endpoint for sending messages
+    url = f"https://api.telegram.org/{config.telegram_bot_id}/sendMessage"
+    
+    # Check if IN exceeds SETPOINT_IN
+    if IN > SETPOINT_IN:
+        # Message to send
+        message = f"Alert!!! IN value ({IN}) exceeded the SETPOINT_IN value ({SETPOINT_IN})!"
+        
+        # Parameters for the API request
+        params = {
+            "chat_id": config.telegram_chat_id,
+            "text": message
+        }
+        
+        # Send the alert
+        response = requests.post(url, params=params)
+        if response.status_code != 200:
+            print("Failed to send alert to Telegram:", response.text)
+
 # Run the app
 if __name__ == '__main__':
     while True:
