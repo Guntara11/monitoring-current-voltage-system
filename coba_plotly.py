@@ -34,7 +34,7 @@ except pymongo.errors.ConnectionFailure:
     connected = False
 
 # Initialize Dash app
-app = dash.Dash(external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
+app = dash.Dash(title='MVCS', update_title=None, external_stylesheets=[dbc.themes.SOLAR], suppress_callback_exceptions=True)
 
 # Read keys directly from MongoDB collection "Parameter"
 parameter_data = collection_Parameter.find_one({})
