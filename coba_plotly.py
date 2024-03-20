@@ -341,14 +341,14 @@ filter_end_input = dbc.Row([
 #Filter Button
 Filter_button = html.Div(
     [
-        dbc.Button("Filter Data", id="filter-button", color="success", className="me-1", n_clicks=0)
+        dbc.Button("Filter Data", id="filter-button", color="success", className="me-1", disabled=True, n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
 
 # Save CSV Button
 csv_button = html.Div([
-    html.Button("Save CSV", id="save-csv-button", className="btn btn-success me-1", n_clicks=0)
+    html.Button("Save CSV", id="save-csv-button", className="btn btn-success me-1", disabled=True, n_clicks=0)
 ],
     className="d-grid gap-2 my-3",
 )
@@ -798,6 +798,7 @@ app.layout = dbc.Container(
 )
 
 def filter_data(n_clicks, start_time, end_time):
+
     if n_clicks and start_time and end_time:
         # Fetch data from MongoDB within the specified timestamp range
         filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
@@ -838,6 +839,18 @@ def filter_data(n_clicks, start_time, end_time):
         ]
     else:
         return []
+    
+
+@app.callback(
+    Output('filter-button', 'disabled'),
+    [Input('start-time', 'value'),
+     Input('end-time', 'value')]
+)
+def update_button_disabled(start_time, end_time):
+    if start_time and end_time:
+        return False
+    else:
+        return True
 
 ########################################################## Update Grafph ###############################################################
 LINE_Mag_VI = []
@@ -1231,6 +1244,16 @@ def save_csv(n_clicks, start_time, end_time):
         return 0  # Mengatur kembali nilai n_clicks tombol "Save CSV" menjadi 0
     else:
         raise PreventUpdate
+
+@app.callback(
+    Output('save-csv-button', 'disabled'),
+    [Input('mongo-datatable', 'children')]
+)
+def update_button_disabled(table_data):
+    if table_data:
+        return False
+    else:
+        return True
 
 ########################################################## Update Parameter ###################################################################
 
