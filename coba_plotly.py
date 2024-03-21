@@ -20,8 +20,7 @@ import time
 import plotly.express as px
 import dash_daq as daq
 import requests
-
-
+import re
 #Connect To MongoDB
 try:
     client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -281,34 +280,49 @@ dbc.Row([
         ), 
 ],
 ),
-dbc.Row([
-        html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
-        dbc.Col(
-            html.Div([
-                html.Div(id='last-SETPOINT_IN-value', style={'color': 'white'}),
-                dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                html.Div(id='last-IN_NL-value', style={'color': 'white'}),
-                dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-            ], className="mx-1")
-        ), 
-        dbc.Col(
-            html.Div([
-                html.Div(id='last-IN_PL-value', style={'color': 'white'}),
-                dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-            ], className="mx-1")
-        ), 
-],
-),
 ])
 
 #Apply Changes Button
 Apply_button = html.Div(
     [
         dbc.Button("Apply Changes", id="apply-button", size="sm", color="success", className="me-1", n_clicks=0)
+    ],
+    className="d-grid gap-2 my-3",
+)
+
+
+#Setpoint IN textbox
+setpoint = html.Div([dbc.Row([
+        html.Label('SETPOINT IN', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
+        dbc.Row([
+                html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
+                dbc.Col(
+                    html.Div([
+                        html.Div(id='last-SETPOINT_IN-value', style={'color': 'white'}),
+                        dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                    ], className="mx-1")
+                ), 
+                dbc.Col(
+                    html.Div([
+                        html.Div(id='last-IN_NL-value', style={'color': 'white'}),
+                        dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                    ], className="mx-1")
+                ), 
+                dbc.Col(
+                    html.Div([
+                        html.Div(id='last-IN_PL-value', style={'color': 'white'}),
+                        dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                    ], className="mx-1")
+                ), 
+        ],
+    ),
+])
+])
+
+
+setpoint_button = html.Div(
+    [
+        dbc.Button("Apply", id="setpoint-button", size="sm", color="success", className="me-1", n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
@@ -360,6 +374,8 @@ filter_time = dbc.Form([filter_start_input, filter_end_input])
 control1 = dbc.Card(
     [dropdown, filter_time, 
      dbc.Row([
+         html.Div(id="warning-message", style={'color': 'red'}),
+         html.Div(id="saved-message", style={'color': 'green'}),
          dbc.Col(
             Filter_button
          ),
@@ -384,21 +400,34 @@ control1 = dbc.Card(
             )
     ])
     ],
-    style={"height": 450, "width": 400},
+    style={"height": 490, "width": 400},
     body=True,
 )
 
 # Card control2
 control2 = dbc.Card([
-    dropdown2,line_param, 
+    dropdown2, line_param,
+    dbc.Row([
+        dbc.Col(Apply_button),
+    ]),
+    dbc.Row([
+        dbc.Col(html.Div(id="error-message", style={'color': 'red'})),
+    ]),
+],
+style={"height": 1000, "width": 400},
+body=True,)
+
+# Card control3
+control3 = dbc.Card([
+    setpoint,
     dbc.Row([
          dbc.Col(
-            Apply_button
+            setpoint_button
          )
      ]
      ),    
         ],
-    style={"height": 1050, "width": 400},
+    style={"height": 200, "width": 400},
     body=True,)
 
 ################################################## Card voltage and current values ###########################################################
@@ -728,6 +757,13 @@ app.layout = dbc.Container(
                                                 # ************************************
                                                 # theme_controls
                                             ],  width=18, className="my-4"),
+                                            dbc.Col([
+                                                control3,
+                                                # ************************************
+                                                # Uncomment line below when running locally!
+                                                # ************************************
+                                                # theme_controls
+                                            ],  width=18, className="my-4"),
                                         ]),
                             ],
                             vertical=True, pills=True
@@ -788,18 +824,22 @@ app.layout = dbc.Container(
 )
 
 ######################################################### Filter DAta ######################################################################
-
 # Callback for filtering data based on timestamps
 @app.callback(
     Output('mongo-datatable', 'children'),
+    Output('warning-message', 'children'),
     [Input('filter-button', 'n_clicks')],
     [State('start-time', 'value'),
      State('end-time', 'value')]
 )
 
 def filter_data(n_clicks, start_time, end_time):
-
+    warning_message_filter = None
     if n_clicks and start_time and end_time:
+        # Check if end_timestamp is earlier than start_timestamp
+        if end_time < start_time:
+            warning_message_filter = "End timestamp cannot be earlier than start timestamp."
+            return None, warning_message_filter
         # Fetch data from MongoDB within the specified timestamp range
         filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
         
@@ -834,12 +874,11 @@ def filter_data(n_clicks, start_time, end_time):
                 filter_action="native",  # Aktifkan penyaringan baris
                 sort_action="native",  # Aktifkan sorting
                 sort_mode="multi",  # Aktifkan sorting multi kolom
-                page_size=10,
+                page_size=20,
             ),
-        ]
+        ], warning_message_filter
     else:
-        return []
-    
+        return [], warning_message_filter
 
 @app.callback(
     Output('filter-button', 'disabled'),
@@ -847,11 +886,51 @@ def filter_data(n_clicks, start_time, end_time):
      Input('end-time', 'value')]
 )
 def update_button_disabled(start_time, end_time):
-    if start_time and end_time:
+    timestamp_format = re.compile(r'^\d{4}-\d{2}-\d{2}_\d{2}:\d{2}:\d{2}$')
+    if start_time is None or end_time is None:
+        return True
+    if not timestamp_format.match(start_time) or not timestamp_format.match(end_time):
+        return True
+    return False
+
+####################################################### Save Data CSV ################################################################
+@app.callback(
+    Output('save-csv-button', 'n_clicks'),
+    Output("saved-message", "children"),
+    [Input('save-csv-button', 'n_clicks')],
+    [State('start-time', 'value'),
+     State('end-time', 'value')]
+)
+def save_csv(n_clicks, start_time, end_time):
+    if n_clicks:
+        if start_time and end_time:
+            filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
+            df = pd.DataFrame(list(filtered_data))
+            
+            # Create folder if not exists
+            folder_path = "data_csv"
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+            
+            # Create CSV file with desired format
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = os.path.join(folder_path, f"filter_data_{timestamp}.csv")
+            
+            # Save DataFrame to CSV file
+            df.to_csv(filename, index=False)
+            return 0, "CSV file has been saved successfully."
+    else:
+        raise PreventUpdate
+
+@app.callback(
+    Output('save-csv-button', 'disabled'),
+    [Input('mongo-datatable', 'children')]
+)
+def update_button_disabled(table_data):
+    if table_data:
         return False
     else:
         return True
-
 ########################################################## Update Grafph ###############################################################
 LINE_Mag_VI = []
 LINE_Phase_Angles = []
@@ -1015,7 +1094,35 @@ def process_data():
             ZCA_Real.pop(0)
         if len(ZCA_Imag) >= 50:
             ZCA_Imag.pop(0)
-
+        
+        # Get real and imag  data
+        IL1_Real, IL2_Real, IL3_Real, V1_Real, V2_Real, V3_Real = line_calc.get_real_data() 
+        IL1_Imag, IL2_Imag, IL3_Imag, V1_Imag, V2_Imag, V3_Imag= line_calc.get_imag_data()
+        IL1_Complex, IL2_Complex, IL3_Complex, V1_Complex, V2_Complex, V3_Complex = line_calc.get_complex_data()
+        LINE1_IN_Real, LINE1_IN_Imag, LINE1_IN_Complex, LINE1_IN_Mag, LINE1_IN_Ang = line_calc.get_line1_IN_data()
+        
+        data_to_write = {
+                    'Timestamp' : datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
+                    'DATE' : datetime.now().strftime("%Y-%m-%d"), 'TIME' : datetime.now().strftime("%H:%M:%S"),
+                    'LINE_IL1' : LINE1_IL1, 'LINE_IL1-Ang' : LINE1_Ang_I1, 
+                    'LINE_IL2' : LINE1_IL2, 'LINE_IL2-Ang' : LINE1_Ang_I2,
+                    'LINE_IL3' : LINE1_IL3, 'LINE_IL3-Ang' : LINE1_Ang_I3,
+                    'LINE_UL1' : LINE1_U1, 'LINE_UL1-Ang' : LINE1_Ang_U1,
+                    'LINE_UL2' : LINE1_U2, 'LINE_UL2-Ang' : LINE1_Ang_U2,
+                    'LINE_UL3' : LINE1_U3, 'LINE_UL3-Ang' : LINE1_Ang_U3,
+                    'LINE_z0z1_mag' : LINE1_z0z1_mag, 'LINE_z0z1_ang':LINE1_z0z1_ang,
+                    'LINE_IL1_Real' : str(IL1_Real), 'LINE_IL2_Real' : str(IL2_Real), 'LINE_IL3_Real' : str(IL3_Real),
+                    'LINE_IL1_Imag' : str(IL1_Imag), 'LINE_IL2_Imag' : str(IL2_Imag), 'LINE_IL3_Imag' : str(IL3_Imag),
+                    'LINE_V1_Real' : str(V1_Real), 'LINE_V2_Real' : str(V2_Real), 'LINE_V3_Real' : str(V3_Real),
+                    'LINE_V1_Imag' : str(V1_Imag), 'LINE_V2_Imag' : str(V2_Imag), 'LINE_V3_Imag' : str(V3_Imag),
+                    'LINE_IL1_Complex' : str(IL1_Complex), 'LINE_IL2_Complex' : str(IL2_Complex), 'LINE_IL3_Complex' : str(IL3_Complex),
+                    'LINE_V1_Complex' : str(V1_Complex), 'LINE_V2_Complex' : str(V2_Complex), 'LINE_V3_Complex' : str(V3_Complex),
+                    'LINE_IN_Imag' : str(LINE1_IN_Imag), 'LINE_IN_Real' : str(LINE1_IN_Real), 'LINE_IN_Mag' : str(LINE1_IN_Mag), 'LINE_IN_Ang' : str(LINE1_IN_Ang) 
+                }
+        # Store Data to MongoDB
+        collection_Params.insert_one(data_to_write)
+        time.sleep(0.2)
+        
     except ZeroDivisionError:
         pass
 
@@ -1217,46 +1324,7 @@ def update_graphs(n, selected_config, relayout_data_gnd, relayout_data_phase):
 
     return fig_phase_to_gnd, fig_phase_to_phase
 
-
-####################################################### Save Data CSV ################################################################
-@app.callback(
-    Output('save-csv-button', 'n_clicks'),
-    [Input('filter-button', 'n_clicks')],
-    [State('start-time', 'value'),
-     State('end-time', 'value')]
-)
-def save_csv(n_clicks, start_time, end_time):
-    if n_clicks and start_time and end_time:
-        filtered_data = collection_Params.find({"Timestamp": {"$gte": start_time, "$lte": end_time}})
-        df = pd.DataFrame(list(filtered_data))
-        
-        # Buat folder jika belum ada
-        folder_path = "data_csv"
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        
-        # Buat nama file CSV dengan format yang diinginkan
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = os.path.join(folder_path, f"filter_data_{timestamp}.csv")
-        
-        # Menyimpan DataFrame ke dalam file CSV
-        df.to_csv(filename, index=False)
-        return 0  # Mengatur kembali nilai n_clicks tombol "Save CSV" menjadi 0
-    else:
-        raise PreventUpdate
-
-@app.callback(
-    Output('save-csv-button', 'disabled'),
-    [Input('mongo-datatable', 'children')]
-)
-def update_button_disabled(table_data):
-    if table_data:
-        return False
-    else:
-        return True
-
 ########################################################## Update Parameter ###################################################################
-
 # Callback to update parameter values in MongoDB
 @app.callback(
     Output('rgz1', 'value'),
@@ -1282,9 +1350,7 @@ def update_button_disabled(table_data):
     Output('VT_RATIO_HV', 'value'),
     Output('VT_RATIO_LV', 'value'),
     Output('CTVT_RATIO', 'value'),
-    Output('SETPOINT_IN', 'value'),
-    Output('IN_NL', 'value'),
-    Output('IN_PL', 'value'),
+    Output('error-message', 'children'),
     Input('apply-button', 'n_clicks'),
     [
         State('rgz1', 'value'), 
@@ -1310,17 +1376,19 @@ def update_button_disabled(table_data):
         State('VT_RATIO_HV', 'value'), 
         State('VT_RATIO_LV', 'value'), 
         State('CTVT_RATIO', 'value'),
-        State('SETPOINT_IN', 'value'),
-        State('IN_NL', 'value'),
-        State('IN_PL', 'value'),
         State('config-param-dropdown', 'value')
     ]
 )
 
-def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL, selected_config):
+def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, selected_config):
+    messages = None
     if n_clicks is not None and n_clicks > 0:
         # Mengonversi nilai menjadi float jika tidak kosong
-        float_values = [float(val) if val is not None and val != '' else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO, SETPOINT_IN, IN_NL, IN_PL]]
+        try:
+            float_values = [float(val) if val else None for val in [rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, rpz3, xpz1, xpz2, xpz3, angle, z0z1_mag, z0z1_ang, delta_t, id2, line_length, CT_RATIO_HV, CT_RATIO_LV, VT_RATIO_HV, VT_RATIO_LV, CTVT_RATIO]]
+        except ValueError:
+            messages = "Please enter numerical values only."
+            return (None,) * 23 + (messages,)
         
         if all(value is not None for value in float_values) and selected_config:
             parameter_id = selected_config  
@@ -1505,8 +1573,41 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
 
                     collection_LINE.update_one({'_id': parameter_id}, {'$set': line_data}, upsert=True)
 
-                    return float_values[0], float_values[1], float_values[2], float_values[3], float_values[4], float_values[5], float_values[6], float_values[7], float_values[8], float_values[9], float_values[10], float_values[11], float_values[12], float_values[13], float_values[14], float_values[15], float_values[16], float_values[17], float_values[18], float_values[19], float_values[20], float_values[21], float_values[22], SETPOINT_IN, IN_NL, IN_PL
-    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
+                    return tuple(float_values) + (messages,)
+    return (None,) * 23 + (messages,)
+
+@app.callback(
+    Output('apply-button', 'disabled'),  # Menggunakan output untuk menonaktifkan tombol apply
+    [Input('rgz1', 'value'),
+     Input('rgz2', 'value'),
+     Input('rgz3', 'value'),
+     Input('xgz1', 'value'),
+     Input('xgz2', 'value'),
+     Input('xgz3', 'value'),
+     Input('rpz1', 'value'),
+     Input('rpz2', 'value'),
+     Input('rpz3', 'value'),
+     Input('xpz1', 'value'),
+     Input('xpz2', 'value'),
+     Input('xpz3', 'value'),
+     Input('angle', 'value'),
+     Input('z0z1_mag', 'value'),
+     Input('z0z1_ang', 'value'),
+     Input('delta_t', 'value'),
+     Input('id2', 'value'),
+     Input('line_length', 'value'),
+     Input('CT_RATIO_HV', 'value'),
+     Input('CT_RATIO_LV', 'value'),
+     Input('VT_RATIO_HV', 'value'),
+     Input('VT_RATIO_LV', 'value'),
+     Input('CTVT_RATIO', 'value')]
+)
+def disable_apply_button(*args):
+    # Memeriksa apakah ada kotak parameter yang belum terisi
+    if any(arg is None or arg == '' for arg in args):
+        return True  # Menonaktifkan tombol jika ada parameter yang kosong
+    else:
+        return False
 
 @app.callback(
     [Output('last-rgz1-value', 'children'),
@@ -1531,11 +1632,8 @@ def update_parameter(n_clicks, rgz1, rgz2, rgz3, xgz1, xgz2, xgz3, rpz1, rpz2, r
      Output('last-CT_RATIO_LV-value', 'children'),
      Output('last-VT_RATIO_HV-value', 'children'),
      Output('last-VT_RATIO_LV-value', 'children'),
-     Output('last-CTVT_RATIO-value', 'children'),
-     Output('last-SETPOINT_IN-value', 'children'),
-     Output('last-IN_NL-value', 'children'),
-     Output('last-IN_PL-value', 'children')],
-    [Input('config-param-dropdown', 'value')]  # Input yang digunakan adalah nilai yang dipilih dari dropdown
+     Output('last-CTVT_RATIO-value', 'children'),],
+    [Input('config-param-dropdown', 'value')]  
 )
 def update_last_values(selected_config):
     if selected_config:
@@ -1545,11 +1643,9 @@ def update_last_values(selected_config):
             for param in ['rgz1', 'rgz2', 'rgz3', 'xgz1', 'xgz2', 'xgz3', 'rpz1', 'rpz2', 'rpz3', 'xpz1', 'xpz2', 'xpz3', 'angle', 'z0z1_mag', 'z0z1_ang', 'delta_t', 'id2', 'line_length', 'CT_RATIO_HV', 'CT_RATIO_LV', 'VT_RATIO_HV', 'VT_RATIO_LV', 'CTVT_RATIO', 'SETPOINT_IN', 'IN_NL', 'IN_PL']:
                 if param in parameter:
                     values.append(html.Div(f'Last: {parameter[param]}', style={'color': 'white'}))
-                else:
-                    values.append(html.Div(f'Last: N/A', style={'color': 'white'}))
             return values
     # Jika tidak ada config yang dipilih atau tidak ada data untuk config yang dipilih, kembalikan list kosong
-    return [''] * 26
+    return [''] * 23
 
 #################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
 def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
@@ -1703,6 +1799,21 @@ def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
         # Handle the case when voltage_current_values is None
         return ("N/A",) * 37
 
+@app.callback(
+    Output("last-SETPOINT_IN-value", "children"),
+    Output("last-IN_NL-value", "children"),
+    Output("last-IN_PL-value", "children"),
+    Input("setpoint-button", "n_clicks"),
+    State("SETPOINT_IN", "value"),
+    State("IN_NL", "value"),
+    State("IN_PL", "value")
+)
+def update_setpoints(n_clicks, setpoint_in, in_nl, in_pl):
+    if n_clicks > 0:
+        return setpoint_in, in_nl, in_pl
+    else:
+        return dash.no_update, dash.no_update, dash.no_update
+    
 ######################################################### Send Telegram Alert #####################################################################################
 def send_telegram_alert(config, IN, SETPOINT_IN):
     # Telegram API endpoint for sending messages
@@ -1732,4 +1843,5 @@ if __name__ == '__main__':
         run_mqtt_Vharm_retreival()
         run_mqtt_Iharm_retreival()
         process_data()
-        app.run_server(debug=True, port=8050)
+        app.run_server(debug=False, port=8050)
+        
