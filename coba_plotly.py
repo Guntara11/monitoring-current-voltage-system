@@ -285,7 +285,7 @@ dbc.Row([
 #Apply Changes Button
 Apply_button = html.Div(
     [
-        dbc.Button("Apply Changes", id="apply-button", size="sm", color="success", className="me-1", n_clicks=0)
+        dbc.Button("Apply Changes", id="apply-button", size="sm", color="success", className="me-1", disabled=True, n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
@@ -322,7 +322,7 @@ setpoint = html.Div([dbc.Row([
 
 setpoint_button = html.Div(
     [
-        dbc.Button("Apply", id="setpoint-button", size="sm", color="success", className="me-1", n_clicks=0)
+        dbc.Button("Apply", id="setpoint-button", size="sm", color="success", className="me-1", disabled=True, n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
@@ -1640,7 +1640,7 @@ def update_last_values(selected_config):
         parameter = collection_Parameter.find_one({'_id': selected_config})
         if parameter:
             values = []
-            for param in ['rgz1', 'rgz2', 'rgz3', 'xgz1', 'xgz2', 'xgz3', 'rpz1', 'rpz2', 'rpz3', 'xpz1', 'xpz2', 'xpz3', 'angle', 'z0z1_mag', 'z0z1_ang', 'delta_t', 'id2', 'line_length', 'CT_RATIO_HV', 'CT_RATIO_LV', 'VT_RATIO_HV', 'VT_RATIO_LV', 'CTVT_RATIO', 'SETPOINT_IN', 'IN_NL', 'IN_PL']:
+            for param in ['rgz1', 'rgz2', 'rgz3', 'xgz1', 'xgz2', 'xgz3', 'rpz1', 'rpz2', 'rpz3', 'xpz1', 'xpz2', 'xpz3', 'angle', 'z0z1_mag', 'z0z1_ang', 'delta_t', 'id2', 'line_length', 'CT_RATIO_HV', 'CT_RATIO_LV', 'VT_RATIO_HV', 'VT_RATIO_LV', 'CTVT_RATIO']:
                 if param in parameter:
                     values.append(html.Div(f'Last: {parameter[param]}', style={'color': 'white'}))
             return values
@@ -1648,15 +1648,11 @@ def update_last_values(selected_config):
     return [''] * 23
 
 #################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
-def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
+def get_voltage_current():
     LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
     LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
     LINE1_IA3rd_Harm, LINE1_IA5th_Harm, LINE1_IB3rd_Harm, LINE1_IB5th_Harm, LINE1_IC3rd_Harm, LINE1_IC5th_Harm = unpack_Iharm_data()
     LINE1_VA3rd_Harm, LINE1_VA5th_Harm, LINE1_VB3rd_Harm, LINE1_VB5th_Harm, LINE1_VC3rd_Harm, LINE1_VC5th_Harm = unpack_Vharm_data()
-    LINE1_SETPOINT_IN = SETPOINT_IN
-    LINE1_IN_NL = IN_NL
-    LINE1_IN_PL = IN_PL
-
     IN = round(random.uniform(-1, 10), 2)
 
     IA = LINE1_IL1 
@@ -1696,12 +1692,8 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
     VA_5th = LINE1_VA5th_Harm 
     VB_5th = LINE1_VB5th_Harm 
     VC_5th = LINE1_VC5th_Harm 
-
-    SETPOINT_IN = LINE1_SETPOINT_IN
-    Arus_Netral_beban_Normal = LINE1_IN_NL
-    Arus_Netral_beban_Puncak = LINE1_IN_PL
     
-    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak
+    return VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th
 
 @app.callback(
     [Output("VA-value", "children"),
@@ -1734,28 +1726,17 @@ def get_voltage_current(SETPOINT_IN, IN_NL, IN_PL):
      Output("VC_3rd-value", "children"),
      Output("VA_5th-value", "children"),
      Output("VB_5th-value", "children"),
-     Output("VC_5th-value", "children"),
-     Output("SETPOINT_IN-value", "children"),
-     Output("Arus_Netral_beban_Normal-value", "children"),
-     Output("Arus_Netral_beban_Puncak-value", "children")],
+     Output("VC_5th-value", "children")],
     [Input("interval-component", "n_intervals")],
-    [State("SETPOINT_IN", "value"),
-     State("IN_NL", "value"),
-     State("IN_PL", "value")]
 )
-def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
+def update_voltage_current_values(n):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
-    voltage_current_values = get_voltage_current(SETPOINT_IN, IN_NL, IN_PL)
+    voltage_current_values = get_voltage_current()
 
     config = TelegramConfig("@Mvcslog", "bot7172672222:AAFqGCbZgQC-ch4KXl7NhfBkTS8OoGq-35E", 150)
 
     if voltage_current_values is not None:
-        (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak) = voltage_current_values
-
-        # Pastikan SETPOINT_IN, Arus_Netral_beban_Normal, dan Arus_Netral_beban_Puncak adalah NoneType
-        SETPOINT_IN = round(float(SETPOINT_IN), 3) if SETPOINT_IN and SETPOINT_IN != "N/A" else "N/A"
-        Arus_Netral_beban_Normal = round(float(Arus_Netral_beban_Normal), 3) if Arus_Netral_beban_Normal and Arus_Netral_beban_Normal != "N/A" else "N/A"
-        Arus_Netral_beban_Puncak = round(float(Arus_Netral_beban_Puncak), 3) if Arus_Netral_beban_Puncak and Arus_Netral_beban_Puncak != "N/A" else "N/A"
+        (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th) = voltage_current_values
 
         # Bulatkan nilai-nilai lainnya
         VA = round(VA, 3)
@@ -1790,29 +1771,10 @@ def update_voltage_current_values(n, SETPOINT_IN, IN_NL, IN_PL):
         VB_5th = round(VB_5th, 3)
         VC_5th = round(VC_5th, 3)
 
-        # Send to Telegram
-        if IN is not None and SETPOINT_IN != "N/A":
-            send_telegram_alert(config, IN, SETPOINT_IN)
-
-        return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th, SETPOINT_IN, Arus_Netral_beban_Normal, Arus_Netral_beban_Puncak)
+        return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th)
     else:
         # Handle the case when voltage_current_values is None
-        return ("N/A",) * 37
-
-@app.callback(
-    Output("last-SETPOINT_IN-value", "children"),
-    Output("last-IN_NL-value", "children"),
-    Output("last-IN_PL-value", "children"),
-    Input("setpoint-button", "n_clicks"),
-    State("SETPOINT_IN", "value"),
-    State("IN_NL", "value"),
-    State("IN_PL", "value")
-)
-def update_setpoints(n_clicks, setpoint_in, in_nl, in_pl):
-    if n_clicks > 0:
-        return setpoint_in, in_nl, in_pl
-    else:
-        return dash.no_update, dash.no_update, dash.no_update
+        return ("N/A",) * 34
     
 ######################################################### Send Telegram Alert #####################################################################################
 def send_telegram_alert(config, IN, SETPOINT_IN):
