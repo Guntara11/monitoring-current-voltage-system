@@ -420,12 +420,13 @@ control3 = dbc.Card([
     setpoint,
     dbc.Row([
          dbc.Col(
-            setpoint_button
-         )
-     ]
-),    
+            setpoint_button),
+     ]),
+     dbc.Row([
+        dbc.Col(html.Div(id="alert-message", style={'color': 'red'})),
+    ]),
 ],
-style={"height": 200, "width": 400},
+style={"height": 220, "width": 400},
 body=True)
 
 ################################################## Card voltage and current values ###########################################################
@@ -1781,26 +1782,32 @@ def update_voltage_current_values(n):
         return ("N/A",) * 34
 
 @app.callback(
-    [Output("SETPOINT_IN-value", "children"),
+    [
+     Output("SETPOINT_IN-value", "children"),
      Output("Arus_Netral_beban_Normal-value", "children"),
-     Output("Arus_Netral_beban_Puncak-value", "children")],
+     Output("Arus_Netral_beban_Puncak-value", "children"),
+     Output("alert-message", "children")],
     [Input("setpoint-button", "n_clicks")],
     [State("SETPOINT_IN", "value"),
      State("IN_NL", "value"),
-     State("IN_PL", "value")]
+     State("IN_PL", "value"),],
 )
 def update_card_values(n_clicks, setpoint_in, in_nl, in_pl):
     global SETPOINT_IN, IN_NL, IN_PL
-    
+    alert = None
     if n_clicks and setpoint_in is not None and in_nl is not None and in_pl is not None:
-        # Ensure SETPOINT_IN is converted to float
-        SETPOINT_IN = float(setpoint_in)
-        IN_NL = float(in_nl)
-        IN_PL = float(in_pl)
-
-        return setpoint_in, in_nl, in_pl
+        try:
+            # Convert values to float
+            SETPOINT_IN = float(setpoint_in)
+            IN_NL = float(in_nl)
+            IN_PL = float(in_pl)
+        except ValueError:
+            alert = "Please enter numerical values only."
+            return (None,) * 3 + (alert,)
+        
+        return setpoint_in, in_nl, in_pl, None
     else:
-        return dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, None
     
 ######################################################### Send Telegram Alert #####################################################################################
 def send_telegram_alert(config, IN, SETPOINT_IN):
@@ -1831,5 +1838,5 @@ if __name__ == '__main__':
         run_mqtt_Vharm_retreival()
         run_mqtt_Iharm_retreival()
         process_data()
-        app.run_server(debug=True, port=8050)
+        app.run_server(debug=False, port=8050)
         
