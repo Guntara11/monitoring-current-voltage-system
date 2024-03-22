@@ -290,39 +290,37 @@ Apply_button = html.Div(
     className="d-grid gap-2 my-3",
 )
 
-
-#Setpoint IN textbox
-setpoint = html.Div([dbc.Row([
+# Setpoint IN textbox
+setpoint = html.Div([
+    dbc.Row([
         html.Label('SETPOINT IN', style={'color': 'white'}, className="bg-transparent p-0 mb-0 text-white fs-4 text-center"),
         dbc.Row([
-                html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
-                dbc.Col(
-                    html.Div([
-                        html.Div(id='last-SETPOINT_IN-value', style={'color': 'white'}),
-                        dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-                    ], className="mx-1")
-                ), 
-                dbc.Col(
-                    html.Div([
-                        html.Div(id='last-IN_NL-value', style={'color': 'white'}),
-                        dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-                    ], className="mx-1")
-                ), 
-                dbc.Col(
-                    html.Div([
-                        html.Div(id='last-IN_PL-value', style={'color': 'white'}),
-                        dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
-                    ], className="mx-1")
-                ), 
-        ],
-    ),
+            html.Label("Enter SET IN, NL & PL", style={'color': 'white'}),
+            dbc.Col(
+                html.Div([
+                    html.Div(id='last-SETPOINT_IN-value', style={'color': 'white'}),
+                    dbc.Input(type="Text", id="SETPOINT_IN", size="sm", placeholder="SETPOINT IN", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                ], className="mx-1")
+            ), 
+            dbc.Col(
+                html.Div([
+                    html.Div(id='last-IN_NL-value', style={'color': 'white'}),
+                    dbc.Input(type="Text", id="IN_NL", size="sm", placeholder="IN NL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                ], className="mx-1")
+            ), 
+            dbc.Col(
+                html.Div([
+                    html.Div(id='last-IN_PL-value', style={'color': 'white'}),
+                    dbc.Input(type="Text", id="IN_PL", size="sm", placeholder="IN PL", style={ 'background-color': 'white', "border-color": "#2AA198", "border-width": "5px"})
+                ], className="mx-1")
+            ), 
+        ]),
+    ]),
 ])
-])
-
 
 setpoint_button = html.Div(
     [
-        dbc.Button("Apply", id="setpoint-button", size="sm", color="success", className="me-1", disabled=True, n_clicks=0)
+        dbc.Button("Apply", id="setpoint-button", size="sm", color="success", className="me-1", n_clicks=0)
     ],
     className="d-grid gap-2 my-3",
 )
@@ -425,10 +423,10 @@ control3 = dbc.Card([
             setpoint_button
          )
      ]
-     ),    
-        ],
-    style={"height": 200, "width": 400},
-    body=True,)
+),    
+],
+style={"height": 200, "width": 400},
+body=True)
 
 ################################################## Card voltage and current values ###########################################################
 card_combined = dbc.Card(
@@ -1648,6 +1646,11 @@ def update_last_values(selected_config):
     return [''] * 23
 
 #################################################### Voltage and Current Values ##############################################################################################################################################################################################################################################################################################################################################################
+SETPOINT_IN = None
+IN_NL = None
+IN_PL = None
+config = TelegramConfig("@Mvcslog", "bot7172672222:AAFqGCbZgQC-ch4KXl7NhfBkTS8OoGq-35E", 150)
+
 def get_voltage_current():
     LINE1_Freq, LINE1_U1, LINE1_U2, LINE1_U3, LINE1_Uavg, LINE1_U12, LINE1_U23, LINE1_U31, LINE1_ULavg, LINE1_IL1, LINE1_IL2, LINE1_IL3, LINE1_ILavg, LINE1_IN =  unpack_mag_data()
     LINE1_Ang_U1, LINE1_Ang_U2, LINE1_Ang_U3, LINE1_Ang_I1, LINE1_Ang_I2, LINE1_Ang_I3 = unpack_phase_data()
@@ -1732,12 +1735,9 @@ def get_voltage_current():
 def update_voltage_current_values(n):
     # Panggil fungsi get_voltage_current() untuk mendapatkan nilai-nilai terbaru
     voltage_current_values = get_voltage_current()
-
-    config = TelegramConfig("@Mvcslog", "bot7172672222:AAFqGCbZgQC-ch4KXl7NhfBkTS8OoGq-35E", 150)
-
     if voltage_current_values is not None:
         (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th) = voltage_current_values
-
+        
         # Bulatkan nilai-nilai lainnya
         VA = round(VA, 3)
         VA_Ang = round(VA_Ang, 3)
@@ -1771,10 +1771,36 @@ def update_voltage_current_values(n):
         VB_5th = round(VB_5th, 3)
         VC_5th = round(VC_5th, 3)
 
+        # Send to Telegram if IN exceeds SETPOINT_IN
+        if IN is not None and SETPOINT_IN is not None:
+            send_telegram_alert(config, IN, SETPOINT_IN)
+
         return (VA, VA_Ang, VB, VB_Ang, VC, VC_Ang, IN, IA, IA_Ang, IB, IB_Ang, IC, IC_Ang, VAB, VBC, VCA, VAN, VBN, VCN, IA_3rd, IB_3rd, IC_3rd, IA_5th, IB_5th, IC_5th, VA_3rd, VB_3rd, VC_3rd, VA_5th, VB_5th, VC_5th)
     else:
         # Handle the case when voltage_current_values is None
         return ("N/A",) * 34
+
+@app.callback(
+    [Output("SETPOINT_IN-value", "children"),
+     Output("Arus_Netral_beban_Normal-value", "children"),
+     Output("Arus_Netral_beban_Puncak-value", "children")],
+    [Input("setpoint-button", "n_clicks")],
+    [State("SETPOINT_IN", "value"),
+     State("IN_NL", "value"),
+     State("IN_PL", "value")]
+)
+def update_card_values(n_clicks, setpoint_in, in_nl, in_pl):
+    global SETPOINT_IN, IN_NL, IN_PL
+    
+    if n_clicks and setpoint_in is not None and in_nl is not None and in_pl is not None:
+        # Ensure SETPOINT_IN is converted to float
+        SETPOINT_IN = float(setpoint_in)
+        IN_NL = float(in_nl)
+        IN_PL = float(in_pl)
+
+        return setpoint_in, in_nl, in_pl
+    else:
+        return dash.no_update, dash.no_update, dash.no_update
     
 ######################################################### Send Telegram Alert #####################################################################################
 def send_telegram_alert(config, IN, SETPOINT_IN):
@@ -1796,7 +1822,7 @@ def send_telegram_alert(config, IN, SETPOINT_IN):
         response = requests.post(url, params=params)
         if response.status_code != 200:
             print("Failed to send alert to Telegram:", response.text)
-
+            
 # Run the app
 if __name__ == '__main__':
     while True:
@@ -1805,5 +1831,5 @@ if __name__ == '__main__':
         run_mqtt_Vharm_retreival()
         run_mqtt_Iharm_retreival()
         process_data()
-        app.run_server(debug=False, port=8050)
+        app.run_server(debug=True, port=8050)
         
